@@ -5,6 +5,7 @@
 import datetime
 import enum
 import os
+import warnings
 
 from six.moves.urllib.request import urlretrieve
 from six.moves.urllib.error import HTTPError
@@ -12,6 +13,12 @@ from six.moves.urllib.error import URLError
 from six.moves.urllib.request import urlopen
 
 AnnotatorStatus = enum.Enum('AnnotatorStatus', 'NEXT_ANNOTATOR NEXT_FRAME')
+
+
+# ignoring certain warnings for now
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
+warnings.simplefilter(action='ignore', category=UserWarning)
+warnings.simplefilter(action='ignore', category=FutureWarning)
 
 
 def iso8601():
