@@ -72,6 +72,8 @@ class VideoProcessor:
             while continue_video:
 
                 continue_video, frame = cap.read()
+                if not continue_video:
+                    break
                 foutput = {'video': self.video_name, 'type': 'frame',
                            'frame': fcount,
                            'time': round(cap.get(cv2.CAP_PROP_POS_MSEC) / 1000,

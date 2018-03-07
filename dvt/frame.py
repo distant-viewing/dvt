@@ -9,6 +9,7 @@ import os
 import warnings
 
 import numpy as np
+import scipy as sp
 
 from keras import backend as K
 from keras.models import load_model
@@ -39,6 +40,7 @@ class FrameAnnotator:
 class DiffFrameAnnotator(FrameAnnotator):
     name = 'diff'
     last_frame = None
+    last_frame_bw = None
     last_avg_value = 0
 
     def process_next(self, img, foutput):
@@ -46,16 +48,28 @@ class DiffFrameAnnotator(FrameAnnotator):
 
         frame_small = cv2.resize(img, (32, 32))
         frame_small_hsv = cv2.cvtColor(frame_small, cv2.COLOR_BGR2HSV)
+        frame_small_hsv.astype(np.int16)
+
+        frame_bw = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        frame_bw = frame_bw.astype(np.int16)
 
         self.last_avg_value = int(np.mean(frame_small_hsv[:, :, 2]))
         if self.last_frame is not None:
+            # compute difference quantiles on scaled HSV image
             diffs = np.abs(frame_small_hsv - self.last_frame)
             diff_q = np.percentile(diffs, q=list(range(0, 110, 10)))
-            output = {'decile': [int(x) for x in diff_q]}
+
+            # compute gradient directions on the full image
+            pos = int(np.sum(np.sign(frame_bw - self.last_frame_bw) == 1))
+            neg = int(np.sum(np.sign(frame_bw - self.last_frame_bw) == -1))
+
+            output = {'decile': [int(x) for x in diff_q],
+                      'grad': [pos, img.size - pos - neg, neg]}
         else:
             output = {}
 
         self.last_frame = frame_small_hsv
+        self.last_frame_bw = frame_bw
 
         return output
 
@@ -78,8 +92,7 @@ class TerminateFrameAnnotator(FrameAnnotator):
         # again, only if the scene is not too dark)
         fnum = foutput['frame']
         try:
-            if foutput['diff']['decile'][4] > 15 and self.last_frame_allowed \
-                                                     + 24 < fnum:
+            if foutput['diff']['decile'][4] > 15:
                 self.sflag = AnnotatorStatus.NEXT_ANNOTATOR
                 self.last_frame_allowed = fnum
             elif self.last_frame_allowed + 24 * 10 < fnum:
@@ -94,6 +107,49 @@ class TerminateFrameAnnotator(FrameAnnotator):
 
     def status(self):
         return self.sflag
+
+
+class PngFrameAnnotator(FrameAnnotator):
+    name = 'png'
+
+    def __init__(self, output_dir):
+        self.output_dir = os.path.expanduser(output_dir)
+        if not os.path.isdir(self.output_dir):
+            os.makedirs(self.output_dir)
+
+    def process_next(self, img, foutput):
+        fnum = foutput['frame']
+        opath = os.path.join(self.output_dir, "frame-{0:06d}.png".format(fnum))
+        cv2.imwrite(filename=opath, img=img)
+
+        return {}
+
+
+class HistogramFrameAnnotator(FrameAnnotator):
+    name = 'hist'
+
+    def __init__(self):
+        pass
+
+    def process_next(self, img, foutput):
+        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+
+        hist_vals = []
+        for part in np.array_split(img_hsv, 3, axis=0):
+            grid_part = np.array_split(part, 3, axis=1)
+            for x in grid_part:
+                for i in range(3):
+                    hist_vals += [cv2.calcHist([x], [i], None, [16],
+                                               [0, 256]).flatten()]
+
+        Lmean = sp.ndimage.measurements.center_of_mass(img_hsv[:, :, 2])
+        if np.isnan(Lmean[0]) or np.isnan(Lmean[1]):
+            Lmean = (img_hsv.shape[0] / 2, img_hsv.shape[1] / 2)
+
+        output = {'hsv': np.concatenate(hist_vals).tolist(),
+                  'Lmean': [int(Lmean[0]), int(Lmean[1])]}
+
+        return output
 
 
 class FlowFrameAnnotator(FrameAnnotator):
