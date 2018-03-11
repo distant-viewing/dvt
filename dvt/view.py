@@ -65,7 +65,7 @@ class VideoViewer:
 
         return frame
 
-    def run(self, output=None):
+    def run(self, output=None, start=0):
         if output is not None:
             video_out = True
             vout_path = os.path.expanduser(output)
@@ -82,6 +82,9 @@ class VideoViewer:
         # cycle through the frames data
         continue_video = True
         with open(self.input_path, 'r') as fin:
+            for i in range(start):
+                video_meta = json.loads(fin.readline())
+
             video_meta = json.loads(fin.readline())
 
             while continue_video:
