@@ -70,11 +70,21 @@ the analysis of  object and character movement.
 - `FaceFrameAnnotator`: detects, localizes, and computes 128-dimensional 
 embeddings of faces in the image. It uses a CNN model which is relatively 
 robust to scale and 3D-rotations.
+- `HistogramFrameAnnotator`: compute histograms of hue, saturation, and values
+of the image. Currently it is applied to each sector of a 3x3 grid over the image;
+these can be aggregated to have a histogram of the entire image. Also estimates
+and outputs the lumosity center of gravity, which can be useful for shot detection.
+- `KerasFrameAnnotator`: an annotator that applies any image-based keras model and
+output the numeric results. Save the model as an `.h5` model and load it into this
+layer. Allows for the inclusion of a preprocessing function and will automatically
+resize the image depending on the input shape given in the model.
 - `TerminateFrameAnnotator`: a special annotator that can conditionally 
 terminate the processing of a given frame. Put this in the pipeline between
 fast annotators (e.g., the diff and flow annotators) that need to run on every
 frame and slower annotators (e.g., object detection) that can be selectively
 applied to only a subset of the frames.
+- `PngFrameAnnotator`: another special annotator that saves the current frame
+as a PNG file. Pair with the Terminate annotator to only save some of the images.
 
 Currently these annotators have many hard-coded tuning parameters. As the 
 toolkit is built out, we plan to document these and allow for tweaking these
@@ -102,5 +112,3 @@ The final plan for development of the Distant Viewing Toolkit is to extract
 audio features and closed captioning data. These in turn will be feed back into
 the video level annotations in order to learn higher order aspects of the 
 input media.
-
-
