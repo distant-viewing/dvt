@@ -347,6 +347,7 @@ class FaceFrameAnnotator(FrameAnnotator):
 
     def process_next(self, img, foutput):
 
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         faces = fr.face_locations(img, 1, model="cnn")
         embed = fr.face_encodings(img, faces, num_jitters=10)
 
