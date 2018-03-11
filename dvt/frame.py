@@ -226,6 +226,31 @@ class FlowFrameAnnotator(FrameAnnotator):
                                             self.p0, None, **self.lk_params)
 
 
+class KerasFrameAnnotator(FrameAnnotator):
+    name = 'keras'
+
+    def __init__(self, model_path, preprocessor=None):
+        model_path = os.path.expanduser(model_path)
+        self.model = load_model(model_path)
+        self.dims = tuple([x for x in self.model.layers[0].input_shape if x
+                          is not None][:2])
+        self.preprocessor = preprocessor
+
+    def process_next(self, img, foutput):
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        resized_image = cv2.resize(img, self.dims).astype(np.float64)
+        input_img = np.expand_dims(resized_image, axis=0)
+
+        if self.preprocessor is not None:
+            input_img = self.preprocessor(input_img)
+
+        pred_vals = self.model.predict(input_img)
+        pred_vals = pred_vals.flatten().tolist()
+
+        output = {'name': self.model.name, 'predictions': pred_vals}
+        return output
+
+
 class ObjectCocoFrameAnnotator(FrameAnnotator):
     name = 'object'
     sess = None
