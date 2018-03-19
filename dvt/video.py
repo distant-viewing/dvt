@@ -49,7 +49,7 @@ class VideoProcessor:
 
         self.output_path = os.path.abspath(output_path)
 
-    def process(self, verbose=True):
+    def process(self, verbose=True, max_frame=None):
         # load the video file using OpenCV
         cap = cv2.VideoCapture(self.video_path)
 
@@ -74,6 +74,9 @@ class VideoProcessor:
                 continue_video, frame = cap.read()
                 if not continue_video:
                     break
+                if max_frame is not None:
+                    if fcount >= max_frame:
+                        break
                 foutput = {'video': self.video_name, 'type': 'frame',
                            'frame': fcount,
                            'time': round(cap.get(cv2.CAP_PROP_POS_MSEC) / 1000,
