@@ -20,7 +20,7 @@ OpenCV library. Then, clone the repository and run `setup.py`:
 ```
 git clone https://github.com/statsmaths/dvt
 cd dvt
-python setup.py
+python setup.py install
 ``` 
 
 Then, in python, you can create annotated data from any movie file (here,
