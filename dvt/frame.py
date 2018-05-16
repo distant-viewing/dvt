@@ -44,6 +44,10 @@ class DiffFrameAnnotator(FrameAnnotator):
     last_frame_bw = None
     last_avg_value = 0
 
+    def __init__(self):
+        self.prior_frames = collections.deque()
+        pass
+
     def process_next(self, img, foutput):
         self.frame_number = foutput['frame']
 
