@@ -18,6 +18,7 @@ from keras.models import load_model
 import cv2
 import face_recognition as fr
 import face_recognition_models as frm
+import dlib
 
 from .darknet import yolo_eval, yolo_head
 from .utils import AnnotatorStatus, get_file
@@ -362,12 +363,12 @@ def _trim_bounds(rect, image_shape):
 
 class FaceFrameAnnotator(FrameAnnotator):
     name = 'face'
-    cnn_face_detector = fr.cnn_face_detector_model_location()
+    cfd = dlib.cnn_face_detection_model_v1(frm.cnn_face_detector_model_location())
 
     def process_next(self, img, foutput):
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        faces, conf = detect_faces(img)
+        faces, conf = self.detect_faces(img)
         embed = fr.face_encodings(img, faces, num_jitters=10)
         lndmk = fr.face_landmarks(img, faces)
 
@@ -383,7 +384,7 @@ class FaceFrameAnnotator(FrameAnnotator):
         return(output)
 
     def detect_faces(self, img):
-        dets = self.cnn_face_detector(img, 1)
+        dets = self.cfd(img, 1)
         rect = [_trim_bounds(f.rect, img.shape) for f in dets]
         conf = [f.confidence for f in dets]
         return rect, conf
