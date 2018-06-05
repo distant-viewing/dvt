@@ -81,7 +81,7 @@ class DiffFrameAnnotator(FrameAnnotator):
             output = {}
 
         self.prior_frames.append(frame_small_hsv)
-        self.last_frame_bw = frame_bw            
+        self.last_frame_bw = frame_bw
 
         return output
 
@@ -361,12 +361,14 @@ class FaceFrameAnnotator(FrameAnnotator):
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
         faces = fr.face_locations(img, 1, model="cnn")
         embed = fr.face_encodings(img, faces, num_jitters=10)
+        lndmk = fr.face_landmarks(img, faces)
 
         output = []
-        for face, em in zip(faces, embed):
+        for face, em, lm in zip(faces, embed, lndmk):
             output.append({
                     'box': {'top': face[0], 'bottom': face[2],
                             'left': face[3], 'right': face[1]},
-                    'embed': [round(x, 4) for x in em.tolist()]})
+                    'embed': [round(x, 4) for x in em.tolist()],
+                    'landmarks': lm})
 
         return(output)
