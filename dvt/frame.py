@@ -17,6 +17,7 @@ from keras.models import load_model
 
 import cv2
 import face_recognition as fr
+import face_recognition_models as frm
 
 from .darknet import yolo_eval, yolo_head
 from .utils import AnnotatorStatus, get_file
@@ -353,22 +354,40 @@ class ObjectCocoFrameAnnotator(FrameAnnotator):
         pass
 
 
+def _trim_bounds(rect, image_shape):
+    css = rect.top(), rect.right(), rect.bottom(), rect.left()
+    return (max(css[0], 0), min(css[1], image_shape[1]),
+            min(css[2], image_shape[0]), max(css[3], 0))
+
+
 class FaceFrameAnnotator(FrameAnnotator):
     name = 'face'
+    cnn_face_detector = fr.cnn_face_detector_model_location()
 
     def process_next(self, img, foutput):
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        faces = fr.face_locations(img, 1, model="cnn")
+        faces, conf = detect_faces(img)
         embed = fr.face_encodings(img, faces, num_jitters=10)
         lndmk = fr.face_landmarks(img, faces)
 
         output = []
-        for face, em, lm in zip(faces, embed, lndmk):
+        for face, co, em, lm in zip(faces, conf, embed, lndmk):
             output.append({
                     'box': {'top': face[0], 'bottom': face[2],
                             'left': face[3], 'right': face[1]},
+                    'confidence': co,
                     'embed': [round(x, 4) for x in em.tolist()],
                     'landmarks': lm})
 
         return(output)
+
+    def detect_faces(self, img):
+        dets = self.cnn_face_detector(img, 1)
+        rect = [_trim_bounds(f.rect, img.shape) for f in dets]
+        conf = [f.confidence for f in dets]
+        return rect, conf
+
+
+
+
