@@ -88,9 +88,9 @@ class DiffFrameAnnotator(FrameAnnotator):
         return output
 
     def clear(self):
-        self.last_frame = None
+        self.last_frame_bw = None
         self.last_avg_value = 0
-
+        self.prior_frames = collections.deque()
 
 class TerminateFrameAnnotator(FrameAnnotator):
     name = 'terminate'
