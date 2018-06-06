@@ -362,10 +362,10 @@ def _trim_bounds(rect, image_shape):
 
 
 def rect_overlap(r1, r2):
-    top = np.max([c1[0], h1[0]])
-    right = np.min([c1[1], h1[1]])
-    bottom = np.min([c1[2], h1[2]])
-    left = np.max([c1[3], h1[3]])
+    top = np.max([r1[0], r2[0]])
+    right = np.min([r1[1], r2[1]])
+    bottom = np.min([r1[2], r2[2]])
+    left = np.max([r1[3], r2[3]])
 
     return [top, right, bottom, left]
 
@@ -375,11 +375,13 @@ def cnn_to_hog_conf(face, hog):
     for h in hog:
         rect = rect_overlap(face, h)
         if (rect[0] < rect[2]) and (rect[3] < rect[1]):
-            c_size = (c1[2] - c1[0]) * (c1[1] - c1[3])
-            h_size = (h1[2] - h1[0]) * (h1[1] - h1[3])
-            o_size = (bottom - top) * (right - left)
+            c_size = (face[2] - face[0]) * (face[1] - face[3])
+            h_size = (h[2] - h[0]) * (h[1] - h[3])
+            o_size = (rect[2] - rect[0]) * (rect[1] - rect[3])
             prop = o_size / (c_size + h_size - o_size)
             overlap = np.max([overlap, prop])
+
+    return overlap
 
 
 class FaceFrameAnnotator(FrameAnnotator):
@@ -413,7 +415,7 @@ class FaceFrameAnnotator(FrameAnnotator):
         conf = [f.confidence for f in dets]
 
         dets = self.hfd(img, 1)
-        rect_hog = [_trim_bounds(f.rect, img.shape) for f in dets]
+        rect_hog = [_trim_bounds(f, img.shape) for f in dets]
 
         return rect_cnn, rect_hog, conf
 
