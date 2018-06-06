@@ -370,18 +370,21 @@ def rect_overlap(r1, r2):
     return [top, right, bottom, left]
 
 
-def cnn_to_hog_conf(face, hog):
+def cnn_to_hog_conf(face, hog, hscore):
     overlap = 0
-    for h in hog:
+    best_score = 0
+    for h, score in zip(hog, hscore):
         rect = rect_overlap(face, h)
         if (rect[0] < rect[2]) and (rect[3] < rect[1]):
             c_size = (face[2] - face[0]) * (face[1] - face[3])
             h_size = (h[2] - h[0]) * (h[1] - h[3])
             o_size = (rect[2] - rect[0]) * (rect[1] - rect[3])
             prop = o_size / (c_size + h_size - o_size)
-            overlap = np.max([overlap, prop])
+            if overlap < prop:
+                overlap = prop
+                best_score = score
 
-    return overlap
+    return overlap, best_score
 
 
 class FaceFrameAnnotator(FrameAnnotator):
@@ -392,17 +395,19 @@ class FaceFrameAnnotator(FrameAnnotator):
     def process_next(self, img, foutput):
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        faces, hog, conf = self.detect_faces(img)
+        faces, hog, conf, hscore = self.detect_faces(img)
         embed = fr.face_encodings(img, faces, num_jitters=10)
         lndmk = fr.face_landmarks(img, faces)
 
         output = []
         for face, co, em, lm in zip(faces, conf, embed, lndmk):
+            overlap, score = cnn_to_hog_conf(face, hog, hscore)
             output.append({
                     'box': {'top': face[0], 'bottom': face[2],
                             'left': face[3], 'right': face[1]},
-                    'confidence': co,
-                    'hog_overlap': cnn_to_hog_conf(face, hog),
+                    'cnn_score': co,
+                    'hog_overlap': overlap,
+                    'hog_score': score,
                     'embed': [round(x, 4) for x in em.tolist()],
                     'landmarks': lm})
 
@@ -414,10 +419,12 @@ class FaceFrameAnnotator(FrameAnnotator):
         rect_cnn = [_trim_bounds(f.rect, img.shape) for f in dets]
         conf = [f.confidence for f in dets]
 
-        dets = self.hfd(img, 1)
+        hog_triple = self.hfd.run(img, 1)
+        dets = hog_triple[0]
+        hscore = hog_triple[1]
         rect_hog = [_trim_bounds(f, img.shape) for f in dets]
 
-        return rect_cnn, rect_hog, conf
+        return rect_cnn, rect_hog, conf, hscore
 
 
 
