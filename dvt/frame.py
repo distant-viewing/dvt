@@ -361,14 +361,36 @@ def _trim_bounds(rect, image_shape):
             min(css[2], image_shape[0]), max(css[3], 0))
 
 
+def rect_overlap(r1, r2):
+    top = np.max([c1[0], h1[0]])
+    right = np.min([c1[1], h1[1]])
+    bottom = np.min([c1[2], h1[2]])
+    left = np.max([c1[3], h1[3]])
+
+    return [top, right, bottom, left]
+
+
+def cnn_to_hog_conf(face, hog):
+    overlap = 0
+    for h in hog:
+        rect = rect_overlap(face, h)
+        if (rect[0] < rect[2]) and (rect[3] < rect[1]):
+            c_size = (c1[2] - c1[0]) * (c1[1] - c1[3])
+            h_size = (h1[2] - h1[0]) * (h1[1] - h1[3])
+            o_size = (bottom - top) * (right - left)
+            prop = o_size / (c_size + h_size - o_size)
+            overlap = np.max([overlap, prop])
+
+
 class FaceFrameAnnotator(FrameAnnotator):
     name = 'face'
     cfd = dlib.cnn_face_detection_model_v1(frm.cnn_face_detector_model_location())
+    hfd = dlib.get_frontal_face_detector()
 
     def process_next(self, img, foutput):
 
         img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        faces, conf = self.detect_faces(img)
+        faces, hog, conf = self.detect_faces(img)
         embed = fr.face_encodings(img, faces, num_jitters=10)
         lndmk = fr.face_landmarks(img, faces)
 
@@ -378,16 +400,22 @@ class FaceFrameAnnotator(FrameAnnotator):
                     'box': {'top': face[0], 'bottom': face[2],
                             'left': face[3], 'right': face[1]},
                     'confidence': co,
+                    'hog_overlap': cnn_to_hog_conf(face, hog),
                     'embed': [round(x, 4) for x in em.tolist()],
                     'landmarks': lm})
 
         return(output)
 
     def detect_faces(self, img):
+
         dets = self.cfd(img, 1)
-        rect = [_trim_bounds(f.rect, img.shape) for f in dets]
+        rect_cnn = [_trim_bounds(f.rect, img.shape) for f in dets]
         conf = [f.confidence for f in dets]
-        return rect, conf
+
+        dets = self.hfd(img, 1)
+        rect_hog = [_trim_bounds(f.rect, img.shape) for f in dets]
+
+        return rect_cnn, rect_hog, conf
 
 
 
