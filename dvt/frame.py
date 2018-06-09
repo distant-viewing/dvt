@@ -160,7 +160,9 @@ class HistogramFrameAnnotator(FrameAnnotator):
             Lmean = (img_hsv.shape[0] / 2, img_hsv.shape[1] / 2)
 
         output = {'hsv': [int(x) for x in np.concatenate(hist_vals).tolist()],
-                  'Lmean': [int(Lmean[0]), int(Lmean[1])]}
+                  'Lmean': [int(Lmean[0]), int(Lmean[1])],
+                  'saturation': np.mean(hist_vals[1]),
+                  'brightness': np.mean(img)}
 
         return output
 
