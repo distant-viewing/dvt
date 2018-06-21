@@ -20,6 +20,9 @@ import face_recognition as fr
 import face_recognition_models as frm
 import dlib
 
+import caffe
+import skimage
+
 from .darknet import yolo_eval, yolo_head
 from .utils import AnnotatorStatus, get_file
 
@@ -92,6 +95,7 @@ class DiffFrameAnnotator(FrameAnnotator):
         self.last_avg_value = 0
         self.prior_frames = collections.deque()
 
+
 class TerminateFrameAnnotator(FrameAnnotator):
     name = 'terminate'
     last_frame_allowed = 0
@@ -106,16 +110,22 @@ class TerminateFrameAnnotator(FrameAnnotator):
         # again, only if the scene is not too dark)
         fnum = foutput['frame']
         try:
-            if self.last_frame_allowed + 24 > fnum:
+            if self.last_frame_allowed + 10 > fnum:
                 self.sflag = AnnotatorStatus.NEXT_FRAME
-            elif foutput['diff']['decile'][4] > 15:
-                self.sflag = AnnotatorStatus.NEXT_ANNOTATOR
-                self.last_frame_allowed = fnum
-            elif self.last_frame_allowed + 24 * 10 < fnum:
-                self.sflag = AnnotatorStatus.NEXT_ANNOTATOR
-                self.last_frame_allowed = fnum
             else:
-                self.sflag = AnnotatorStatus.NEXT_FRAME
+                self.sflag = AnnotatorStatus.NEXT_ANNOTATOR
+                self.last_frame_allowed = fnum
+
+            #if self.last_frame_allowed + 24 > fnum:
+            #    self.sflag = AnnotatorStatus.NEXT_FRAME
+            #elif foutput['diff']['decile'][4] > 15:
+            #    self.sflag = AnnotatorStatus.NEXT_ANNOTATOR
+            #    self.last_frame_allowed = fnum
+            #elif self.last_frame_allowed + 24 * 10 < fnum:
+            #    self.sflag = AnnotatorStatus.NEXT_ANNOTATOR
+            #    self.last_frame_allowed = fnum
+            #else:
+            #    self.sflag = AnnotatorStatus.NEXT_FRAME
         except KeyError:
             self.sflag = AnnotatorStatus.NEXT_ANNOTATOR
 
@@ -394,15 +404,35 @@ class FaceFrameAnnotator(FrameAnnotator):
     cfd = dlib.cnn_face_detection_model_v1(frm.cnn_face_detector_model_location())
     hfd = dlib.get_frontal_face_detector()
 
+    def __init__(self):
+        #prototxt = "/home/taylor/face-test/resnet50_256.prototxt"
+        #caffemodel = "/home/taylor/face-test/resnet50_256.caffemodel"
+        prototxt = "/home/taylor/face-test/caffe_model/resnet50_scratch_caffe/resnet50_scratch.prototxt"
+        caffemodel = "/home/taylor/face-test/caffe_model/resnet50_scratch_caffe/resnet50_scratch.caffemodel"
+
+        caffe.set_device(0)
+        caffe.set_mode_gpu()
+        self.net = caffe.Net(prototxt, 1, weights=caffemodel)
+        self.net.blobs['data'].reshape(1, 3, 224, 224)
+
+        self.transformer = caffe.io.Transformer({'data': self.net.blobs['data'].data.shape})
+        self.transformer.set_transpose('data', (2, 0, 1))
+        self.transformer.set_mean('data', np.array([91.4953, 103.8827, 131.0912]) )
+        self.transformer.set_raw_scale('data', 255)
+
     def process_next(self, img, foutput):
 
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        faces, hog, conf, hscore = self.detect_faces(img)
-        embed = fr.face_encodings(img, faces, num_jitters=10)
-        lndmk = fr.face_landmarks(img, faces)
+        img2 = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        faces, hog, conf, hscore = self.detect_faces(img2)
+        embed = self.face_features(img, faces)
+        #embed = fr.face_encodings(img, faces, num_jitters=10)
+        #lndmk = fr.face_landmarks(img, faces)
+
+        #print([round(x, 4) for x in em.tolist()])
+        #print(type([round(x, 4) for x in em.tolist()]))
 
         output = []
-        for face, co, em, lm in zip(faces, conf, embed, lndmk):
+        for face, co, em in zip(faces, conf, embed):
             overlap, score = cnn_to_hog_conf(face, hog, hscore)
             output.append({
                     'box': {'top': face[0], 'bottom': face[2],
@@ -410,11 +440,31 @@ class FaceFrameAnnotator(FrameAnnotator):
                     'cnn_score': co,
                     'hog_overlap': overlap,
                     'hog_score': score,
-                    'embed': [round(x, 4) for x in em.tolist()],
-                    'landmarks': lm})
+                    'embed': [round(x, 4) for x in em.tolist()]})
 
         return(output)
 
+    def face_features(self, img, faces):
+        X = []
+        for face in faces:
+            c = [int((face[3] + face[1]) / 2), int((face[0] + face[2]) / 2)]
+            h = int((face[2] - face[0]) / 2 * 1.3)
+            w = int((face[1] - face[3]) / 2 * 1.3)
+            d = [c[1] - h, c[1] + h, c[0] - w, c[0] + w]
+            d[0] = max(0, d[0])
+            d[2] = max(0, d[2])
+            d[1] = min(img.shape[0], d[1])
+            d[3] = min(img.shape[1], d[3])
+            crop_img = img[d[0]:d[1], d[2]:d[3], :]
+            img_scaled = skimage.transform.resize(crop_img, (224, 224),
+                                                  mode='constant')
+            self.net.blobs['data'].data[...] = self.transformer.preprocess('data', img_scaled)
+            out = self.net.forward()
+            #X.append(self.net.blobs['feat_extract'].data[0].flatten())
+            X.append(self.net.blobs['pool5/7x7_s1'].data[0].flatten())
+
+        return X
+            
     def detect_faces(self, img):
 
         dets = self.cfd(img, 1)
