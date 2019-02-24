@@ -2,17 +2,16 @@ from setuptools import setup
 from setuptools import find_packages
 
 setup(name='Distant Viewing Toolkit',
-      version='0.1.0',
+      version='0.2.0',
       description='Cultural Analysis of Moving Images',
       long_description="""Distant Viewing uses and develops computational techniques to analyse moving image culture on a large scale. The project is currently in active development.""",
       author='Taylor Anold',
       author_email='taylor.arnold@acm.org',
-      url='https://github.com/statsmaths/dvt',
+      url='https://github.com/distant-viewing/dvt',
       license='GPL-2',
       install_requires=['numpy>=1.14.0',
                         'keras>=2.1.4',
                         'scipy>=1.0.0',
-                        'face_recognition>=0.1.0',
                         'six>=1.11.0',
                         'h5py>=2.7.1'],
       extras_require={
