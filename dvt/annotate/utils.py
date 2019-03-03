@@ -63,11 +63,6 @@ def _format_time(msec):
                                                     int(remainder))
 
 
-def _trim_bounds(css, image_shape):
-    return max(css[0], 0), min(css[1], image_shape[1]), \
-           min(css[2], image_shape[0]), max(css[3], 0)
-
-
 def combine_list_dicts(ilist):
     import itertools
     import collections

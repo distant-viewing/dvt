@@ -4,23 +4,13 @@ import numpy as np
 import cv2
 
 from .core import FrameAnnotator
-from .utils import combine_list_dicts
+from ..utils import combine_list_dicts
 
 
-class VirtualCutDetector(FrameAnnotator):
-    name = 'virtual-cut'
+class CutAnnotator(FrameAnnotator):
+    name = 'cut'
 
-    def annotate(self, batch, pipeline):
-        return []
-
-
-class SimpleCutDetector(VirtualCutDetector):
-    name = 'simple-cut'
-
-    def __init__(self, l40=4, h16=100, train=False):
-        self.l40 = l40
-        self.h16 = h16
-        self.train = train
+    def __init__(self):
         super().__init__()
 
     def annotate(self, batch):
@@ -31,13 +21,6 @@ class SimpleCutDetector(VirtualCutDetector):
         return [{'frame': batch.get_frame_nums(),
                  'vals_l40': vals_l40, 'vals_h16': vals_h16,
                  'avg_value': avg_value}]
-
-    def collect(self, output):
-        op = combine_list_dicts(output)
-        if self.train:
-            return op
-        else:
-            pass
 
 
 def l1_quantile(batch, diffs, q=50, height=32, width=32):
@@ -69,7 +52,7 @@ def hist_diffs(batch, diffs, q=50, bins=16):
     out = {}
     for d in diffs:
         l1 = hist_vals[slice(0, n), :] - hist_vals[slice(d, n + d), :]
-        l1 = l1 / np.prod(batch.img.shape[1:2])
+        l1 = l1 / np.prod(batch.img.shape[1:4]) * 100
         out[d] = np.percentile(np.abs(l1), q=q, axis=(1))
 
     return out
@@ -89,6 +72,3 @@ def hsv_hist(batch, m, bins=16):
 def average_value(batch):
     img = batch.get_batch()
     return np.mean(img, axis=(1, 2, 3))
-
-
-

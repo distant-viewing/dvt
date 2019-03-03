@@ -4,8 +4,9 @@ import collections
 import logging
 import numpy as np
 import cv2
+import os
 
-from .utils import _format_time
+from ..utils import _format_time, combine_list_dicts
 
 
 class FrameProcessor:
@@ -50,7 +51,15 @@ class FrameProcessor:
         self.pipeline = collections.OrderedDict()
 
     def collect(self, aname):
-        return self.pipeline[aname].collect(self.output[aname])
+        return combine_list_dicts(self.output[aname])
+
+    def collect_all(self):
+        ocollect = collections.OrderedDict.fromkeys(self.pipeline.keys())
+
+        for k in ocollect.keys():
+            ocollect[k] = self.collect(k)
+
+        return ocollect
 
 
 class FrameAnnotator:
@@ -79,6 +88,7 @@ class FrameInput:
         self.bsize = bsize
         self.fcount = 0
         self.input_path = input_path
+        self.vname = os.path.basename(input_path)
         self.continue_read = True
         self.start = 0
         self.end = 0
@@ -106,7 +116,7 @@ class FrameInput:
         self.end = self.video_cap.get(cv2.CAP_PROP_POS_MSEC)
         self.fcount = self.fcount + self.bsize
 
-        return FrameBatch(start=self.start, end=self.end,
+        return FrameBatch(vname=self.vname, start=self.start, end=self.end,
                           continue_read=self.continue_read, img = self._img,
                           frame=frame_start)
 
@@ -123,7 +133,8 @@ class FrameInput:
 
 class FrameBatch:
 
-    def __init__(self, start, end, continue_read, img, frame):
+    def __init__(self, vname, start, end, continue_read, img, frame):
+        self.vname = vname
         self.img = img
         self.bsize = img.shape[0] // 2
         self.frame = frame
