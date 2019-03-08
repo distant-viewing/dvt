@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 import os
 
-from ..utils import _format_time, combine_list_dicts
+from ..utils import _format_time, stack_dict_frames
 
 
 class FrameProcessor:
@@ -51,7 +51,7 @@ class FrameProcessor:
         self.pipeline = collections.OrderedDict()
 
     def collect(self, aname):
-        return combine_list_dicts(self.output[aname])
+        return stack_dict_frames(self.output[aname])
 
     def collect_all(self):
         ocollect = collections.OrderedDict.fromkeys(self.pipeline.keys())

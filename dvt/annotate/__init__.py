@@ -2,7 +2,8 @@
 from __future__ import absolute_import
 
 from . import core
-from . import cut
+from . import diff
+from . import embed
 from . import face
 from . import png
 from . import utils

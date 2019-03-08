@@ -4,8 +4,6 @@ import cv2
 import numpy as np
 import os
 
-from .utils import combine_list_dicts, dict_to_dataframe
-
 
 def plot_annotations(input_dir, output_dir, obj=None, face=None, cut=None):
     # make output directory if not already exists
@@ -66,7 +64,7 @@ def _process_frame(input_dir, output_dir, fnum, obj, face, cut):
         img = add_ts(img, fnum, cut, 'vals_h16', 100, face_color, s=2)
         img = add_ts_line(img)
 
-    x = cv2.imwrite('temp-frames/frame-{0:06d}.png'.format(fnum), img)
+    x = cv2.imwrite(os.path.join(input_dir, fname), img)
 
 
 def add_bbox(img, frame, df, color=(255, 255, 255), thickness=2):

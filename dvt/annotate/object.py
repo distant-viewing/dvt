@@ -5,7 +5,7 @@ import cv2
 import pandas as pd
 
 from .core import FrameAnnotator
-from ..utils import combine_list_dicts, _trim_bounds
+from ..utils import stack_dict_frames
 
 
 class ObjectAnnotator(FrameAnnotator):
@@ -21,8 +21,7 @@ class ObjectAnnotator(FrameAnnotator):
         f_obj = []
         for fnum in range(0, batch.bsize, self.freq):
             img = batch.img[fnum, :, :, :]
-            t_obj = combine_list_dicts(self.detector.detect(img))
-            #t_obj = self.detector.detect(img)
+            t_obj = stack_dict_frames(self.detector.detect(img))
             if t_obj:
                 frame = batch.get_frame_nums()[fnum]
                 t_obj['video'] = [batch.vname] * len(t_obj['top'])

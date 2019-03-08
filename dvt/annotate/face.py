@@ -3,7 +3,7 @@
 import numpy as np
 
 from .core import FrameAnnotator
-from ..utils import combine_list_dicts, sub_image, _trim_bounds
+from ..utils import stack_dict_frames, sub_image, _trim_bounds
 
 
 class FaceAnnotator(FrameAnnotator):
@@ -20,7 +20,7 @@ class FaceAnnotator(FrameAnnotator):
         f_faces = []
         for fnum in range(0, batch.bsize, self.freq):
             img = batch.img[fnum, :, :, :]
-            t_faces = combine_list_dicts(self.detector.detect(img))
+            t_faces = stack_dict_frames(self.detector.detect(img))
             if t_faces:
                 frame = batch.get_frame_nums()[fnum]
                 t_faces['video'] = [batch.vname] * len(t_faces['top'])
