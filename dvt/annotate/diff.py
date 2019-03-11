@@ -31,8 +31,6 @@ class DiffAnnotator(FrameAnnotator):
             key = "h{0:d}".format(quant)
             output[key] = hist_diffs(batch, q=quant, bins=self.bins)
 
-
-
         return [output]
 
 

@@ -137,9 +137,9 @@ def sub_image(img, top, right, bottom, left, fct=1, output_shape=None):
 
     if output_shape:
         img_scaled = resize(crop_img, output_shape, mode='constant',
-                            anti_aliasing=True)
+                            preserve_range=True, anti_aliasing=True)
 
-    return img_scaled
+    return np.uint8(img_scaled)
 
 
 def dict_to_dataframe(d):

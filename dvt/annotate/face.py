@@ -68,7 +68,7 @@ class FaceEmbedDlib():
     def embed(self, img, faces):
 
         embed_mat = []
-        for ind in range(len(faces['frame'])):
+        for ind in range(len(faces['top'])):
             bbox = (faces['top'][ind], faces['bottom'][ind],
                     faces['left'][ind], faces['right'][ind])
             embed_mat.append(self.encode(img, [bbox])[0])
@@ -81,15 +81,23 @@ class FaceEmbedVgg2():
     def __init__(self, cutoff=0.8):
         from keras_vggface.vggface import VGGFace
         from keras_vggface.utils import preprocess_input
+        from keras.models import Model
 
-        self.model = VGGFace(model='resnet50', include_top=False)
+        model = VGGFace(model='resnet50', include_top=False,
+                        input_shape=(224, 224, 3))
+
+        # if outlayer is not None:
+        #     model = Model(inputs=model.input,
+        #                   outputs=model.get_layer(outlayer).output)
+
+        self.model = model
         self.pi = preprocess_input
         self.cutoff = preprocess_input
 
     def embed(self, img, faces):
 
         embed_mat = []
-        for ind in range(len(faces['frame'])):
+        for ind in range(len(faces['top'])):
             iscale = sub_image(img=img,
                                top=faces['top'][ind],
                                right=faces['right'][ind],
@@ -97,6 +105,7 @@ class FaceEmbedVgg2():
                                left=faces['left'][ind],
                                fct=1.3,
                                output_shape=(224, 224))
+            iscale = np.float32(iscale)
             iscale = np.expand_dims(iscale, axis=0)
             iscale = self.pi(iscale, version=2)
             embed = self.model.predict(iscale)
