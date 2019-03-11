@@ -1,11 +1,24 @@
 # -*- coding: utf-8 -*-
+"""This module illustrates something.
+"""
+
+import os
 
 import cv2
 import numpy as np
-import os
 
 
 def plot_annotations(input_dir, output_dir, obj=None, face=None, cut=None):
+    """Here
+
+    :param input_dir: 
+    :param output_dir: 
+    :param obj:  (Default value = None)
+    :param face:  (Default value = None)
+    :param cut:  (Default value = None)
+
+    """
+
     # make output directory if not already exists
     if not os.path.isdir("temp-frames"):
         os.mkdir("temp-frames")
@@ -28,6 +41,15 @@ def plot_annotations(input_dir, output_dir, obj=None, face=None, cut=None):
 
 
 def make_video(input_dir, oname="temp.mp4", mp3=None, ffmpeg="ffmpeg"):
+    """Here
+
+    :param input_dir: 
+    :param oname:  (Default value = "temp.mp4")
+    :param mp3:  (Default value = None)
+    :param ffmpeg:  (Default value = "ffmpeg")
+
+    """
+
     import subprocess
 
     cmd = [ffmpeg, "-r", "29.97", "-f", "image2", "-s", "710x480", "-i",
@@ -42,6 +64,17 @@ def make_video(input_dir, oname="temp.mp4", mp3=None, ffmpeg="ffmpeg"):
 
 
 def _process_frame(input_dir, output_dir, fnum, obj, face, cut):
+    """Here
+
+    :param input_dir: 
+    :param output_dir: 
+    :param fnum: 
+    :param obj: 
+    :param face: 
+    :param cut: 
+
+    """
+
     # define colours
     box_color = (255, 165, 0)
     face_color = (22, 75, 203)
@@ -54,26 +87,38 @@ def _process_frame(input_dir, output_dir, fnum, obj, face, cut):
     if obj is not None:
         img = add_bbox(img, fnum, obj, box_color, 2)
         img = add_box_text(img, fnum, obj, 'class',
-                           color=white_color, bg=box_color, s=0.5)
+                           color=white_color, bgc=box_color, size=0.5)
 
     if face is not None:
         img = add_bbox(img, fnum, face, face_color, 1)
 
     if cut is not None:
-        img = add_ts(img, fnum, cut, 'vals_l40', 1, white_color, s=5)
-        img = add_ts(img, fnum, cut, 'vals_h16', 100, face_color, s=2)
+        img = add_ts(img, fnum, cut, 'vals_l40', 1, white_color, size=5)
+        img = add_ts(img, fnum, cut, 'vals_h16', 100, face_color, size=2)
         img = add_ts_line(img)
 
-    x = cv2.imwrite(os.path.join(input_dir, fname), img)
+    _ = cv2.imwrite(os.path.join(output_dir, fname), img)
 
 
-def add_bbox(img, frame, df, color=(255, 255, 255), thickness=2):
-    for ind in np.argwhere(df['frame'].values == frame):
+def add_bbox(img, frame, pdf, color=(255, 255, 255), thickness=2):
+    """Here
+
+    :param img: 
+    :param frame: 
+    :param pdf: 
+    :param color:  (Default value = (255)
+    :param 255: 
+    :param 255): 
+    :param thickness:  (Default value = 2)
+
+    """
+
+    for ind in np.argwhere(pdf['frame'].values == frame):
         # grab values from data
-        top = df['top'].values[ind]
-        right = df['right'].values[ind]
-        bottom = df['bottom'].values[ind]
-        left = df['left'].values[ind]
+        top = pdf['top'].values[ind]
+        right = pdf['right'].values[ind]
+        bottom = pdf['bottom'].values[ind]
+        left = pdf['left'].values[ind]
 
         # plot the rectangle
         img = cv2.rectangle(img, (left, top), (right, bottom),
@@ -82,20 +127,32 @@ def add_bbox(img, frame, df, color=(255, 255, 255), thickness=2):
     return img
 
 
-def add_box_text(img, frame, df, lvar, color=(0, 0, 0), bg=None, s=0.5):
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    for ind in np.argwhere(df['frame'].values == frame):
-        # grab values from data
-        top = df['top'].values[ind]
-        right = df['right'].values[ind]
-        bottom = df['bottom'].values[ind]
-        left = df['left'].values[ind]
-        msg = list(df[lvar].values[ind])[0]
+def add_box_text(img, frame, pdf, lvar, color=(0, 0, 0), bgc=None, size=0.5):
+    """Here
 
-        if bg:
+    :param img: 
+    :param frame: 
+    :param pdf: 
+    :param lvar: 
+    :param color:  (Default value = (0)
+    :param 0: 
+    :param 0): 
+    :param bgc:  (Default value = None)
+    :param size:  (Default value = 0.5)
+
+    """
+
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    for ind in np.argwhere(pdf['frame'].values == frame):
+        # grab values from data
+        bottom = pdf['bottom'].values[ind]
+        left = pdf['left'].values[ind]
+        msg = list(pdf[lvar].values[ind])[0]
+
+        if bgc:
             # make a text box with background color bg
             (text_width, text_height) = cv2.getTextSize(msg, font,
-                                                        fontScale=s,
+                                                        fontScale=size,
                                                         thickness=1)[0]
             text_offset_x = left
             text_offset_y = bottom
@@ -103,28 +160,49 @@ def add_box_text(img, frame, df, lvar, color=(0, 0, 0), bg=None, s=0.5):
                           (text_offset_x + text_width + 5,
                            text_offset_y - text_height - 10))
             img = cv2.rectangle(img, box_coords[0], box_coords[1],
-                                bg, cv2.FILLED)
+                                bgc, cv2.FILLED)
 
         # plot text and text box
         img = cv2.putText(img, msg, (left + 5, bottom - 5),
-                          cv2.FONT_HERSHEY_SIMPLEX, s, color, 1, cv2.LINE_AA)
+                          cv2.FONT_HERSHEY_SIMPLEX, size, color, 1,
+                          cv2.LINE_AA)
 
     return img
 
 
-def add_ts(img, frame, df, lvar, fct=1, color=(0, 0, 0), s=3):
+def add_ts(img, frame, pdf, lvar, fct=1, color=(0, 0, 0), size=3):
+    """Here
+
+    :param img: 
+    :param frame: 
+    :param pdf: 
+    :param lvar: 
+    :param fct:  (Default value = 1)
+    :param color:  (Default value = (0)
+    :param 0: 
+    :param 0): 
+    :param size:  (Default value = 3)
+
+    """
+
     for k in range(-15, 15):
         fnum = frame + k
-        for ind in np.argwhere(df['frame'].values == (fnum - 1)):
-            val = int(df[lvar][ind] * fct)
+        for ind in np.argwhere(pdf['frame'].values == (fnum - 1)):
+            val = int(pdf[lvar][ind] * fct)
             img = cv2.circle(img, (img.shape[1]//2 + k*25,
                                    img.shape[0] - val - 10),
-                             s, color, -1)
+                             size, color, -1)
 
     return img
 
 
 def add_ts_line(img):
+    """Here
+
+    :param img: 
+
+    """
+
     img = cv2.line(img, (img.shape[1]//2, img.shape[0]),
-                   (img.shape[1]//2, img.shape[0] - 150), (255,255,255), 2)
+                   (img.shape[1]//2, img.shape[0] - 150), (255, 255, 255), 2)
     return img

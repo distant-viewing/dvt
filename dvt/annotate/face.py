@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""This module illustrates something.
+"""
 
 import numpy as np
 
@@ -7,6 +9,8 @@ from ..utils import stack_dict_frames, sub_image, _trim_bounds
 
 
 class FaceAnnotator(FrameAnnotator):
+    """Here"""
+
     name = 'face'
 
     def __init__(self, detector=None, embedding=None, freq=1):
@@ -16,6 +20,11 @@ class FaceAnnotator(FrameAnnotator):
         super().__init__()
 
     def annotate(self, batch):
+        """
+
+        :param batch:
+
+        """
 
         f_faces = []
         for fnum in range(0, batch.bsize, self.freq):
@@ -33,6 +42,7 @@ class FaceAnnotator(FrameAnnotator):
 
 
 class FaceDetectDlib():
+    """Here"""
 
     def __init__(self, cutoff=0):
         import dlib
@@ -43,6 +53,11 @@ class FaceDetectDlib():
         self.cutoff = cutoff
 
     def detect(self, img):
+        """Here
+
+        :param img:
+
+        """
         dets = self.cfd(img, 1)
 
         faces = []
@@ -50,7 +65,7 @@ class FaceDetectDlib():
             if det.confidence >= self.cutoff:
                 bbox = _trim_bounds((det.rect.top(), det.rect.right(),
                                      det.rect.bottom(), det.rect.left()),
-                                     img.shape)
+                                    img.shape)
                 faces += [{'top': bbox[0], 'right': bbox[1],
                            'bottom': bbox[2], 'left': bbox[3],
                            'confidence': det.confidence}]
@@ -59,13 +74,19 @@ class FaceDetectDlib():
 
 
 class FaceEmbedDlib():
+    """Here"""
 
     def __init__(self):
-        import dlib
         import face_recognition as fr
         self.encode = fr.face_encodings
 
     def embed(self, img, faces):
+        """Here
+
+        :param img:
+        :param faces:
+
+        """
 
         embed_mat = []
         for ind in range(len(faces['top'])):
@@ -77,24 +98,26 @@ class FaceEmbedDlib():
 
 
 class FaceEmbedVgg2():
+    """Here"""
 
-    def __init__(self, cutoff=0.8):
+    def __init__(self):
         from keras_vggface.vggface import VGGFace
         from keras_vggface.utils import preprocess_input
-        from keras.models import Model
 
         model = VGGFace(model='resnet50', include_top=False,
                         input_shape=(224, 224, 3))
 
-        # if outlayer is not None:
-        #     model = Model(inputs=model.input,
-        #                   outputs=model.get_layer(outlayer).output)
-
         self.model = model
-        self.pi = preprocess_input
+        self.ppi = preprocess_input
         self.cutoff = preprocess_input
 
     def embed(self, img, faces):
+        """Here
+
+        :param img:
+        :param faces:
+
+        """
 
         embed_mat = []
         for ind in range(len(faces['top'])):
@@ -107,7 +130,7 @@ class FaceEmbedVgg2():
                                output_shape=(224, 224))
             iscale = np.float32(iscale)
             iscale = np.expand_dims(iscale, axis=0)
-            iscale = self.pi(iscale, version=2)
+            iscale = self.ppi(iscale, version=2)
             embed = self.model.predict(iscale)
             embed_mat.append(embed[0, 0, 0, :])
 

@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
+"""This module illustrates something.
+"""
 
 import numpy as np
-import cv2
-import pandas as pd
 
 from .core import FrameAnnotator
 from ..utils import stack_dict_frames
 
 
 class ObjectAnnotator(FrameAnnotator):
+    """Here"""
+
     name = 'object'
 
     def __init__(self, detector, freq=1):
@@ -17,6 +19,11 @@ class ObjectAnnotator(FrameAnnotator):
         super().__init__()
 
     def annotate(self, batch):
+        """Here
+
+        :param batch:
+
+        """
 
         f_obj = []
         for fnum in range(0, batch.bsize, self.freq):
@@ -32,6 +39,7 @@ class ObjectAnnotator(FrameAnnotator):
 
 
 class ObjectDetectRetinaNet():
+    """Here"""
 
     def __init__(self, model_path, cutoff=0.5):
         from keras_retinanet import models
@@ -68,6 +76,11 @@ class ObjectDetectRetinaNet():
                        78: 'hair drier', 79: 'toothbrush', -1: 'unknown'}
 
     def detect(self, img):
+        """Here
+
+        :param img:
+
+        """
         # process the input image
         img = self.preprocess_image(img)
         img, scale = self.resize_image(img)
@@ -86,4 +99,3 @@ class ObjectDetectRetinaNet():
                           'score': score, 'class': self.lcodes[label]}]
 
         return objs
-

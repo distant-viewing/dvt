@@ -1,29 +1,48 @@
 # -*- coding: utf-8 -*-
+"""This module illustrates something.
+"""
 
 import collections
 import logging
-import numpy as np
-import cv2
 import os
+
+import cv2
+import numpy as np
 
 from ..utils import _format_time, stack_dict_frames
 
 
 class FrameProcessor:
+    """Here"""
 
-    def __init__(self, pipeline={}):
+    def __init__(self, pipeline=None):
+
+        if not pipeline:
+            pipeline = []
+
         self.output = collections.OrderedDict()
-        self.pipeline = collections.OrderedDict()
+        self.pipeline = collections.OrderedDict(pipeline)
         for anno in pipeline.values():
             self.load_annotator(anno)
 
     def load_annotator(self, annotator):
+        """Here
+
+        :param annotator:
+
+        """
         assert issubclass(type(annotator), FrameAnnotator)
         self.pipeline.update({annotator.name: annotator})
         self.output.update({annotator.name: []})
 
     def process(self, input_obj, max_batch=None):
-        assert input_obj.fcount == 0 # make sure there is a fresh input
+        """Here
+
+        :param input_obj:
+        :param max_batch:  (Default value = None)
+
+        """
+        assert input_obj.fcount == 0  # make sure there is a fresh input
 
         # clear and start each annotator
         for anno in self.pipeline.values():
@@ -34,7 +53,7 @@ class FrameProcessor:
         while input_obj.continue_read:
             batch = input_obj.next_batch()
             for anno in self.pipeline.values():
-                next_values =  anno.annotate(batch)
+                next_values = anno.annotate(batch)
                 if next_values is not None:
                     self.output[anno.name] += next_values
                 msg = "processed batch {0:s} to {1:s} with annotator: '{2:s}'"
@@ -45,15 +64,22 @@ class FrameProcessor:
                     return
 
     def clear(self):
+        """Here"""
         for annotator in self.pipeline.values():
             annotator.clear()
 
         self.pipeline = collections.OrderedDict()
 
     def collect(self, aname):
+        """Here
+
+        :param aname:
+
+        """
         return stack_dict_frames(self.output[aname])
 
     def collect_all(self):
+        """Here"""
         ocollect = collections.OrderedDict.fromkeys(self.pipeline.keys())
 
         for k in ocollect.keys():
@@ -63,25 +89,47 @@ class FrameProcessor:
 
 
 class FrameAnnotator:
+    """Here"""
+
     name = 'base'
 
     def __init__(self):
+        """Here
+
+        """
         self.cache = {}
 
     def clear(self):
+        """Here"""
         self.cache = {}
 
-    def start(self, input):
+    def start(self, ival):
+        """Here
+
+        :param ival:
+
+        """
         pass
 
     def annotate(self, batch):
+        """Here
+
+        :param batch:
+
+        """
         return [batch.start]
 
     def collect(self, output):
+        """Here
+
+        :param output:
+
+        """
         return output
 
 
 class FrameInput:
+    """Here"""
 
     def __init__(self, input_path, bsize=256):
         self.video_cap = cv2.VideoCapture(input_path)
@@ -95,9 +143,10 @@ class FrameInput:
         self.meta = self.metadata()
         self._img = np.zeros((bsize * 2, self.meta['height'],
                               self.meta['width'], 3), dtype=np.uint8)
-        self._fill_bandwidth() # fill the buffer with the first batch
+        self._fill_bandwidth()  # fill the buffer with the first batch
 
     def metadata(self):
+        """Here"""
         return {'type': 'video',
                 'fps': self.video_cap.get(cv2.CAP_PROP_FPS),
                 'frames': int(self.video_cap.get(cv2.CAP_PROP_FRAME_COUNT)),
@@ -105,6 +154,7 @@ class FrameInput:
                 'width': int(self.video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))}
 
     def next_batch(self):
+        """Here"""
         # shift window over by one bandwidth
         self._img[:self.bsize, :, :, :] = self._img[self.bsize:, :, :, :]
 
@@ -117,10 +167,11 @@ class FrameInput:
         self.fcount = self.fcount + self.bsize
 
         return FrameBatch(vname=self.vname, start=self.start, end=self.end,
-                          continue_read=self.continue_read, img = self._img,
+                          continue_read=self.continue_read, img=self._img,
                           frame=frame_start)
 
     def _fill_bandwidth(self):
+        """ """
         for idx in range(self.bsize):
             self.continue_read, frame = self.video_cap.read()
             if self.continue_read:
@@ -132,6 +183,7 @@ class FrameInput:
 
 
 class FrameBatch:
+    """Here"""
 
     def __init__(self, vname, start, end, continue_read, img, frame):
         self.vname = vname
@@ -143,13 +195,15 @@ class FrameBatch:
         self.continue_read = continue_read
 
     def get_frames(self):
+        """Here"""
         return self.img
 
     def get_batch(self):
+        """Here"""
         return self.img[:self.bsize, :, :, :]
 
     def get_frame_nums(self):
+        """Here"""
         start = int(self.frame)
         end = int(self.frame + self.bsize)
         return list(range(start, end))
-

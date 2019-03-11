@@ -1,47 +1,54 @@
 # -*- coding: utf-8 -*-
+"""This module illustrates something.
+"""
 
 import collections
 import itertools
+
 import numpy as np
 
 
 class DictFrame(collections.OrderedDict):
+    """Here"""
 
     def __init__(self, data=None, check=True):
         if data is None:
             data = {}
 
-        super().__init__(self._process_input(data))
+        super().__init__(_process_df_input(data))
         self.shape = self._compute_shape()
         if check:
             self._check_data()
 
-    def __add__(self, x):
-        return stack_dict_frames([self, x])
+    def __add__(self, dframe):
+        return stack_dict_frames([self, dframe])
 
     def todf(self):
+        """Here"""
         import pandas as pd
 
-        d = dict(self.items())
+        dobj = dict(self.items())
         marray = []
 
-        base_keys = set(d.keys())
+        base_keys = set(dobj.keys())
         for k in base_keys:
-            if isinstance(d[k], np.ndarray):
-                if len(d[k].shape) >= 2:
-                    df = pd.DataFrame(d.pop(k))
-                    df.columns = [k + "-" + str(x) for x in df.columns]
-                    marray.append(df)
+            if isinstance(dobj[k], np.ndarray):
+                if len(dobj[k].shape) >= 2:
+                    dfo = pd.DataFrame(dobj.pop(k))
+                    dfo.columns = [k + "-" + str(x) for x in dfo.columns]
+                    marray.append(dfo)
 
-        return pd.concat([pd.DataFrame(d)] + marray, axis=1)
+        return pd.concat([pd.DataFrame(dobj)] + marray, axis=1)
 
     def _check_data(self):
+        """ """
 
-        for key, value in self.items():
+        for _, value in self.items():
             assert isinstance(value, (list, np.ndarray))
             assert len(value) == self.shape[0]
 
     def _compute_shape(self):
+        """ """
 
         ncol = len(self.items())
         if ncol:
@@ -51,22 +58,20 @@ class DictFrame(collections.OrderedDict):
 
         return (nrow, ncol)
 
-    def _process_input(self, data):
-
-        for key, value in data.items():
-            if not isinstance(value, (list, np.ndarray)):
-                data[key] = [value]
-
-        return collections.OrderedDict(data)
-
 
 def stack_dict_frames(ilist, check=True):
+    """Here
+
+    :param ilist: 
+    :param check:  (Default value = True)
+
+    """
 
     # Convert all elements to DictFrame objects; remove None items
     ilist = [DictFrame(x, check=check) for x in ilist if x is not None]
 
     # If empty, return an empty DictFrame object
-    if not len(ilist):
+    if not ilist:
         return DictFrame({})
 
     # What keys will be in the output and what are their types? Take these
@@ -98,8 +103,14 @@ def stack_dict_frames(ilist, check=True):
     return DictFrame(out)
 
 
-def pd_to_dict_frame(df, use_array=True):
-    out = DictFrame(df.to_dict(orient='list'))
+def pd_to_dict_frame(pdf, use_array=True):
+    """Here
+
+    :param pdf: 
+    :param use_array:  (Default value = True)
+
+    """
+    out = DictFrame(pdf.to_dict(orient='list'))
     if use_array:
         pass
 
@@ -107,33 +118,50 @@ def pd_to_dict_frame(df, use_array=True):
 
 
 def get_batch(input_obj, batch_num=0):
+    """Here
+
+    :param input_obj: 
+    :param batch_num:  (Default value = 0)
+
+    """
 
     bnum = 0
     while input_obj.continue_read:
         batch = input_obj.next_batch()
         if bnum == batch_num:
-            return batch
-        else:
-            bnum += 1
+            break
+        bnum += 1
 
     return batch
 
 
 def sub_image(img, top, right, bottom, left, fct=1, output_shape=None):
+    """Here
+
+    :param img: 
+    :param top: 
+    :param right: 
+    :param bottom: 
+    :param left: 
+    :param fct:  (Default value = 1)
+    :param output_shape:  (Default value = None)
+
+    """
     from skimage.transform import resize
 
     # convert to center, height and width:
-    c = [int((top + bottom) / 2), int((left + right) / 2)]
-    h = int((bottom - top) / 2 * fct)
-    w = int((right - left) / 2 * fct)
-    d = [c[1] - h, c[1] + h, c[0] - w, c[0] + w]
+    center = [int((top + bottom) / 2), int((left + right) / 2)]
+    height = int((bottom - top) / 2 * fct)
+    width = int((right - left) / 2 * fct)
+    box = [center[1] - height, center[1] + height,
+           center[0] - width, center[0] + width]
 
     # crop the image as an array
-    d[0] = max(0, d[0])
-    d[2] = max(0, d[2])
-    d[1] = min(img.shape[1], d[1])
-    d[3] = min(img.shape[0], d[3])
-    crop_img = img[d[2]:d[3], d[0]:d[1], :]
+    box[0] = max(0, box[0])
+    box[2] = max(0, box[2])
+    box[1] = min(img.shape[1], box[1])
+    box[3] = min(img.shape[0], box[3])
+    crop_img = img[box[2]:box[3], box[0]:box[1], :]
 
     if output_shape:
         img_scaled = resize(crop_img, output_shape, mode='constant',
@@ -142,21 +170,45 @@ def sub_image(img, top, right, bottom, left, fct=1, output_shape=None):
     return np.uint8(img_scaled)
 
 
-def dict_to_dataframe(d):
+def dict_to_dataframe(dobj):
+    """Here
+
+    :param dobj: 
+
+    """
     import pandas as pd
     marray = []
 
-    for k in d.keys():
-        if isinstance(d[k], np.ndarray):
-            if len(d[k].shape) >= 2:
-                df = pd.DataFrame(d.pop(k))
-                df.columns = [k + str(x) for x in df.columns]
-                marray.append(df)
+    for k in dobj.keys():
+        if isinstance(dobj[k], np.ndarray):
+            if len(dobj[k].shape) >= 2:
+                pdf = pd.DataFrame(dobj.pop(k))
+                pdf.columns = [k + str(x) for x in pdf.columns]
+                marray.append(pdf)
 
-    return pd.concat([pd.DataFrame(d)] + marray, axis=1)
+    return pd.concat([pd.DataFrame(dobj)] + marray, axis=1)
+
+
+def _process_df_input(data):
+    """
+
+    :param data: 
+
+    """
+
+    for key, value in data.items():
+        if not isinstance(value, (list, np.ndarray)):
+            data[key] = [value]
+
+    return collections.OrderedDict(data)
 
 
 def _format_time(msec):
+    """Here
+
+    :param msec: 
+
+    """
     msec = int(msec)
     hour = msec // (1000 * 60 * 60)
     minute = (msec % (1000 * 60 * 60)) // (1000 * 60)
@@ -168,5 +220,11 @@ def _format_time(msec):
 
 
 def _trim_bounds(css, image_shape):
+    """Here
+
+    :param css: 
+    :param image_shape: 
+
+    """
     return max(css[0], 0), min(css[1], image_shape[1]), \
-           min(css[2], image_shape[0]), max(css[3], 0)
+            min(css[2], image_shape[0]), max(css[3], 0)

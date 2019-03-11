@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
+"""This module illustrates something.
+"""
 
 import numpy as np
-import cv2
-import pandas as pd
 
 from .core import FrameAnnotator
-from ..utils import stack_dict_frames
 
 
 class EmbedAnnotator(FrameAnnotator):
+    """Here"""
+
     name = 'embed'
 
     def __init__(self, embedding, freq=1):
@@ -17,6 +18,11 @@ class EmbedAnnotator(FrameAnnotator):
         super().__init__()
 
     def annotate(self, batch):
+        """Here
+
+        :param batch:
+
+        """
 
         # what frames do we annotate?
         fnum = range(0, batch.bsize, self.freq)
@@ -30,6 +36,7 @@ class EmbedAnnotator(FrameAnnotator):
 
 
 class EmbedFrameKeras(EmbedAnnotator):
+    """Here"""
 
     def __init__(self, model, preprocess_input=None, outlayer=None):
         from keras.models import Model
@@ -38,12 +45,17 @@ class EmbedFrameKeras(EmbedAnnotator):
             model = Model(inputs=model.input,
                           outputs=model.get_layer(outlayer).output)
 
-
         self.input_shape = list(model.input_shape[1:])
         self.model = model
         self.preprocess_input = preprocess_input
+        super().__init__()
 
     def embed(self, img):
+        """Here
+
+        :param img:
+
+        """
         from skimage.transform import resize
 
         # resize the images
@@ -64,10 +76,12 @@ class EmbedFrameKeras(EmbedAnnotator):
 
 
 class EmbedFrameKerasResNet50(EmbedFrameKeras):
+    """Here"""
 
     def __init__(self):
         import keras.applications.resnet50
 
-        super().__init__(keras.applications.resnet50.ResNet50(weights='imagenet'),
-                         keras.applications.resnet50.preprocess_input,
-                         outlayer="avg_pool")
+        model = keras.applications.resnet50.ResNet50(weights='imagenet')
+        ppobj = keras.applications.resnet50.preprocess_input
+
+        super().__init__(model, ppobj, outlayer="avg_pool")
