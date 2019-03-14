@@ -14,7 +14,7 @@ class Aggregator:
     def aggregate(self, ldframe):
         """Here
 
-        :param ldframe: 
+        :param ldframe:
 
         """
         pass
@@ -38,7 +38,7 @@ class CutAggregator(Aggregator):
     def aggregate(self, ldframe):
         """Here
 
-        :param ldframe: 
+        :param ldframe:
 
         """
 

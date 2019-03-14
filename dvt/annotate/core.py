@@ -1,5 +1,42 @@
 # -*- coding: utf-8 -*-
-"""This module illustrates something.
+"""Core objects for processing video files in the Distant Viewing Toolkit.
+
+This module provides the four main classes for processing a raw video file.
+These are (i) FrameProcessor, (ii) FrameAnnotator, and (iii) FrameInput,
+and (iv) FrameBatch. The basic pipeline is shown in the following example.
+
+Extending the toolkit requires creating new subclasses of the FrameAnnotator
+object, specifically by overriding the annotate method. This method in turn
+requires working with a FrameBatch object. Most users should not need to modify
+or follow the internal structure of the FrameProcessor and FrameInput objects.
+
+Example:
+    Start by constructing a new input source by pointing to an existing video
+    file on disk.
+
+    >>> fin = FrameInput("input.mp4")
+
+    Then, construct a pipeline of annotators by starting with an empty
+    FrameProcessor and adding any number of FrameAnnotator objects.
+
+    >>> fp = FrameProcessor()
+    >>> fp.load_annotator(FrameAnnotator())
+
+    Next, process batches of the data from the input source. If logging is
+    turned on, this will generate verbose information as each annotator is
+    called on a particular batch.
+
+    >>> fp.process(fin)
+
+    Finally, collect the annotated data as an ordered dictionary of DictFrame
+    objects.
+
+    >>> output = fp.collect_all()
+
+    Following the above sequence will not return any data because we only
+    loaded the default FrameAnnotator (it returns no data). The annotators
+    contained in the other sub-modules should be used to extract interesting
+    results from the source.
 """
 
 import collections
@@ -13,34 +50,49 @@ from ..utils import _format_time, stack_dict_frames
 
 
 class FrameProcessor:
-    """Here"""
+    """Run a pipeline of annotators over batches of frames.
+
+    Attributes:
+        pipeline (OrderedDict): FrameAnnotator objects to run over the inputs.
+        output (OrderedDict): DictFrame objects containing the annotations.
+    """
 
     def __init__(self, pipeline=None):
+        """Construct a new pipeline of annotators.
+
+        You can pass a collection of annotators to the constructor, or create
+        an empty processor and fill it with the load_annotator method.
+
+        Args:
+            pipeline (optional): FrameAnnotator objects to run over the inputs.
+        """
 
         if not pipeline:
-            pipeline = []
+            pipeline = {}
 
-        self.output = collections.OrderedDict()
         self.pipeline = collections.OrderedDict(pipeline)
+        self.output = collections.OrderedDict()
         for anno in pipeline.values():
             self.load_annotator(anno)
 
     def load_annotator(self, annotator):
-        """Here
+        """Add an annotator to the end of the pipeline.
 
-        :param annotator:
-
+        Args:
+            annotator (FrameAnnotator): annotator to add into the pipeline.
         """
         assert issubclass(type(annotator), FrameAnnotator)
         self.pipeline.update({annotator.name: annotator})
         self.output.update({annotator.name: []})
 
     def process(self, input_obj, max_batch=None):
-        """Here
+        """Run annotators over an input object.
 
-        :param input_obj:
-        :param max_batch:  (Default value = None)
-
+        Args:
+            input_obj (FrameInput): The input source for batches of data.
+            max_batch (int): The maximum number of batches to process from the
+                input. The default value (None) sets no limit on the total
+                number of batches.
         """
         assert input_obj.fcount == 0  # make sure there is a fresh input
 
@@ -64,22 +116,38 @@ class FrameProcessor:
                     return
 
     def clear(self):
-        """Here"""
+        """Clear the pipeline of annotators and remove all output.
+
+        Runs the clear method of each annotator and resets the pipeline and
+        output attributes. Useful for recovering memory on the GPU when running
+        a collection of large models.
+        """
         for annotator in self.pipeline.values():
             annotator.clear()
 
         self.pipeline = collections.OrderedDict()
+        self.output = collections.OrderedDict()
 
     def collect(self, aname):
-        """Here
+        """Collect output from a specific annotator.
 
-        :param aname:
+        Args:
+            aname (str): Name of the annotator from which to collect the data.
 
+        Returns:
+            A DictFrame object with the results.
         """
         return stack_dict_frames(self.output[aname])
 
     def collect_all(self):
-        """Here"""
+        """Collect output from all available annotators.
+
+
+        Returns:
+            An ordered dictionary with elements that are DictFrame objects. The
+            names of the entries are given by the annotator names in the
+            pipeline.
+        """
         ocollect = collections.OrderedDict.fromkeys(self.pipeline.keys())
 
         for k in ocollect.keys():
@@ -89,91 +157,148 @@ class FrameProcessor:
 
 
 class FrameAnnotator:
-    """Here"""
+    """Base class for annotating a batch of frames.
+
+    Attributes:
+        name (str): A description of the annotator, used as a key in the output
+            returned by a FrameProcessor.
+        cache (dict): Holds internal state of the annotator. Used for passing
+            data between batches, which should be avoided whenever possible.
+    """
 
     name = 'base'
 
     def __init__(self):
-        """Here
-
+        """Create a new empty FrameAnnotator.
         """
         self.cache = {}
 
     def clear(self):
-        """Here"""
+        """Clear the internal state of an annotator.
+        """
         self.cache = {}
 
     def start(self, ival):
-        """Here
+        """Initialize internal state using metadata from the input.
 
-        :param ival:
+        Some annotators may need to perform an expensive sequence of set up
+        algorithms before processing data. Often the set up requires knowledge
+        about the input data. It is useful to do this just once, which can be
+        accomplished by putting the code in this method. It gets called once
+        when calling the process method of a FrameProcessor.
 
+        Args:
+            ival: A FrameInput object.
         """
         pass
 
     def annotate(self, batch):
-        """Here
+        """Annotate a batch of frames and return the resulting annotations.
 
-        :param batch:
+        This method contains the core functionality of an annotator. It takes
+        a batch of frames and returns the annotated output as a list object.
+        Lists from batch to batch will be appended together and collected by
+        calling stack_dict_frames.
 
+        Args:
+            batch (FrameBatch): A batch of images to annotate.
+
+        Returns:
+            The method should return a list of item(s) that can be combined
+            into a DictFrame. Specifically, the items should be dictionaries
+            with a consistent set of keys where all items have the same length
+            (or first shape value, in the case of numpy array). Can also return
+            None, in which case nothing is added to the current output.
         """
-        return [batch.start]
-
-    def collect(self, output):
-        """Here
-
-        :param output:
-
-        """
-        return output
+        return None
 
 
 class FrameInput:
-    """Here"""
+    """An input object for extracting batches of images from an input source.
+
+    Once initialized, subsequent calls to the next_batch method should be
+    called to cycle through batches of frames. The continue_read flag will be
+    turn false when all of data from the source has been returned within a
+    batch. Note that this does not include the look-ahead region. The final
+    batch will include padding by zeros (black) in this region.
+
+    Attributes:
+        bsize (int): Number of frames in a batch.
+        fcount (int): Frame counter for the first frame in the current batch.
+        vname (str): Name of the video file.
+        continue_read (bool): Indicates whether there more frames to read from
+            the input.
+        start (float): Time code at the start of the current batch.
+        end (float): Time code at the end of the current batch.
+        meta (dict): A dictionary containing additional metadata about the
+            video file.
+    """
 
     def __init__(self, input_path, bsize=256):
-        self.video_cap = cv2.VideoCapture(input_path)
+        """Construct a new input from a video file.
+
+        Args:
+            input_path (str): Path to the video file. Can be any file readable
+                by the OpenCV function VideoCapture.
+            bsize (int): Number of frames to include in a batch. Defaults to
+                256.
+        """
         self.bsize = bsize
         self.fcount = 0
-        self.input_path = input_path
         self.vname = os.path.basename(input_path)
         self.continue_read = True
         self.start = 0
         self.end = 0
-        self.meta = self.metadata()
+        self._video_cap = cv2.VideoCapture(input_path)
+        self.meta = self._metadata()
+
         self._img = np.zeros((bsize * 2, self.meta['height'],
                               self.meta['width'], 3), dtype=np.uint8)
         self._fill_bandwidth()  # fill the buffer with the first batch
 
-    def metadata(self):
-        """Here"""
-        return {'type': 'video',
-                'fps': self.video_cap.get(cv2.CAP_PROP_FPS),
-                'frames': int(self.video_cap.get(cv2.CAP_PROP_FRAME_COUNT)),
-                'height': int(self.video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
-                'width': int(self.video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))}
-
     def next_batch(self):
-        """Here"""
+        """Move forward one batch and return the current FrameBatch object.
+
+        Returns:
+            A FrameBatch object that contains the next set of frames.
+        """
+
+        assert self.continue_read, "No more input to read."
+
         # shift window over by one bandwidth
         self._img[:self.bsize, :, :, :] = self._img[self.bsize:, :, :, :]
 
         # fill up the next bandwidth
         self._fill_bandwidth()
 
+        # update counters
         frame_start = self.fcount
         self.start = self.end
-        self.end = self.video_cap.get(cv2.CAP_PROP_POS_MSEC)
+        self.end = self._video_cap.get(cv2.CAP_PROP_POS_MSEC)
         self.fcount = self.fcount + self.bsize
 
-        return FrameBatch(vname=self.vname, start=self.start, end=self.end,
-                          continue_read=self.continue_read, img=self._img,
+        # return batch of frames.
+        return FrameBatch(img=self._img, vname=self.vname, start=self.start,
+                          end=self.end, continue_read=self.continue_read,
                           frame=frame_start)
 
+    def _metadata(self):
+        """Fill metadata attribute using metadata from the video source.
+        """
+        return {'type': 'video',
+                'fps': self._video_cap.get(cv2.CAP_PROP_FPS),
+                'frames': int(self._video_cap.get(cv2.CAP_PROP_FRAME_COUNT)),
+                'height': int(self._video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+                'width': int(self._video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))}
+
     def _fill_bandwidth(self):
-        """ """
+        """Read in the next set of frames from disk and store results.
+
+        This should not be called directly, but only through the next_batch
+        method. Otherwise the internal counters will become inconsistent.
+        """
         for idx in range(self.bsize):
-            self.continue_read, frame = self.video_cap.read()
+            self.continue_read, frame = self._video_cap.read()
             if self.continue_read:
                 rgb_id = cv2.COLOR_BGR2RGB
                 self._img[idx + self.bsize, :, :, :] = cv2.cvtColor(frame,
@@ -183,27 +308,66 @@ class FrameInput:
 
 
 class FrameBatch:
-    """Here"""
+    """A collection of frames and associated metadata.
 
-    def __init__(self, vname, start, end, continue_read, img, frame):
-        self.vname = vname
+    The batch contains an array of size (bsize * 2, width, height, 3). At the
+    start and end of the video file, the array is padded with zeros (an all
+    black frame). The batch includes twice as many frames as given in the
+    batch size, but an annotator should only return results from the first
+    half of the data (the "batch"). The other data is included for annotators
+    that need to look ahead of the current, such as the cut detectors.
+
+    Attributes:
+        img (np.array): A four-dimensional array containing pixels from the
+            next 2*bsize of images.
+        vname (str): Name of the video file.
+        start (float): Time code at the start of the current batch.
+        end (float): Time code at the end of the current batch.
+        continue_read (bool): Indicates whether there more frames to read from
+            the input.
+        frame (int): Frame counter for the first frame in the current batch.
+        bsize (int): Number of frames in a batch.
+
+    """
+    def __init__(self, img, vname, start, end, continue_read, frame):
         self.img = img
-        self.bsize = img.shape[0] // 2
-        self.frame = frame
+        self.vname = vname
         self.start = start
         self.end = end
         self.continue_read = continue_read
+        self.frame = frame
+        self.bsize = img.shape[0] // 2
 
     def get_frames(self):
-        """Here"""
+        """Return the entire image dataset for the batch.
+
+        Use this method if you need to look ahead at the following batch for
+        an annotator to work. Images are given in RGB space.
+
+        Returns:
+            A four-dimensional array containing pixels from the current and
+            next batches of data.
+        """
         return self.img
 
     def get_batch(self):
-        """Here"""
+        """Return image data for just the current batch.
+
+        Use this method unless you have a specific need to look ahead at new
+        values in the data. Images are given in RGB space.
+
+        Returns:
+            A four-dimensional array containing pixels from the current batch
+            of images.
+        """
         return self.img[:self.bsize, :, :, :]
 
     def get_frame_nums(self):
-        """Here"""
+        """Generate frame numbers for the current batch of data.
+
+        Returns:
+            A list of integers, with length equal to the batch size.
+        """
         start = int(self.frame)
         end = int(self.frame + self.bsize)
         return list(range(start, end))

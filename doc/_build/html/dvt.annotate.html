@@ -1,0 +1,989 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>dvt.annotate package &#8212; dvt  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="dvt-annotate-package">
+<h1>dvt.annotate package<a class="headerlink" href="#dvt-annotate-package" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-dvt.annotate.core">
+<span id="dvt-annotate-core-module"></span><h2>dvt.annotate.core module<a class="headerlink" href="#module-dvt.annotate.core" title="Permalink to this headline">¶</a></h2>
+<p>Core objects for processing video files in the Distant Viewing Toolkit.</p>
+<p>This module provides the four main classes for processing a raw video file.
+These are (i) FrameProcessor, (ii) FrameAnnotator, and (iii) FrameInput,
+and (iv) FrameBatch. The basic pipeline is shown in the following example.</p>
+<p>Extending the toolkit requires creating new subclasses of the FrameAnnotator
+object, specifically by overriding the annotate method. This method in turn
+requires working with a FrameBatch object. Most users should not need to modify
+or follow the internal structure of the FrameProcessor and FrameInput objects.</p>
+<p class="rubric">Example</p>
+<p>Start by constructing a new input source by pointing to an existing video
+file on disk.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fin</span> <span class="o">=</span> <span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, construct a pipeline of annotators by starting with an empty
+FrameProcessor and adding any number of FrameAnnotator objects.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Next, process batches of the data from the input source. If logging is
+turned on, this will generate verbose information as each annotator is
+called on a particular batch.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">fin</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Finally, collect the annotated data as an ordered dictionary of DictFrame
+objects.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">output</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">collect_all</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Following the above sequence will not return any data because we only
+loaded the default FrameAnnotator (it returns no data). The annotators
+contained in the other sub-modules should be used to extract interesting
+results from the source.</p>
+<dl class="class">
+<dt id="dvt.annotate.core.FrameAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.core.</code><code class="descname">FrameAnnotator</code><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Base class for annotating a batch of frames.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameAnnotator.name">
+<code class="descname">name</code><a class="headerlink" href="#dvt.annotate.core.FrameAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>A description of the annotator, used as a key in the output
+returned by a FrameProcessor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameAnnotator.cache">
+<code class="descname">cache</code><a class="headerlink" href="#dvt.annotate.core.FrameAnnotator.cache" title="Permalink to this definition">¶</a></dt>
+<dd><p>Holds internal state of the annotator. Used for passing
+data between batches, which should be avoided whenever possible.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate a batch of frames and return the resulting annotations.</p>
+<p>This method contains the core functionality of an annotator. It takes
+a batch of frames and returns the annotated output as a list object.
+Lists from batch to batch will be appended together and collected by
+calling stack_dict_frames.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="#dvt.annotate.core.FrameBatch" title="dvt.annotate.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The method should return a list of item(s) that can be combined
+into a DictFrame. Specifically, the items should be dictionaries
+with a consistent set of keys where all items have the same length
+(or first shape value, in the case of numpy array). Can also return
+None, in which case nothing is added to the current output.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameAnnotator.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameAnnotator.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameAnnotator.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the internal state of an annotator.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">name</code><em class="property"> = 'base'</em></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameAnnotator.start">
+<code class="descname">start</code><span class="sig-paren">(</span><em>ival</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameAnnotator.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameAnnotator.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Initialize internal state using metadata from the input.</p>
+<p>Some annotators may need to perform an expensive sequence of set up
+algorithms before processing data. Often the set up requires knowledge
+about the input data. It is useful to do this just once, which can be
+accomplished by putting the code in this method. It gets called once
+when calling the process method of a FrameProcessor.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ival</strong> – A FrameInput object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.core.FrameBatch">
+<em class="property">class </em><code class="descclassname">dvt.annotate.core.</code><code class="descname">FrameBatch</code><span class="sig-paren">(</span><em>img</em>, <em>vname</em>, <em>start</em>, <em>end</em>, <em>continue_read</em>, <em>frame</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameBatch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameBatch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>A collection of frames and associated metadata.</p>
+<p>The batch contains an array of size (bsize * 2, width, height, 3). At the
+start and end of the video file, the array is padded with zeros (an all
+black frame). The batch includes twice as many frames as given in the
+batch size, but an annotator should only return results from the first
+half of the data (the “batch”). The other data is included for annotators
+that need to look ahead of the current, such as the cut detectors.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameBatch.img">
+<code class="descname">img</code><a class="headerlink" href="#dvt.annotate.core.FrameBatch.img" title="Permalink to this definition">¶</a></dt>
+<dd><p>A four-dimensional array containing pixels from the
+next 2*bsize of images.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">np.array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameBatch.vname">
+<code class="descname">vname</code><a class="headerlink" href="#dvt.annotate.core.FrameBatch.vname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the video file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameBatch.start">
+<code class="descname">start</code><a class="headerlink" href="#dvt.annotate.core.FrameBatch.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time code at the start of the current batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameBatch.end">
+<code class="descname">end</code><a class="headerlink" href="#dvt.annotate.core.FrameBatch.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time code at the end of the current batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameBatch.continue_read">
+<code class="descname">continue_read</code><a class="headerlink" href="#dvt.annotate.core.FrameBatch.continue_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates whether there more frames to read from
+the input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameBatch.frame">
+<code class="descname">frame</code><a class="headerlink" href="#dvt.annotate.core.FrameBatch.frame" title="Permalink to this definition">¶</a></dt>
+<dd><p>Frame counter for the first frame in the current batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameBatch.bsize">
+<code class="descname">bsize</code><a class="headerlink" href="#dvt.annotate.core.FrameBatch.bsize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of frames in a batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameBatch.get_batch">
+<code class="descname">get_batch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameBatch.get_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameBatch.get_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return image data for just the current batch.</p>
+<p>Use this method unless you have a specific need to look ahead at new
+values in the data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A four-dimensional array containing pixels from the current batch
+of images.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameBatch.get_frame_nums">
+<code class="descname">get_frame_nums</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameBatch.get_frame_nums"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameBatch.get_frame_nums" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate frame numbers for the current batch of data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A list of integers, with length equal to the batch size.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameBatch.get_frames">
+<code class="descname">get_frames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameBatch.get_frames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameBatch.get_frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the entire image dataset for the batch.</p>
+<p>Use this method if you need to look ahead at the following batch for
+an annotator to work.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A four-dimensional array containing pixels from the current and
+next batches of data.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.core.FrameInput">
+<em class="property">class </em><code class="descclassname">dvt.annotate.core.</code><code class="descname">FrameInput</code><span class="sig-paren">(</span><em>input_path</em>, <em>bsize=256</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>An input object for extracting batches of images from an input source.</p>
+<p>Once initialized, subsequent calls to the next_batch method should be
+called to cycle through batches of frames. The continue_read flag will be
+turn false when all of data from the source has been returned within a
+batch. Note that this does not include the look-ahead region. The final
+batch will include padding by zeros (black) in this region.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameInput.bsize">
+<code class="descname">bsize</code><a class="headerlink" href="#dvt.annotate.core.FrameInput.bsize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of frames in a batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameInput.fcount">
+<code class="descname">fcount</code><a class="headerlink" href="#dvt.annotate.core.FrameInput.fcount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Frame counter for the first frame in the current batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameInput.vname">
+<code class="descname">vname</code><a class="headerlink" href="#dvt.annotate.core.FrameInput.vname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the video file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameInput.continue_read">
+<code class="descname">continue_read</code><a class="headerlink" href="#dvt.annotate.core.FrameInput.continue_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates whether there more frames to read from
+the input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameInput.start">
+<code class="descname">start</code><a class="headerlink" href="#dvt.annotate.core.FrameInput.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time code at the start of the current batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameInput.end">
+<code class="descname">end</code><a class="headerlink" href="#dvt.annotate.core.FrameInput.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time code at the end of the current batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameInput.meta">
+<code class="descname">meta</code><a class="headerlink" href="#dvt.annotate.core.FrameInput.meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary containing additional metadata about the
+video file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameInput.next_batch">
+<code class="descname">next_batch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameInput.next_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameInput.next_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move forward one batch and return the current FrameBatch object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A FrameBatch object that contains the next set of frames.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.core.FrameProcessor">
+<em class="property">class </em><code class="descclassname">dvt.annotate.core.</code><code class="descname">FrameProcessor</code><span class="sig-paren">(</span><em>pipeline=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameProcessor"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameProcessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Run a pipeline of annotators over batches of frames.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameProcessor.pipeline">
+<code class="descname">pipeline</code><a class="headerlink" href="#dvt.annotate.core.FrameProcessor.pipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>FrameAnnotator objects to run over the inputs.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">OrderedDict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.core.FrameProcessor.output">
+<code class="descname">output</code><a class="headerlink" href="#dvt.annotate.core.FrameProcessor.output" title="Permalink to this definition">¶</a></dt>
+<dd><p>DictFrame objects containing the annotations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">OrderedDict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameProcessor.clear">
+<code class="descname">clear</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameProcessor.clear"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameProcessor.clear" title="Permalink to this definition">¶</a></dt>
+<dd><p>Clear the pipeline of annotators and remove all output.</p>
+<p>Runs the clear method of each annotator and resets the pipeline and
+output attributes. Useful for recovering memory on the GPU when running
+a collection of large models.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameProcessor.collect">
+<code class="descname">collect</code><span class="sig-paren">(</span><em>aname</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameProcessor.collect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameProcessor.collect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect output from a specific annotator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>aname</strong> (<em>str</em>) – Name of the annotator from which to collect the data.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A DictFrame object with the results.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameProcessor.collect_all">
+<code class="descname">collect_all</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameProcessor.collect_all"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameProcessor.collect_all" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collect output from all available annotators.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">An ordered dictionary with elements that are DictFrame objects. The
+names of the entries are given by the annotator names in the
+pipeline.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameProcessor.load_annotator">
+<code class="descname">load_annotator</code><span class="sig-paren">(</span><em>annotator</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameProcessor.load_annotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameProcessor.load_annotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Add an annotator to the end of the pipeline.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>annotator</strong> (<a class="reference internal" href="#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><em>FrameAnnotator</em></a>) – annotator to add into the pipeline.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.core.FrameProcessor.process">
+<code class="descname">process</code><span class="sig-paren">(</span><em>input_obj</em>, <em>max_batch=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameProcessor.process"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameProcessor.process" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run annotators over an input object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>input_obj</strong> (<a class="reference internal" href="#dvt.annotate.core.FrameInput" title="dvt.annotate.core.FrameInput"><em>FrameInput</em></a>) – The input source for batches of data.</li>
+<li><strong>max_batch</strong> (<em>int</em>) – The maximum number of batches to process from the
+input. The default value (None) sets no limit on the total
+number of batches.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dvt.annotate.diff">
+<span id="dvt-annotate-diff-module"></span><h2>dvt.annotate.diff module<a class="headerlink" href="#module-dvt.annotate.diff" title="Permalink to this headline">¶</a></h2>
+<p>Annotators for finding difference between subsequent frames.</p>
+<p>The annotators here detect differences from one frame to the next. They all
+collect basic summaries of the overall brightness and saturation of a frame.
+These are all useful for detecting shot boundaries and scene breaks.</p>
+<p class="rubric">Example</p>
+<p>Assuming we have an input named “input.mp4”, the following example shows
+the a sample usage of the different annotator over two batches of the
+input.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">DiffAnnotator</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;diff&#39;</span>
+<span class="go">INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;diff&#39;</span>
+</pre></div>
+</div>
+<p>Then, collect the output from the annotator and display as a pandas data
+frame. Here, just the head of the data is shown for brevity.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;diff&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">   q40      video  frame  h40  avg_value</span>
+<span class="go">0  0.0  input.mp4      0  0.0   2.552584</span>
+<span class="go">1  0.0  input.mp4      1  0.0   2.921136</span>
+<span class="go">2  0.0  input.mp4      2  0.0   2.697502</span>
+<span class="go">3  0.0  input.mp4      3  0.0   2.830626</span>
+<span class="go">4  0.0  input.mp4      4  0.0   2.560596</span>
+</pre></div>
+</div>
+<p>The output can be further processed with related aggregator classes to
+detect shot breaks.</p>
+<dl class="class">
+<dt id="dvt.annotate.diff.DiffAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.diff.</code><code class="descname">DiffAnnotator</code><span class="sig-paren">(</span><em>quantiles=None</em>, <em>bins=16</em>, <em>size=32</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#DiffAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<p>Here</p>
+<dl class="method">
+<dt id="dvt.annotate.diff.DiffAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#DiffAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.diff.DiffAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'diff'</em><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="dvt.annotate.diff.hist_diffs">
+<code class="descclassname">dvt.annotate.diff.</code><code class="descname">hist_diffs</code><span class="sig-paren">(</span><em>batch</em>, <em>quantile=50</em>, <em>bins=16</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#hist_diffs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.hist_diffs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>batch</strong> – </li>
+<li><strong>quantile</strong> – (Default value = 50)</li>
+<li><strong>bins</strong> – (Default value = 16)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="dvt.annotate.diff.hsv_hist">
+<code class="descclassname">dvt.annotate.diff.</code><code class="descname">hsv_hist</code><span class="sig-paren">(</span><em>batch</em>, <em>msize</em>, <em>bins=16</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#hsv_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.hsv_hist" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>batch</strong> – </li>
+<li><strong>msize</strong> – </li>
+<li><strong>bins</strong> – (Default value = 16)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="dvt.annotate.diff.l1_quantile">
+<code class="descclassname">dvt.annotate.diff.</code><code class="descname">l1_quantile</code><span class="sig-paren">(</span><em>batch</em>, <em>quantile=50</em>, <em>size=32</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#l1_quantile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.l1_quantile" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>batch</strong> – </li>
+<li><strong>quantile</strong> – (Default value = 50)</li>
+<li><strong>size</strong> – (Default value = 32)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dvt.annotate.embed">
+<span id="dvt-annotate-embed-module"></span><h2>dvt.annotate.embed module<a class="headerlink" href="#module-dvt.annotate.embed" title="Permalink to this headline">¶</a></h2>
+<p>This module illustrates something.</p>
+<dl class="class">
+<dt id="dvt.annotate.embed.EmbedAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedAnnotator</code><span class="sig-paren">(</span><em>embedding</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<p>Here</p>
+<dl class="method">
+<dt id="dvt.annotate.embed.EmbedAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.embed.EmbedAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'embed'</em><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.embed.EmbedFrameKeras">
+<em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedFrameKeras</code><span class="sig-paren">(</span><em>model</em>, <em>preprocess_input=None</em>, <em>outlayer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedFrameKeras"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Here</p>
+<dl class="method">
+<dt id="dvt.annotate.embed.EmbedFrameKeras.embed">
+<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedFrameKeras.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras.embed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.embed.EmbedFrameKerasResNet50">
+<em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedFrameKerasResNet50</code><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedFrameKerasResNet50"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKerasResNet50" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dvt.annotate.embed.EmbedFrameKeras" title="dvt.annotate.embed.EmbedFrameKeras"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.embed.EmbedFrameKeras</span></code></a></p>
+<p>Here</p>
+</dd></dl>
+
+</div>
+<div class="section" id="module-dvt.annotate.face">
+<span id="dvt-annotate-face-module"></span><h2>dvt.annotate.face module<a class="headerlink" href="#module-dvt.annotate.face" title="Permalink to this headline">¶</a></h2>
+<p>This module illustrates something.</p>
+<dl class="class">
+<dt id="dvt.annotate.face.FaceAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceAnnotator</code><span class="sig-paren">(</span><em>detector=None</em>, <em>embedding=None</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<p>Here</p>
+<dl class="method">
+<dt id="dvt.annotate.face.FaceAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'face'</em><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.face.FaceDetectDlib">
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceDetectDlib</code><span class="sig-paren">(</span><em>cutoff=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceDetectDlib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Here</p>
+<dl class="method">
+<dt id="dvt.annotate.face.FaceDetectDlib.detect">
+<code class="descname">detect</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceDetectDlib.detect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib.detect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.face.FaceEmbedDlib">
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceEmbedDlib</code><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceEmbedDlib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedDlib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Here</p>
+<dl class="method">
+<dt id="dvt.annotate.face.FaceEmbedDlib.embed">
+<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em>, <em>faces</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceEmbedDlib.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedDlib.embed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>img</strong> – </li>
+<li><strong>faces</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.face.FaceEmbedVgg2">
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceEmbedVgg2</code><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceEmbedVgg2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedVgg2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Here</p>
+<dl class="method">
+<dt id="dvt.annotate.face.FaceEmbedVgg2.embed">
+<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em>, <em>faces</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceEmbedVgg2.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedVgg2.embed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>img</strong> – </li>
+<li><strong>faces</strong> – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dvt.annotate.object">
+<span id="dvt-annotate-object-module"></span><h2>dvt.annotate.object module<a class="headerlink" href="#module-dvt.annotate.object" title="Permalink to this headline">¶</a></h2>
+<p>This module illustrates something.</p>
+<dl class="class">
+<dt id="dvt.annotate.object.ObjectAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.object.</code><code class="descname">ObjectAnnotator</code><span class="sig-paren">(</span><em>detector</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/object.html#ObjectAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.object.ObjectAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<p>Here</p>
+<dl class="method">
+<dt id="dvt.annotate.object.ObjectAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/object.html#ObjectAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.object.ObjectAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.object.ObjectAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'object'</em><a class="headerlink" href="#dvt.annotate.object.ObjectAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.object.ObjectDetectRetinaNet">
+<em class="property">class </em><code class="descclassname">dvt.annotate.object.</code><code class="descname">ObjectDetectRetinaNet</code><span class="sig-paren">(</span><em>model_path</em>, <em>cutoff=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/object.html#ObjectDetectRetinaNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.object.ObjectDetectRetinaNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Here</p>
+<dl class="method">
+<dt id="dvt.annotate.object.ObjectDetectRetinaNet.detect">
+<code class="descname">detect</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/object.html#ObjectDetectRetinaNet.detect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.object.ObjectDetectRetinaNet.detect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dvt.annotate.png">
+<span id="dvt-annotate-png-module"></span><h2>dvt.annotate.png module<a class="headerlink" href="#module-dvt.annotate.png" title="Permalink to this headline">¶</a></h2>
+<p>This module illustrates something.</p>
+<dl class="class">
+<dt id="dvt.annotate.png.PngAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.png.</code><code class="descname">PngAnnotator</code><span class="sig-paren">(</span><em>output_dir</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/png.html#PngAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.png.PngAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<p>Here</p>
+<dl class="method">
+<dt id="dvt.annotate.png.PngAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/png.html#PngAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.png.PngAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Here</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – </td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.png.PngAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'png'</em><a class="headerlink" href="#dvt.annotate.png.PngAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="module-dvt.annotate">
+<span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-dvt.annotate" title="Permalink to this headline">¶</a></h2>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">dvt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Taylor Arnold.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/dvt.annotate.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

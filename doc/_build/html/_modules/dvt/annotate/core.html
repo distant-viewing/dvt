@@ -1,0 +1,474 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>dvt.annotate.core &#8212; dvt  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for dvt.annotate.core</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Core objects for processing video files in the Distant Viewing Toolkit.</span>
+
+<span class="sd">This module provides the four main classes for processing a raw video file.</span>
+<span class="sd">These are (i) FrameProcessor, (ii) FrameAnnotator, and (iii) FrameInput,</span>
+<span class="sd">and (iv) FrameBatch. The basic pipeline is shown in the following example.</span>
+
+<span class="sd">Extending the toolkit requires creating new subclasses of the FrameAnnotator</span>
+<span class="sd">object, specifically by overriding the annotate method. This method in turn</span>
+<span class="sd">requires working with a FrameBatch object. Most users should not need to modify</span>
+<span class="sd">or follow the internal structure of the FrameProcessor and FrameInput objects.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">    Start by constructing a new input source by pointing to an existing video</span>
+<span class="sd">    file on disk.</span>
+
+<span class="sd">    &gt;&gt;&gt; fin = FrameInput(&quot;input.mp4&quot;)</span>
+
+<span class="sd">    Then, construct a pipeline of annotators by starting with an empty</span>
+<span class="sd">    FrameProcessor and adding any number of FrameAnnotator objects.</span>
+
+<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
+<span class="sd">    &gt;&gt;&gt; fp.load_annotator(FrameAnnotator())</span>
+
+<span class="sd">    Next, process batches of the data from the input source. If logging is</span>
+<span class="sd">    turned on, this will generate verbose information as each annotator is</span>
+<span class="sd">    called on a particular batch.</span>
+
+<span class="sd">    &gt;&gt;&gt; fp.process(fin)</span>
+
+<span class="sd">    Finally, collect the annotated data as an ordered dictionary of DictFrame</span>
+<span class="sd">    objects.</span>
+
+<span class="sd">    &gt;&gt;&gt; output = fp.collect_all()</span>
+
+<span class="sd">    Following the above sequence will not return any data because we only</span>
+<span class="sd">    loaded the default FrameAnnotator (it returns no data). The annotators</span>
+<span class="sd">    contained in the other sub-modules should be used to extract interesting</span>
+<span class="sd">    results from the source.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">collections</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_format_time</span><span class="p">,</span> <span class="n">stack_dict_frames</span>
+
+
+<div class="viewcode-block" id="FrameProcessor"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameProcessor">[docs]</a><span class="k">class</span> <span class="nc">FrameProcessor</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Run a pipeline of annotators over batches of frames.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        pipeline (OrderedDict): FrameAnnotator objects to run over the inputs.</span>
+<span class="sd">        output (OrderedDict): DictFrame objects containing the annotations.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pipeline</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a new pipeline of annotators.</span>
+
+<span class="sd">        You can pass a collection of annotators to the constructor, or create</span>
+<span class="sd">        an empty processor and fill it with the load_annotator method.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            pipeline (optional): FrameAnnotator objects to run over the inputs.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">pipeline</span><span class="p">:</span>
+            <span class="n">pipeline</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span><span class="n">pipeline</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">anno</span> <span class="ow">in</span> <span class="n">pipeline</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">anno</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FrameProcessor.load_annotator"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameProcessor.load_annotator">[docs]</a>    <span class="k">def</span> <span class="nf">load_annotator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">annotator</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Add an annotator to the end of the pipeline.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            annotator (FrameAnnotator): annotator to add into the pipeline.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="nb">issubclass</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">annotator</span><span class="p">),</span> <span class="n">FrameAnnotator</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">annotator</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">annotator</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">annotator</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="p">[]})</span></div>
+
+<div class="viewcode-block" id="FrameProcessor.process"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameProcessor.process">[docs]</a>    <span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_obj</span><span class="p">,</span> <span class="n">max_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run annotators over an input object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_obj (FrameInput): The input source for batches of data.</span>
+<span class="sd">            max_batch (int): The maximum number of batches to process from the</span>
+<span class="sd">                input. The default value (None) sets no limit on the total</span>
+<span class="sd">                number of batches.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">input_obj</span><span class="o">.</span><span class="n">fcount</span> <span class="o">==</span> <span class="mi">0</span>  <span class="c1"># make sure there is a fresh input</span>
+
+        <span class="c1"># clear and start each annotator</span>
+        <span class="k">for</span> <span class="n">anno</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">anno</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="n">anno</span><span class="o">.</span><span class="n">start</span><span class="p">(</span><span class="n">input_obj</span><span class="p">)</span>
+
+        <span class="c1"># cycle through batches and process the file</span>
+        <span class="k">while</span> <span class="n">input_obj</span><span class="o">.</span><span class="n">continue_read</span><span class="p">:</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">input_obj</span><span class="o">.</span><span class="n">next_batch</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">anno</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="n">next_values</span> <span class="o">=</span> <span class="n">anno</span><span class="o">.</span><span class="n">annotate</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">next_values</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="n">anno</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">+=</span> <span class="n">next_values</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;processed batch </span><span class="si">{0:s}</span><span class="s2"> to </span><span class="si">{1:s}</span><span class="s2"> with annotator: &#39;</span><span class="si">{2:s}</span><span class="s2">&#39;&quot;</span>
+                <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">_format_time</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">start</span><span class="p">),</span>
+                                        <span class="n">_format_time</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">end</span><span class="p">),</span> <span class="n">anno</span><span class="o">.</span><span class="n">name</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">max_batch</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">batch</span><span class="o">.</span><span class="n">frame</span> <span class="o">&gt;=</span> <span class="p">(</span><span class="n">max_batch</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">batch</span><span class="o">.</span><span class="n">bsize</span><span class="p">:</span>
+                    <span class="k">return</span></div>
+
+<div class="viewcode-block" id="FrameProcessor.clear"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameProcessor.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clear the pipeline of annotators and remove all output.</span>
+
+<span class="sd">        Runs the clear method of each annotator and resets the pipeline and</span>
+<span class="sd">        output attributes. Useful for recovering memory on the GPU when running</span>
+<span class="sd">        a collection of large models.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">annotator</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+            <span class="n">annotator</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="FrameProcessor.collect"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameProcessor.collect">[docs]</a>    <span class="k">def</span> <span class="nf">collect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aname</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Collect output from a specific annotator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            aname (str): Name of the annotator from which to collect the data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A DictFrame object with the results.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">stack_dict_frames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="p">[</span><span class="n">aname</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="FrameProcessor.collect_all"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameProcessor.collect_all">[docs]</a>    <span class="k">def</span> <span class="nf">collect_all</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Collect output from all available annotators.</span>
+
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An ordered dictionary with elements that are DictFrame objects. The</span>
+<span class="sd">            names of the entries are given by the annotator names in the</span>
+<span class="sd">            pipeline.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">ocollect</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pipeline</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">ocollect</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">ocollect</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ocollect</span></div></div>
+
+
+<div class="viewcode-block" id="FrameAnnotator"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameAnnotator">[docs]</a><span class="k">class</span> <span class="nc">FrameAnnotator</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Base class for annotating a batch of frames.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): A description of the annotator, used as a key in the output</span>
+<span class="sd">            returned by a FrameProcessor.</span>
+<span class="sd">        cache (dict): Holds internal state of the annotator. Used for passing</span>
+<span class="sd">            data between batches, which should be avoided whenever possible.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;base&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new empty FrameAnnotator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+<div class="viewcode-block" id="FrameAnnotator.clear"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameAnnotator.clear">[docs]</a>    <span class="k">def</span> <span class="nf">clear</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Clear the internal state of an annotator.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="p">{}</span></div>
+
+<div class="viewcode-block" id="FrameAnnotator.start"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameAnnotator.start">[docs]</a>    <span class="k">def</span> <span class="nf">start</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ival</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize internal state using metadata from the input.</span>
+
+<span class="sd">        Some annotators may need to perform an expensive sequence of set up</span>
+<span class="sd">        algorithms before processing data. Often the set up requires knowledge</span>
+<span class="sd">        about the input data. It is useful to do this just once, which can be</span>
+<span class="sd">        accomplished by putting the code in this method. It gets called once</span>
+<span class="sd">        when calling the process method of a FrameProcessor.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ival: A FrameInput object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+<div class="viewcode-block" id="FrameAnnotator.annotate"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Annotate a batch of frames and return the resulting annotations.</span>
+
+<span class="sd">        This method contains the core functionality of an annotator. It takes</span>
+<span class="sd">        a batch of frames and returns the annotated output as a list object.</span>
+<span class="sd">        Lists from batch to batch will be appended together and collected by</span>
+<span class="sd">        calling stack_dict_frames.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            batch (FrameBatch): A batch of images to annotate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            The method should return a list of item(s) that can be combined</span>
+<span class="sd">            into a DictFrame. Specifically, the items should be dictionaries</span>
+<span class="sd">            with a consistent set of keys where all items have the same length</span>
+<span class="sd">            (or first shape value, in the case of numpy array). Can also return</span>
+<span class="sd">            None, in which case nothing is added to the current output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="FrameInput"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameInput">[docs]</a><span class="k">class</span> <span class="nc">FrameInput</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;An input object for extracting batches of images from an input source.</span>
+
+<span class="sd">    Once initialized, subsequent calls to the next_batch method should be</span>
+<span class="sd">    called to cycle through batches of frames. The continue_read flag will be</span>
+<span class="sd">    turn false when all of data from the source has been returned within a</span>
+<span class="sd">    batch. Note that this does not include the look-ahead region. The final</span>
+<span class="sd">    batch will include padding by zeros (black) in this region.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        bsize (int): Number of frames in a batch.</span>
+<span class="sd">        fcount (int): Frame counter for the first frame in the current batch.</span>
+<span class="sd">        vname (str): Name of the video file.</span>
+<span class="sd">        continue_read (bool): Indicates whether there more frames to read from</span>
+<span class="sd">            the input.</span>
+<span class="sd">        start (float): Time code at the start of the current batch.</span>
+<span class="sd">        end (float): Time code at the end of the current batch.</span>
+<span class="sd">        meta (dict): A dictionary containing additional metadata about the</span>
+<span class="sd">            video file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">input_path</span><span class="p">,</span> <span class="n">bsize</span><span class="o">=</span><span class="mi">256</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a new input from a video file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_path (str): Path to the video file. Can be any file readable</span>
+<span class="sd">                by the OpenCV function VideoCapture.</span>
+<span class="sd">            bsize (int): Number of frames to include in a batch. Defaults to</span>
+<span class="sd">                256.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span> <span class="o">=</span> <span class="n">bsize</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vname</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">bsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span>
+                              <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_bandwidth</span><span class="p">()</span>  <span class="c1"># fill the buffer with the first batch</span>
+
+<div class="viewcode-block" id="FrameInput.next_batch"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameInput.next_batch">[docs]</a>    <span class="k">def</span> <span class="nf">next_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move forward one batch and return the current FrameBatch object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A FrameBatch object that contains the next set of frames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span><span class="p">,</span> <span class="s2">&quot;No more input to read.&quot;</span>
+
+        <span class="c1"># shift window over by one bandwidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+        <span class="c1"># fill up the next bandwidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_bandwidth</span><span class="p">()</span>
+
+        <span class="c1"># update counters</span>
+        <span class="n">frame_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_POS_MSEC</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span>
+
+        <span class="c1"># return batch of frames.</span>
+        <span class="k">return</span> <span class="n">FrameBatch</span><span class="p">(</span><span class="n">img</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">,</span> <span class="n">vname</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">vname</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+                          <span class="n">end</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span> <span class="n">continue_read</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span><span class="p">,</span>
+                          <span class="n">frame</span><span class="o">=</span><span class="n">frame_start</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fill metadata attribute using metadata from the video source.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;type&#39;</span><span class="p">:</span> <span class="s1">&#39;video&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;fps&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FPS</span><span class="p">),</span>
+                <span class="s1">&#39;frames&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_COUNT</span><span class="p">)),</span>
+                <span class="s1">&#39;height&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_HEIGHT</span><span class="p">)),</span>
+                <span class="s1">&#39;width&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cv2</span><span class="o">.</span><span class="n">CAP_PROP_FRAME_WIDTH</span><span class="p">))}</span>
+
+    <span class="k">def</span> <span class="nf">_fill_bandwidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read in the next set of frames from disk and store results.</span>
+
+<span class="sd">        This should not be called directly, but only through the next_batch</span>
+<span class="sd">        method. Otherwise the internal counters will become inconsistent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span><span class="p">:</span>
+                <span class="n">rgb_id</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_BGR2RGB</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span>
+                                                                    <span class="n">rgb_id</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span></div>
+
+
+<div class="viewcode-block" id="FrameBatch"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameBatch">[docs]</a><span class="k">class</span> <span class="nc">FrameBatch</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;A collection of frames and associated metadata.</span>
+
+<span class="sd">    The batch contains an array of size (bsize * 2, width, height, 3). At the</span>
+<span class="sd">    start and end of the video file, the array is padded with zeros (an all</span>
+<span class="sd">    black frame). The batch includes twice as many frames as given in the</span>
+<span class="sd">    batch size, but an annotator should only return results from the first</span>
+<span class="sd">    half of the data (the &quot;batch&quot;). The other data is included for annotators</span>
+<span class="sd">    that need to look ahead of the current, such as the cut detectors.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        img (np.array): A four-dimensional array containing pixels from the</span>
+<span class="sd">            next 2*bsize of images.</span>
+<span class="sd">        vname (str): Name of the video file.</span>
+<span class="sd">        start (float): Time code at the start of the current batch.</span>
+<span class="sd">        end (float): Time code at the end of the current batch.</span>
+<span class="sd">        continue_read (bool): Indicates whether there more frames to read from</span>
+<span class="sd">            the input.</span>
+<span class="sd">        frame (int): Frame counter for the first frame in the current batch.</span>
+<span class="sd">        bsize (int): Number of frames in a batch.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">vname</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">,</span> <span class="n">continue_read</span><span class="p">,</span> <span class="n">frame</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">img</span> <span class="o">=</span> <span class="n">img</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vname</span> <span class="o">=</span> <span class="n">vname</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">start</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="n">end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span> <span class="o">=</span> <span class="n">continue_read</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">=</span> <span class="n">frame</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">//</span> <span class="mi">2</span>
+
+<div class="viewcode-block" id="FrameBatch.get_frames"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameBatch.get_frames">[docs]</a>    <span class="k">def</span> <span class="nf">get_frames</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the entire image dataset for the batch.</span>
+
+<span class="sd">        Use this method if you need to look ahead at the following batch for</span>
+<span class="sd">        an annotator to work.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A four-dimensional array containing pixels from the current and</span>
+<span class="sd">            next batches of data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">img</span></div>
+
+<div class="viewcode-block" id="FrameBatch.get_batch"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameBatch.get_batch">[docs]</a>    <span class="k">def</span> <span class="nf">get_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return image data for just the current batch.</span>
+
+<span class="sd">        Use this method unless you have a specific need to look ahead at new</span>
+<span class="sd">        values in the data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A four-dimensional array containing pixels from the current batch</span>
+<span class="sd">            of images.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span></div>
+
+<div class="viewcode-block" id="FrameBatch.get_frame_nums"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.core.FrameBatch.get_frame_nums">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_nums</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Generate frame numbers for the current batch of data.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of integers, with length equal to the batch size.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">frame</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">))</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">dvt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Taylor Arnold.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

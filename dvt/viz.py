@@ -11,8 +11,8 @@ import numpy as np
 def plot_annotations(input_dir, output_dir, obj=None, face=None, cut=None):
     """Here
 
-    :param input_dir: 
-    :param output_dir: 
+    :param input_dir:
+    :param output_dir:
     :param obj:  (Default value = None)
     :param face:  (Default value = None)
     :param cut:  (Default value = None)
@@ -43,7 +43,7 @@ def plot_annotations(input_dir, output_dir, obj=None, face=None, cut=None):
 def make_video(input_dir, oname="temp.mp4", mp3=None, ffmpeg="ffmpeg"):
     """Here
 
-    :param input_dir: 
+    :param input_dir:
     :param oname:  (Default value = "temp.mp4")
     :param mp3:  (Default value = None)
     :param ffmpeg:  (Default value = "ffmpeg")
@@ -66,12 +66,12 @@ def make_video(input_dir, oname="temp.mp4", mp3=None, ffmpeg="ffmpeg"):
 def _process_frame(input_dir, output_dir, fnum, obj, face, cut):
     """Here
 
-    :param input_dir: 
-    :param output_dir: 
-    :param fnum: 
-    :param obj: 
-    :param face: 
-    :param cut: 
+    :param input_dir:
+    :param output_dir:
+    :param fnum:
+    :param obj:
+    :param face:
+    :param cut:
 
     """
 
@@ -103,12 +103,12 @@ def _process_frame(input_dir, output_dir, fnum, obj, face, cut):
 def add_bbox(img, frame, pdf, color=(255, 255, 255), thickness=2):
     """Here
 
-    :param img: 
-    :param frame: 
-    :param pdf: 
+    :param img:
+    :param frame:
+    :param pdf:
     :param color:  (Default value = (255)
-    :param 255: 
-    :param 255): 
+    :param 255:
+    :param 255):
     :param thickness:  (Default value = 2)
 
     """
@@ -130,13 +130,13 @@ def add_bbox(img, frame, pdf, color=(255, 255, 255), thickness=2):
 def add_box_text(img, frame, pdf, lvar, color=(0, 0, 0), bgc=None, size=0.5):
     """Here
 
-    :param img: 
-    :param frame: 
-    :param pdf: 
-    :param lvar: 
+    :param img:
+    :param frame:
+    :param pdf:
+    :param lvar:
     :param color:  (Default value = (0)
-    :param 0: 
-    :param 0): 
+    :param 0:
+    :param 0):
     :param bgc:  (Default value = None)
     :param size:  (Default value = 0.5)
 
@@ -173,14 +173,14 @@ def add_box_text(img, frame, pdf, lvar, color=(0, 0, 0), bgc=None, size=0.5):
 def add_ts(img, frame, pdf, lvar, fct=1, color=(0, 0, 0), size=3):
     """Here
 
-    :param img: 
-    :param frame: 
-    :param pdf: 
-    :param lvar: 
+    :param img:
+    :param frame:
+    :param pdf:
+    :param lvar:
     :param fct:  (Default value = 1)
     :param color:  (Default value = (0)
-    :param 0: 
-    :param 0): 
+    :param 0:
+    :param 0):
     :param size:  (Default value = 3)
 
     """
@@ -199,7 +199,7 @@ def add_ts(img, frame, pdf, lvar, fct=1, color=(0, 0, 0), size=3):
 def add_ts_line(img):
     """Here
 
-    :param img: 
+    :param img:
 
     """
 

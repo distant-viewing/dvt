@@ -1,0 +1,202 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>dvt.annotate.object &#8212; dvt  documentation</title>
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <script async="async" type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for dvt.annotate.object</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;This module illustrates something.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">stack_dict_frames</span>
+
+
+<div class="viewcode-block" id="ObjectAnnotator"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.object.ObjectAnnotator">[docs]</a><span class="k">class</span> <span class="nc">ObjectAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Here&quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;object&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detector</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detector</span> <span class="o">=</span> <span class="n">detector</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ObjectAnnotator.annotate"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.object.ObjectAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Here</span>
+
+<span class="sd">        :param batch:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">f_obj</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fnum</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">):</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">fnum</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">t_obj</span> <span class="o">=</span> <span class="n">stack_dict_frames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">t_obj</span><span class="p">:</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_frame_nums</span><span class="p">()[</span><span class="n">fnum</span><span class="p">]</span>
+                <span class="n">t_obj</span><span class="p">[</span><span class="s1">&#39;video&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">vname</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_obj</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">])</span>
+                <span class="n">t_obj</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_obj</span><span class="p">[</span><span class="s1">&#39;top&#39;</span><span class="p">])</span>
+                <span class="n">f_obj</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t_obj</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">f_obj</span></div></div>
+
+
+<div class="viewcode-block" id="ObjectDetectRetinaNet"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.object.ObjectDetectRetinaNet">[docs]</a><span class="k">class</span> <span class="nc">ObjectDetectRetinaNet</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Here&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">keras_retinanet</span> <span class="k">import</span> <span class="n">models</span>
+        <span class="kn">from</span> <span class="nn">keras_retinanet.utils.image</span> <span class="k">import</span> <span class="n">preprocess_image</span><span class="p">,</span> <span class="n">resize_image</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_image</span> <span class="o">=</span> <span class="n">preprocess_image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resize_image</span> <span class="o">=</span> <span class="n">resize_image</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">backbone_name</span><span class="o">=</span><span class="s1">&#39;resnet50&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lcodes</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;bicycle&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;car&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;motorcycle&#39;</span><span class="p">,</span>
+                       <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;bus&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
+                       <span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;boat&#39;</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="s1">&#39;traffic light&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="s1">&#39;fire hydrant&#39;</span><span class="p">,</span>
+                       <span class="mi">11</span><span class="p">:</span> <span class="s1">&#39;stop sign&#39;</span><span class="p">,</span> <span class="mi">12</span><span class="p">:</span> <span class="s1">&#39;parking meter&#39;</span><span class="p">,</span> <span class="mi">13</span><span class="p">:</span> <span class="s1">&#39;bench&#39;</span><span class="p">,</span>
+                       <span class="mi">14</span><span class="p">:</span> <span class="s1">&#39;bird&#39;</span><span class="p">,</span> <span class="mi">15</span><span class="p">:</span> <span class="s1">&#39;cat&#39;</span><span class="p">,</span> <span class="mi">16</span><span class="p">:</span> <span class="s1">&#39;dog&#39;</span><span class="p">,</span> <span class="mi">17</span><span class="p">:</span> <span class="s1">&#39;horse&#39;</span><span class="p">,</span>
+                       <span class="mi">18</span><span class="p">:</span> <span class="s1">&#39;sheep&#39;</span><span class="p">,</span> <span class="mi">19</span><span class="p">:</span> <span class="s1">&#39;cow&#39;</span><span class="p">,</span> <span class="mi">20</span><span class="p">:</span> <span class="s1">&#39;elephant&#39;</span><span class="p">,</span> <span class="mi">21</span><span class="p">:</span> <span class="s1">&#39;bear&#39;</span><span class="p">,</span>
+                       <span class="mi">22</span><span class="p">:</span> <span class="s1">&#39;zebra&#39;</span><span class="p">,</span> <span class="mi">23</span><span class="p">:</span> <span class="s1">&#39;giraffe&#39;</span><span class="p">,</span> <span class="mi">24</span><span class="p">:</span> <span class="s1">&#39;backpack&#39;</span><span class="p">,</span>
+                       <span class="mi">25</span><span class="p">:</span> <span class="s1">&#39;umbrella&#39;</span><span class="p">,</span> <span class="mi">26</span><span class="p">:</span> <span class="s1">&#39;handbag&#39;</span><span class="p">,</span> <span class="mi">27</span><span class="p">:</span> <span class="s1">&#39;tie&#39;</span><span class="p">,</span>
+                       <span class="mi">28</span><span class="p">:</span> <span class="s1">&#39;suitcase&#39;</span><span class="p">,</span> <span class="mi">29</span><span class="p">:</span> <span class="s1">&#39;frisbee&#39;</span><span class="p">,</span> <span class="mi">30</span><span class="p">:</span> <span class="s1">&#39;skis&#39;</span><span class="p">,</span>
+                       <span class="mi">31</span><span class="p">:</span> <span class="s1">&#39;snowboard&#39;</span><span class="p">,</span> <span class="mi">32</span><span class="p">:</span> <span class="s1">&#39;sports ball&#39;</span><span class="p">,</span> <span class="mi">33</span><span class="p">:</span> <span class="s1">&#39;kite&#39;</span><span class="p">,</span>
+                       <span class="mi">34</span><span class="p">:</span> <span class="s1">&#39;baseball bat&#39;</span><span class="p">,</span> <span class="mi">35</span><span class="p">:</span> <span class="s1">&#39;baseball glove&#39;</span><span class="p">,</span>
+                       <span class="mi">36</span><span class="p">:</span> <span class="s1">&#39;skateboard&#39;</span><span class="p">,</span> <span class="mi">37</span><span class="p">:</span> <span class="s1">&#39;surfboard&#39;</span><span class="p">,</span> <span class="mi">38</span><span class="p">:</span> <span class="s1">&#39;tennis racket&#39;</span><span class="p">,</span>
+                       <span class="mi">39</span><span class="p">:</span> <span class="s1">&#39;bottle&#39;</span><span class="p">,</span> <span class="mi">40</span><span class="p">:</span> <span class="s1">&#39;wine glass&#39;</span><span class="p">,</span> <span class="mi">41</span><span class="p">:</span> <span class="s1">&#39;cup&#39;</span><span class="p">,</span> <span class="mi">42</span><span class="p">:</span> <span class="s1">&#39;fork&#39;</span><span class="p">,</span>
+                       <span class="mi">43</span><span class="p">:</span> <span class="s1">&#39;knife&#39;</span><span class="p">,</span> <span class="mi">44</span><span class="p">:</span> <span class="s1">&#39;spoon&#39;</span><span class="p">,</span> <span class="mi">45</span><span class="p">:</span> <span class="s1">&#39;bowl&#39;</span><span class="p">,</span> <span class="mi">46</span><span class="p">:</span> <span class="s1">&#39;banana&#39;</span><span class="p">,</span>
+                       <span class="mi">47</span><span class="p">:</span> <span class="s1">&#39;apple&#39;</span><span class="p">,</span> <span class="mi">48</span><span class="p">:</span> <span class="s1">&#39;sandwich&#39;</span><span class="p">,</span> <span class="mi">49</span><span class="p">:</span> <span class="s1">&#39;orange&#39;</span><span class="p">,</span>
+                       <span class="mi">50</span><span class="p">:</span> <span class="s1">&#39;broccoli&#39;</span><span class="p">,</span> <span class="mi">51</span><span class="p">:</span> <span class="s1">&#39;carrot&#39;</span><span class="p">,</span> <span class="mi">52</span><span class="p">:</span> <span class="s1">&#39;hot dog&#39;</span><span class="p">,</span>
+                       <span class="mi">53</span><span class="p">:</span> <span class="s1">&#39;pizza&#39;</span><span class="p">,</span> <span class="mi">54</span><span class="p">:</span> <span class="s1">&#39;donut&#39;</span><span class="p">,</span> <span class="mi">55</span><span class="p">:</span> <span class="s1">&#39;cake&#39;</span><span class="p">,</span> <span class="mi">56</span><span class="p">:</span> <span class="s1">&#39;chair&#39;</span><span class="p">,</span>
+                       <span class="mi">57</span><span class="p">:</span> <span class="s1">&#39;couch&#39;</span><span class="p">,</span> <span class="mi">58</span><span class="p">:</span> <span class="s1">&#39;potted plant&#39;</span><span class="p">,</span> <span class="mi">59</span><span class="p">:</span> <span class="s1">&#39;bed&#39;</span><span class="p">,</span>
+                       <span class="mi">60</span><span class="p">:</span> <span class="s1">&#39;dining table&#39;</span><span class="p">,</span> <span class="mi">61</span><span class="p">:</span> <span class="s1">&#39;toilet&#39;</span><span class="p">,</span> <span class="mi">62</span><span class="p">:</span> <span class="s1">&#39;tv&#39;</span><span class="p">,</span>
+                       <span class="mi">63</span><span class="p">:</span> <span class="s1">&#39;laptop&#39;</span><span class="p">,</span> <span class="mi">64</span><span class="p">:</span> <span class="s1">&#39;mouse&#39;</span><span class="p">,</span> <span class="mi">65</span><span class="p">:</span> <span class="s1">&#39;remote&#39;</span><span class="p">,</span>
+                       <span class="mi">66</span><span class="p">:</span> <span class="s1">&#39;keyboard&#39;</span><span class="p">,</span> <span class="mi">67</span><span class="p">:</span> <span class="s1">&#39;cell phone&#39;</span><span class="p">,</span> <span class="mi">68</span><span class="p">:</span> <span class="s1">&#39;microwave&#39;</span><span class="p">,</span>
+                       <span class="mi">69</span><span class="p">:</span> <span class="s1">&#39;oven&#39;</span><span class="p">,</span> <span class="mi">70</span><span class="p">:</span> <span class="s1">&#39;toaster&#39;</span><span class="p">,</span> <span class="mi">71</span><span class="p">:</span> <span class="s1">&#39;sink&#39;</span><span class="p">,</span>
+                       <span class="mi">72</span><span class="p">:</span> <span class="s1">&#39;refrigerator&#39;</span><span class="p">,</span> <span class="mi">73</span><span class="p">:</span> <span class="s1">&#39;book&#39;</span><span class="p">,</span> <span class="mi">74</span><span class="p">:</span> <span class="s1">&#39;clock&#39;</span><span class="p">,</span>
+                       <span class="mi">75</span><span class="p">:</span> <span class="s1">&#39;vase&#39;</span><span class="p">,</span> <span class="mi">76</span><span class="p">:</span> <span class="s1">&#39;scissors&#39;</span><span class="p">,</span> <span class="mi">77</span><span class="p">:</span> <span class="s1">&#39;teddy bear&#39;</span><span class="p">,</span>
+                       <span class="mi">78</span><span class="p">:</span> <span class="s1">&#39;hair drier&#39;</span><span class="p">,</span> <span class="mi">79</span><span class="p">:</span> <span class="s1">&#39;toothbrush&#39;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;unknown&#39;</span><span class="p">}</span>
+
+<div class="viewcode-block" id="ObjectDetectRetinaNet.detect"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.object.ObjectDetectRetinaNet.detect">[docs]</a>    <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Here</span>
+
+<span class="sd">        :param img:</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># process the input image</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_image</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">img</span><span class="p">,</span> <span class="n">scale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resize_image</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="c1"># make predictions and scale back to original</span>
+        <span class="n">boxes</span><span class="p">,</span> <span class="n">scores</span><span class="p">,</span> <span class="n">labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">model</span><span class="o">.</span><span class="n">predict_on_batch</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+        <span class="n">boxes</span> <span class="o">/=</span> <span class="n">scale</span>
+
+        <span class="c1"># arrange output as list of dictionaries for processing</span>
+        <span class="n">objs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">box</span><span class="p">,</span> <span class="n">score</span><span class="p">,</span> <span class="n">label</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">boxes</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">scores</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">labels</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">:</span>
+                <span class="n">objs</span> <span class="o">+=</span> <span class="p">[{</span><span class="s1">&#39;top&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span> <span class="s1">&#39;right&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+                          <span class="s1">&#39;bottom&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span> <span class="s1">&#39;left&#39;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+                          <span class="s1">&#39;score&#39;</span><span class="p">:</span> <span class="n">score</span><span class="p">,</span> <span class="s1">&#39;class&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcodes</span><span class="p">[</span><span class="n">label</span><span class="p">]}]</span>
+
+        <span class="k">return</span> <span class="n">objs</span></div></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">dvt</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, Taylor Arnold.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.8.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
