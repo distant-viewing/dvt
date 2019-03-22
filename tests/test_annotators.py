@@ -8,11 +8,13 @@ import pytest
 from dvt.annotate.core import FrameProcessor, FrameInput, ImageInput
 from dvt.annotate.diff import DiffAnnotator
 from dvt.annotate.embed import EmbedAnnotator, EmbedFrameKerasResNet50
-from dvt.annotate.face import FaceAnnotator, FaceDetectDlib, FaceEmbedDlib, FaceEmbedVgg2
+from dvt.annotate.face import FaceAnnotator, FaceDetectDlib, FaceEmbedDlib, \
+    FaceEmbedVgg2
 from dvt.annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
 from dvt.annotate.png import PngAnnotator
 
-from dvt.utils import DictFrame
+from dvt.utils import DictFrame, get_batch
+
 
 class TestDiffAnno:
 
@@ -121,6 +123,22 @@ class TestFace:
         assert issubclass(type(obj_out['embed']), np.ndarray)
         assert obj_out['embed'].shape == (8, 2048)
 
+    def test_channels(self):
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=1)
+        batch = get_batch(finput, batch_num=0)
+        img = batch.get_frames()[0, :, :, :]
+        face = DictFrame({'top': 0, 'bottom': 96, 'left': 0, 'right': 96})
+
+        femb = FaceEmbedVgg2()
+
+        femb._iformat = "channels_first"
+        emb1 = femb.embed(img, face)
+        femb._iformat = "channels_last"
+        emb2 = femb.embed(img, face)
+
+        assert (emb1 != emb2).any()
+
 
 class TestObject:
 
@@ -154,7 +172,7 @@ class TestObject:
 class TestPng:
 
     def test_png_existing_dir(self):
-        dname = tempfile.mkdtemp() # creates directory
+        dname = tempfile.mkdtemp()           # creates directory
 
         fpobj = FrameProcessor()
         fpobj.load_annotator(PngAnnotator(output_dir=dname))
@@ -168,8 +186,8 @@ class TestPng:
         assert set(os.listdir(dname)) == expected_files
 
     def test_png_new_dir(self):
-        dname = tempfile.mkdtemp() # creates directory
-        dname = os.path.join(dname, "temp2") # this directory will not exist
+        dname = tempfile.mkdtemp()            # creates directory
+        dname = os.path.join(dname, "temp2")  # this directory will not exist
 
         fpobj = FrameProcessor()
         fpobj.load_annotator(PngAnnotator(output_dir=dname))
@@ -183,7 +201,7 @@ class TestPng:
         assert set(os.listdir(dname)) == expected_files
 
     def test_png_image(self):
-        dname = tempfile.mkdtemp() # creates directory
+        dname = tempfile.mkdtemp()              # creates directory
 
         fpobj = FrameProcessor()
         fpobj.load_annotator(PngAnnotator(output_dir=dname))

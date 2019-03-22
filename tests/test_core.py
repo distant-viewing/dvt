@@ -1,9 +1,11 @@
 import numpy as np
 import pytest
 
-from dvt.annotate.core import FrameProcessor, FrameInput, ImageInput, FrameAnnotator
+from dvt.annotate.core import FrameProcessor, FrameInput, ImageInput, \
+    FrameAnnotator
 from dvt.annotate.diff import DiffAnnotator
 from dvt.utils import DictFrame
+
 
 class TestImageInput:
 

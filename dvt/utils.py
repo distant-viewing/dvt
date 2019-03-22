@@ -151,10 +151,8 @@ def stack_dict_frames(ilist, check=True):
     for k in out.keys():
         if isinstance(ilist[0][k], np.ndarray):
             out[k] = np.concatenate([x[k] for x in ilist], axis=0)
-        elif isinstance(ilist[0][k], list):
-            out[k] = list(itertools.chain.from_iterable([x[k] for x in ilist]))
         else:
-            raise TypeError()
+            out[k] = list(itertools.chain.from_iterable([x[k] for x in ilist]))
 
     return DictFrame(out)
 
@@ -220,15 +218,15 @@ def sub_image(img, top, right, bottom, left, fct=1, output_shape=None):
     center = [int((top + bottom) / 2), int((left + right) / 2)]
     height = int((bottom - top) / 2 * fct)
     width = int((right - left) / 2 * fct)
-    box = [center[1] - height, center[1] + height,
-           center[0] - width, center[0] + width]
+    box = [center[0] - height, center[0] + height,
+           center[1] - width, center[1] + width]
 
     # crop the image as an array
     box[0] = max(0, box[0])
     box[2] = max(0, box[2])
     box[1] = min(img.shape[1], box[1])
     box[3] = min(img.shape[0], box[3])
-    crop_img = img[box[2]:box[3], box[0]:box[1], :]
+    crop_img = img[box[0]:box[1], box[2]:box[3], :]
 
     if output_shape:
         img_scaled = cv2.resize(crop_img, output_shape)
