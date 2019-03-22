@@ -6,6 +6,5 @@ from . import diff
 from . import embed
 from . import face
 from . import png
-from . import utils
 
 __version__ = '0.2.0'

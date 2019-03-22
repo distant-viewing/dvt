@@ -120,7 +120,7 @@ class FrameProcessor:
                     logging.info(msg.format(batch.fnames[0], anno.name))
 
             if max_batch is not None:
-                if batch.bnum >= max_batch + 1:
+                if batch.bnum >= max_batch - 1:
                     return
 
     def clear(self):
@@ -263,6 +263,7 @@ class FrameInput:
         self._img = np.zeros((bsize * 2, self.meta['height'],
                               self.meta['width'], 3), dtype=np.uint8)
         self._fill_bandwidth()  # fill the buffer with the first batch
+        self._continue = True   # is there any more input left in the video
 
     def next_batch(self):
         """Move forward one batch and return the current FrameBatch object.
@@ -276,8 +277,12 @@ class FrameInput:
         # shift window over by one bandwidth
         self._img[:self.bsize, :, :, :] = self._img[self.bsize:, :, :, :]
 
-        # fill up the next bandwidth
-        self._fill_bandwidth()
+        # fill up the bandwidth; with zeros as and of video input
+        if self._continue:
+            self._fill_bandwidth()
+        else:
+            self.continue_read = self._continue
+            self._img[self.bsize:, :, :, :] = 0
 
         # update counters
         frame_start = self.fcount
@@ -309,8 +314,8 @@ class FrameInput:
         method. Otherwise the internal counters will become inconsistent.
         """
         for idx in range(self.bsize):
-            self.continue_read, frame = self._video_cap.read()
-            if self.continue_read:
+            self._continue, frame = self._video_cap.read()
+            if self._continue:
                 rgb_id = cv2.COLOR_BGR2RGB
                 self._img[idx + self.bsize, :, :, :] = cv2.cvtColor(frame,
                                                                     rgb_id)
@@ -334,7 +339,7 @@ class ImageInput:
             the input.
         fcount (int): Pointer to the next image to return.
         meta (dict): A dictionary containing additional metadata about the
-            video file.
+            input images.
     """
 
     def __init__(self, input_paths, vname=""):
@@ -354,7 +359,7 @@ class ImageInput:
 
         # find input paths
         if not isinstance(input_paths, list):
-            input_paths = []
+            input_paths = [input_paths]
 
         input_paths = [glob.glob(x, recursive=True) for x in input_paths]
         self.paths = list(itertools.chain.from_iterable(input_paths))
@@ -386,6 +391,7 @@ class ImageInput:
                           continue_read=self.continue_read,
                           fnames=[self.paths[this_index]],
                           bnum=this_index)
+
 
 class FrameBatch:
     """A collection of frames and associated metadata.

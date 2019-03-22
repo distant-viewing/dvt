@@ -71,7 +71,7 @@ class FaceAnnotator(FrameAnnotator):
 
     name = 'face'
 
-    def __init__(self, detector=None, embedding=None, freq=1):
+    def __init__(self, detector, embedding=None, freq=1):
         self.freq = freq
         self.detector = detector
         self.embedding = embedding

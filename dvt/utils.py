@@ -169,8 +169,6 @@ def pd_to_dict_frame(pdf, use_array=True):
             structure. Default to True. Currently unimplemented.
     """
     out = DictFrame(pdf.to_dict(orient='list'))
-    if use_array:
-        pass
 
     return out
 
