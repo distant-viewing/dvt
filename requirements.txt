@@ -1,0 +1,7 @@
+numpy
+keras
+tensorflow
+scipy>=1.0.0
+h5py
+cv2
+keras_retinanet
