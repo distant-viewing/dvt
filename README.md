@@ -1,4 +1,7 @@
-# Distant Viewing Toolkit (DVT) for the Cultural Analysis of Moving Images
+# Distant Viewing Toolkit (DVT): Cultural Analysis of Still and Moving Images
+
+
+[![Build Status](https://travis-ci.org/distant-viewing/dvt.svg?branch=master)](https://travis-ci.org/distant-viewing/dvt)  [![ReadTheDocs](https://readthedocs.org/projects/dvt/badge/?version=latest)](https://readthedocs.org/projects/dvt/badge/?version=latest) [![codecov](https://codecov.io/gh/distant-viewing/dvt/branch/master/graph/badge.svg)](https://codecov.io/gh/distant-viewing/dvt)  [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/dvt.svg)](https://pypi.python.org/pypi/dvt/) [![PyPI version shields.io](https://img.shields.io/pypi/v/dvt.svg)](https://pypi.python.org/pypi/dvt/)
 
 **Note:** *This project is currently being developed and
 will be iteratively improved and streamlined (we plan for
