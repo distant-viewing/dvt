@@ -112,9 +112,13 @@ class FrameProcessor:
                     self.output[anno.name] += next_values
                 if isinstance(batch.fnames[0], int):
                     msg = "processed {0:s} to {1:s} with annotator: '{2:s}'"
-                    logging.info(msg.format(_format_time(batch.start),
-                                            _format_time(batch.end),
-                                                         anno.name))
+                    logging.info(
+                        msg.format(
+                            _format_time(batch.start),
+                            _format_time(batch.end),
+                            anno.name,
+                        )
+                    )
                 else:
                     msg = "processed {0:s} with annotator: '{1:s}'"
                     logging.info(msg.format(batch.fnames[0], anno.name))
@@ -174,7 +178,7 @@ class FrameAnnotator:
             data between batches, which should be avoided whenever possible.
     """
 
-    name = 'base'
+    name = "base"
 
     def __init__(self):
         """Create a new empty FrameAnnotator.
@@ -260,10 +264,11 @@ class FrameInput:
         self._video_cap = cv2.VideoCapture(input_path)
         self.meta = self._metadata()
 
-        self._img = np.zeros((bsize * 2, self.meta['height'],
-                              self.meta['width'], 3), dtype=np.uint8)
+        self._img = np.zeros(
+            (bsize * 2, self.meta["height"], self.meta["width"], 3), dtype=np.uint8
+        )
         self._fill_bandwidth()  # fill the buffer with the first batch
-        self._continue = True   # is there any more input left in the video
+        self._continue = True  # is there any more input left in the video
 
     def next_batch(self):
         """Move forward one batch and return the current FrameBatch object.
@@ -275,14 +280,14 @@ class FrameInput:
         assert self.continue_read, "No more input to read."
 
         # shift window over by one bandwidth
-        self._img[:self.bsize, :, :, :] = self._img[self.bsize:, :, :, :]
+        self._img[: self.bsize, :, :, :] = self._img[self.bsize :, :, :, :]
 
         # fill up the bandwidth; with zeros as and of video input
         if self._continue:
             self._fill_bandwidth()
         else:
             self.continue_read = self._continue
-            self._img[self.bsize:, :, :, :] = 0
+            self._img[self.bsize :, :, :, :] = 0
 
         # update counters
         frame_start = self.fcount
@@ -294,18 +299,26 @@ class FrameInput:
         fnames = list(range(int(frame_start), int(frame_start + self.bsize)))
 
         # return batch of frames.
-        return FrameBatch(img=self._img, vname=self.vname, start=self.start,
-                          end=self.end, continue_read=self.continue_read,
-                          fnames=fnames, bnum=(frame_start//self.bsize))
+        return FrameBatch(
+            img=self._img,
+            vname=self.vname,
+            start=self.start,
+            end=self.end,
+            continue_read=self.continue_read,
+            fnames=fnames,
+            bnum=(frame_start // self.bsize),
+        )
 
     def _metadata(self):
         """Fill metadata attribute using metadata from the video source.
         """
-        return {'type': 'video',
-                'fps': self._video_cap.get(cv2.CAP_PROP_FPS),
-                'frames': int(self._video_cap.get(cv2.CAP_PROP_FRAME_COUNT)),
-                'height': int(self._video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
-                'width': int(self._video_cap.get(cv2.CAP_PROP_FRAME_WIDTH))}
+        return {
+            "type": "video",
+            "fps": self._video_cap.get(cv2.CAP_PROP_FPS),
+            "frames": int(self._video_cap.get(cv2.CAP_PROP_FRAME_COUNT)),
+            "height": int(self._video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
+            "width": int(self._video_cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+        }
 
     def _fill_bandwidth(self):
         """Read in the next set of frames from disk and store results.
@@ -317,8 +330,7 @@ class FrameInput:
             self._continue, frame = self._video_cap.read()
             if self._continue:
                 rgb_id = cv2.COLOR_BGR2RGB
-                self._img[idx + self.bsize, :, :, :] = cv2.cvtColor(frame,
-                                                                    rgb_id)
+                self._img[idx + self.bsize, :, :, :] = cv2.cvtColor(frame, rgb_id)
             else:
                 self._img[idx + self.bsize, :, :, :] = 0
 
@@ -355,7 +367,7 @@ class ImageInput:
         self.continue_read = True
         self.fcount = 0
         self.start = 0
-        self.meta = {'type': 'image', 'height': -1, 'width': -1}
+        self.meta = {"type": "image", "height": -1, "width": -1}
 
         # find input paths
         if not isinstance(input_paths, list):
@@ -386,11 +398,15 @@ class ImageInput:
             self.continue_read = False
 
         # return batch of frames.
-        return FrameBatch(img=img, vname=self.vname, start=float(this_index),
-                          end=float(this_index),
-                          continue_read=self.continue_read,
-                          fnames=[self.paths[this_index]],
-                          bnum=this_index)
+        return FrameBatch(
+            img=img,
+            vname=self.vname,
+            start=float(this_index),
+            end=float(this_index),
+            continue_read=self.continue_read,
+            fnames=[self.paths[this_index]],
+            bnum=this_index,
+        )
 
 
 class FrameBatch:
@@ -416,6 +432,7 @@ class FrameBatch:
         bnum (int): The batch number.
 
     """
+
     def __init__(self, img, vname, start, end, continue_read, fnames, bnum):
         self.img = img
         self.vname = vname
@@ -448,7 +465,7 @@ class FrameBatch:
             A four-dimensional array containing pixels from the current batch
             of images.
         """
-        return self.img[:self.bsize, :, :, :]
+        return self.img[: self.bsize, :, :, :]
 
     def get_frame_names(self):
         """Return frame names for the current batch of data.

@@ -7,4 +7,4 @@ from . import embed
 from . import face
 from . import png
 
-__version__ = '0.2.0'
+__version__ = "0.2.0"

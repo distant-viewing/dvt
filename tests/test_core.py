@@ -1,26 +1,29 @@
 import numpy as np
 import pytest
 
-from dvt.annotate.core import FrameProcessor, FrameInput, ImageInput, \
-    FrameAnnotator
+from dvt.annotate.core import FrameProcessor, FrameInput, ImageInput, FrameAnnotator
 from dvt.annotate.diff import DiffAnnotator
 from dvt.utils import DictFrame
 
 
 class TestImageInput:
-
     def test_length_input_glob(self):
         iobj = ImageInput(input_paths="test-data/img/*")
         assert len(iobj.paths) == 12
 
     def test_manual_paths(self):
-        iobj = ImageInput(input_paths=["test-data/img/frame-000076.png",
-                                       "test-data/img/frame-000506.png"])
+        iobj = ImageInput(
+            input_paths=[
+                "test-data/img/frame-000076.png",
+                "test-data/img/frame-000506.png",
+            ]
+        )
         assert len(iobj.paths) == 2
 
     def test_remove_bad_path(self):
-        iobj = ImageInput(input_paths=["test-data/img/frame-000076.png",
-                                       "bad-file-name.png"])
+        iobj = ImageInput(
+            input_paths=["test-data/img/frame-000076.png", "bad-file-name.png"]
+        )
         assert len(iobj.paths) == 1
 
     def test_frames(self):
@@ -38,8 +41,12 @@ class TestImageInput:
         assert batch.vname == "something"
 
     def test_continue_bnum(self):
-        iobj = ImageInput(input_paths=["test-data/img/frame-000076.png",
-                                       "test-data/img/frame-000506.png"])
+        iobj = ImageInput(
+            input_paths=[
+                "test-data/img/frame-000076.png",
+                "test-data/img/frame-000506.png",
+            ]
+        )
 
         batch = iobj.next_batch()
         assert batch.bnum == 0
@@ -50,8 +57,12 @@ class TestImageInput:
         assert not iobj.continue_read
 
     def test_get_frame_names(self):
-        iobj = ImageInput(input_paths=["test-data/img/frame-000076.png",
-                                       "test-data/img/frame-000506.png"])
+        iobj = ImageInput(
+            input_paths=[
+                "test-data/img/frame-000076.png",
+                "test-data/img/frame-000506.png",
+            ]
+        )
 
         batch = iobj.next_batch()
         fnames = batch.get_frame_names()
@@ -63,15 +74,14 @@ class TestImageInput:
 
 
 class TestFrameInput:
-
     def test_metadata(self):
         fobj = FrameInput("test-data/video-clip.mp4")
 
-        assert fobj.meta['type'] == 'video'
-        assert fobj.meta['fps'] == 29.97002997002997
-        assert fobj.meta['frames'] == 379
-        assert fobj.meta['height'] == 480
-        assert fobj.meta['width'] == 708
+        assert fobj.meta["type"] == "video"
+        assert fobj.meta["fps"] == 29.97002997002997
+        assert fobj.meta["frames"] == 379
+        assert fobj.meta["height"] == 480
+        assert fobj.meta["width"] == 708
         assert fobj.vname == "video-clip.mp4"
 
     def test_batch_bsize(self):
@@ -109,7 +119,6 @@ class TestFrameInput:
 
 
 class TestFrameBatch:
-
     def test_batch_size(self):
         fobj = FrameInput("test-data/video-clip.mp4", bsize=4)
 
@@ -127,11 +136,10 @@ class TestFrameBatch:
 
 
 class TestFrameAnnotator:
-
     def test_clear_cache(self):
 
         fanno = FrameAnnotator()
-        fanno.cache = {'key': 'value'}
+        fanno.cache = {"key": "value"}
         fanno.clear()
 
         assert fanno.cache == {}
@@ -144,17 +152,16 @@ class TestFrameAnnotator:
 
 
 class TestFrameProcessor:
-
     def test_input_pipeline_empty(self):
         fpobj = FrameProcessor()
         assert fpobj.pipeline == {}
 
     def test_input_pipeline(self):
         fanno = FrameAnnotator()
-        fpobj = FrameProcessor({'base': fanno})
+        fpobj = FrameProcessor({"base": fanno})
 
         pline = fpobj.pipeline
-        assert list(pline.keys()) == ['base']
+        assert list(pline.keys()) == ["base"]
         assert issubclass(type(list(pline.values())[0]), FrameAnnotator)
 
     def test_load_annotators(self):
@@ -163,16 +170,16 @@ class TestFrameProcessor:
         fpobj.load_annotator(FrameAnnotator())
         pline = fpobj.pipeline
         assert len(pline) == 1
-        assert list(pline.keys()) == ['base']
+        assert list(pline.keys()) == ["base"]
         assert issubclass(type(list(pline.values())[0]), FrameAnnotator)
 
         fobj = FrameAnnotator()
-        fobj.name = 'other'
+        fobj.name = "other"
         fpobj.load_annotator(fobj)
 
         pline = fpobj.pipeline
         assert len(pline) == 2
-        assert list(pline.keys()) == ['base', 'other']
+        assert list(pline.keys()) == ["base", "other"]
 
     def test_clear(self):
         fpobj = FrameProcessor()
@@ -189,7 +196,7 @@ class TestFrameProcessor:
         finput = FrameInput("test-data/video-clip.mp4", bsize=4)
         fpobj.process(finput)
 
-        assert fpobj.collect('base') == DictFrame()
+        assert fpobj.collect("base") == DictFrame()
 
     def test_process_full_output(self):
         fpobj = FrameProcessor()
@@ -198,7 +205,7 @@ class TestFrameProcessor:
         finput = FrameInput("test-data/video-clip.mp4", bsize=128)
         fpobj.process(finput)
 
-        obj_diff = fpobj.collect('diff')
+        obj_diff = fpobj.collect("diff")
         assert obj_diff.shape[0] == (128 * 3)
 
     def test_max_batch(self):
@@ -208,7 +215,7 @@ class TestFrameProcessor:
         finput = FrameInput("test-data/video-clip.mp4", bsize=8)
         fpobj.process(finput, max_batch=3)
 
-        obj_diff = fpobj.collect('diff')
+        obj_diff = fpobj.collect("diff")
         assert obj_diff.shape[0] == (3 * 8)
 
     def test_collect_all(self):
@@ -221,9 +228,9 @@ class TestFrameProcessor:
 
         output = fpobj.collect_all()
 
-        assert output['base'] == DictFrame()
-        assert output['diff'].shape[0] == (2 * 8)
+        assert output["base"] == DictFrame()
+        assert output["diff"].shape[0] == (2 * 8)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     pytest.main([__file__])

@@ -39,7 +39,7 @@ class PngAnnotator(FrameAnnotator):
             the frequency to 2 will save every other frame in the batch.
     """
 
-    name = 'png'
+    name = "png"
 
     def __init__(self, output_dir, freq=1):
         self.freq = freq

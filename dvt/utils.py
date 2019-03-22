@@ -89,10 +89,10 @@ class DictFrame(collections.OrderedDict):
         """
 
         for key, value in self.items():
-            assert isinstance(value, (list, np.ndarray)),\
-                   "Error in data type of '" + key + "'."
-            assert len(value) == self.shape[0],\
-                   "Error in length of '" + key + "'."
+            assert isinstance(value, (list, np.ndarray)), (
+                "Error in data type of '" + key + "'."
+            )
+            assert len(value) == self.shape[0], "Error in length of '" + key + "'."
 
     def _compute_shape(self):
         """ """
@@ -166,7 +166,7 @@ def pd_to_dict_frame(pdf, use_array=True):
         use_array (bool): Should the function attempt to recreate the array
             structure. Default to True. Currently unimplemented.
     """
-    out = DictFrame(pdf.to_dict(orient='list'))
+    out = DictFrame(pdf.to_dict(orient="list"))
 
     return out
 
@@ -218,15 +218,14 @@ def sub_image(img, top, right, bottom, left, fct=1, output_shape=None):
     center = [int((top + bottom) / 2), int((left + right) / 2)]
     height = int((bottom - top) / 2 * fct)
     width = int((right - left) / 2 * fct)
-    box = [center[0] - height, center[0] + height,
-           center[1] - width, center[1] + width]
+    box = [center[0] - height, center[0] + height, center[1] - width, center[1] + width]
 
     # crop the image as an array
     box[0] = max(0, box[0])
     box[2] = max(0, box[2])
     box[1] = min(img.shape[1], box[1])
     box[3] = min(img.shape[0], box[3])
-    crop_img = img[box[0]:box[1], box[2]:box[3], :]
+    crop_img = img[box[0] : box[1], box[2] : box[3], :]
 
     if output_shape:
         img_scaled = cv2.resize(crop_img, output_shape)
@@ -269,8 +268,9 @@ def _format_time(msec):
     second = (msec % (1000 * 60)) // (1000)
     remainder = msec % 1000
 
-    return "{0:02d}:{1:02d}:{2:02d},{3:03d}".format(hour, minute, second,
-                                                    int(remainder))
+    return "{0:02d}:{1:02d}:{2:02d},{3:03d}".format(
+        hour, minute, second, int(remainder)
+    )
 
 
 def _trim_bbox(css, image_shape):
@@ -287,5 +287,9 @@ def _trim_bbox(css, image_shape):
     Returns:
         An updated bounding box trimmed to the extend of the image.
     """
-    return max(css[0], 0), min(css[1], image_shape[1]), \
-            min(css[2], image_shape[0]), max(css[3], 0)
+    return (
+        max(css[0], 0),
+        min(css[1], image_shape[1]),
+        min(css[2], image_shape[0]),
+        max(css[3], 0),
+    )

@@ -69,7 +69,7 @@ class FaceAnnotator(FrameAnnotator):
             the frequency to 2 will embed every other frame in the batch.
     """
 
-    name = 'face'
+    name = "face"
 
     def __init__(self, detector, embedding=None, freq=1):
         self.freq = freq
@@ -96,16 +96,16 @@ class FaceAnnotator(FrameAnnotator):
             t_faces = stack_dict_frames(self.detector.detect(img))
             if t_faces:
                 frame = batch.get_frame_names()[fnum]
-                t_faces['video'] = [batch.vname] * len(t_faces['top'])
-                t_faces['frame'] = [frame] * len(t_faces['top'])
+                t_faces["video"] = [batch.vname] * len(t_faces["top"])
+                t_faces["frame"] = [frame] * len(t_faces["top"])
                 if self.embedding is not None:
-                    t_faces['embed'] = self.embedding.embed(img, t_faces)
+                    t_faces["embed"] = self.embedding.embed(img, t_faces)
                 f_faces.append(t_faces)
 
         return f_faces
 
 
-class FaceDetectDlib():
+class FaceDetectDlib:
     """Detect faces using the dlib CNN model.
 
     A face detector that balances speed and accuracy.
@@ -137,17 +137,29 @@ class FaceDetectDlib():
         faces = []
         for det in dets:
             if det.confidence >= self.cutoff:
-                bbox = _trim_bbox((det.rect.top(), det.rect.right(),
-                                   det.rect.bottom(), det.rect.left()),
-                                  img.shape)
-                faces += [{'top': bbox[0], 'right': bbox[1],
-                           'bottom': bbox[2], 'left': bbox[3],
-                           'confidence': det.confidence}]
+                bbox = _trim_bbox(
+                    (
+                        det.rect.top(),
+                        det.rect.right(),
+                        det.rect.bottom(),
+                        det.rect.left(),
+                    ),
+                    img.shape,
+                )
+                faces += [
+                    {
+                        "top": bbox[0],
+                        "right": bbox[1],
+                        "bottom": bbox[2],
+                        "left": bbox[3],
+                        "confidence": det.confidence,
+                    }
+                ]
 
         return faces
 
 
-class FaceEmbedDlib():
+class FaceEmbedDlib:
     """Embed faces using the dlib CNN model.
 
     A face embedding that balances ease of use with accuracy.
@@ -173,23 +185,24 @@ class FaceEmbedDlib():
             A numpy array with one row for each input face and 128 columns.
         """
         embed_mat = []
-        for ind in range(len(faces['top'])):
+        for ind in range(len(faces["top"])):
             # detect pose
-            rec = dlib.rectangle(left=faces['left'][ind],
-                                 top=faces['top'][ind],
-                                 right=faces['right'][ind],
-                                 bottom=faces['bottom'][ind])
+            rec = dlib.rectangle(
+                left=faces["left"][ind],
+                top=faces["top"][ind],
+                right=faces["right"][ind],
+                bottom=faces["bottom"][ind],
+            )
             rls = self.pose(img, rec)
 
             # compute the embedding and add to our list of output
             emat = self.encode.compute_face_descriptor(img, rls, 1)
             embed_mat.append(np.array(emat))
 
-
         return np.vstack(embed_mat)
 
 
-class FaceEmbedVgg2():
+class FaceEmbedVgg2:
     """Embed faces using the VGGFace2 model.
 
     A face embedding with state-of-the-art results, particularly suitable when
@@ -217,14 +230,18 @@ class FaceEmbedVgg2():
         """
 
         embed_mat = []
-        for ind in range(len(faces['top'])):
-            iscale = self._proc_image(sub_image(img=img,
-                                                top=faces['top'][ind],
-                                                right=faces['right'][ind],
-                                                bottom=faces['bottom'][ind],
-                                                left=faces['left'][ind],
-                                                fct=1.3,
-                                                output_shape=(224, 224)))
+        for ind in range(len(faces["top"])):
+            iscale = self._proc_image(
+                sub_image(
+                    img=img,
+                    top=faces["top"][ind],
+                    right=faces["right"][ind],
+                    bottom=faces["bottom"][ind],
+                    left=faces["left"][ind],
+                    fct=1.3,
+                    output_shape=(224, 224),
+                )
+            )
 
             embed = self._model.predict(iscale)
             embed_mat.append(embed[0, 0, 0, :])
@@ -235,7 +252,7 @@ class FaceEmbedVgg2():
         iscale = np.float32(iscale)
         iscale = np.expand_dims(iscale, axis=0)
 
-        if self._iformat == 'channels_first':
+        if self._iformat == "channels_first":
             iscale = iscale[:, ::-1, ...]
             iscale[:, 0, :, :] -= 91.4953
             iscale[:, 1, :, :] -= 103.8827

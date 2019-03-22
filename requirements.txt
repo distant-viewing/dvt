@@ -6,3 +6,7 @@ h5py
 opencv-python
 keras_retinanet
 dlib
+pytest
+pytest-cov
+pytest-pep8
+codecov

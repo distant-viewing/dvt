@@ -52,7 +52,8 @@ class EmbedAnnotator(FrameAnnotator):
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will embed every other frame in the batch.
     """
-    name = 'embed'
+
+    name = "embed"
 
     def __init__(self, embedding, freq=1):
         self.freq = freq
@@ -75,13 +76,13 @@ class EmbedAnnotator(FrameAnnotator):
 
         # run the embedding and add video and frame metadata
         obj = self.embedding.embed(batch.img[fnum, :, :, :])
-        obj['video'] = [batch.vname] * len(fnum)
-        obj['frame'] = np.array(batch.get_frame_names())[list(fnum)]
+        obj["video"] = [batch.vname] * len(fnum)
+        obj["frame"] = np.array(batch.get_frame_names())[list(fnum)]
 
         return [obj]
 
 
-class EmbedFrameKeras():
+class EmbedFrameKeras:
     """A generic class for applying an embedding to frames.
 
     Applies a keras model to a batch of frames. The input of the model is
@@ -100,8 +101,7 @@ class EmbedFrameKeras():
         from keras.models import Model
 
         if outlayer is not None:
-            model = Model(inputs=model.input,
-                          outputs=model.get_layer(outlayer).output)
+            model = Model(inputs=model.input, outputs=model.get_layer(outlayer).output)
 
         self.input_shape = (model.input_shape[1], model.input_shape[2])
         self.model = model
@@ -131,7 +131,7 @@ class EmbedFrameKeras():
         # produce embeddings
         embed = self.model.predict(rimg)
 
-        return {'embed': embed}
+        return {"embed": embed}
 
 
 class EmbedFrameKerasResNet50(EmbedFrameKeras):
@@ -152,7 +152,7 @@ class EmbedFrameKerasResNet50(EmbedFrameKeras):
     def __init__(self):
         import keras.applications.resnet50
 
-        model = keras.applications.resnet50.ResNet50(weights='imagenet')
+        model = keras.applications.resnet50.ResNet50(weights="imagenet")
         ppobj = keras.applications.resnet50.preprocess_input
 
         super().__init__(model, ppobj, outlayer="avg_pool")

@@ -43,7 +43,7 @@ class CutAggregator(Aggregator):
         """
 
         # grab the data, initialize counters, and create output `cuts`
-        ops = ldframe['diff']
+        ops = ldframe["diff"]
         this_video = ""
         ignore_this_frame = True
         current_cut_start = 0
@@ -51,13 +51,13 @@ class CutAggregator(Aggregator):
 
         # cycle through frames and collection shots; assumes that the data is
         # grouped by video and ordered by frame
-        mlen = len(ops['frame'])
+        mlen = len(ops["frame"])
         for ind in range(mlen):
-            this_frame = ops['frame'][ind]
+            this_frame = ops["frame"][ind]
 
             # if this a new video, restart the frame numbering
-            if this_video != ops['video'][ind]:
-                this_video = ops['video'][ind]
+            if this_video != ops["video"][ind]:
+                this_video = ops["video"][ind]
                 current_cut_start = this_frame
 
             # check to see if we should ignore the next frame; by default we
@@ -90,9 +90,13 @@ class CutAggregator(Aggregator):
             # if `cut_detect` at this point, then we want to finish the active
             # cut with the current frame
             if cut_detect:
-                cuts.append({'video': this_video,
-                             'frame_start': current_cut_start,
-                             'frame_end': this_frame})
+                cuts.append(
+                    {
+                        "video": this_video,
+                        "frame_start": current_cut_start,
+                        "frame_end": this_frame,
+                    }
+                )
 
             if cut_detect or ignore_next_frame:
                 current_cut_start = this_frame + 1

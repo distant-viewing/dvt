@@ -60,7 +60,8 @@ class DiffAnnotator(FrameAnnotator):
         bins (int): How many bins to include in the histogram differences. Will
             make this many bins for each of hue, saturation, and value.
     """
-    name = 'diff'
+
+    name = "diff"
 
     def __init__(self, quantiles=None, size=32, bins=16):
         if not quantiles:
@@ -82,9 +83,9 @@ class DiffAnnotator(FrameAnnotator):
             value, and any requested quantile and histogram differences.
         """
 
-        output = {'video': [batch.vname] * batch.bsize}
-        output['frame'] = batch.get_frame_names()
-        output['avg_value'] = _average_value_batch(batch)
+        output = {"video": [batch.vname] * batch.bsize}
+        output["frame"] = batch.get_frame_names()
+        output["avg_value"] = _average_value_batch(batch)
 
         for quant in self.quantiles:
             key = "q{0:d}".format(quant)
