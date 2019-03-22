@@ -29,7 +29,7 @@ from .core import FrameAnnotator
 class PngAnnotator(FrameAnnotator):
     """Annotator for saving PNG still images from an input.
 
-    The annotate method of this annotator does not return and data. It is
+    The annotate method of this annotator does not return any data. It is
     useful only for its side effects.
 
     Attributes:
@@ -60,8 +60,14 @@ class PngAnnotator(FrameAnnotator):
         """
         for fnum in range(0, batch.bsize, self.freq):
             img = cv2.cvtColor(batch.img[fnum, :, :, :], cv2.COLOR_RGB2BGR)
-            frame = batch.get_frame_nums()[fnum]
-            opath = "frame-{0:06d}.png".format(frame)
+            frame = batch.get_frame_names()[fnum]
+
+            if isinstance(frame, int):
+                opath = "frame-{0:06d}.png".format(frame)
+            else:
+                opath = os.path.basename(frame)
+                opath = os.path.splitext(opath)[0] + ".png"
+
             opath = os.path.join(self.output_dir, opath)
             cv2.imwrite(filename=opath, img=img)
 

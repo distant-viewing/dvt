@@ -76,7 +76,7 @@ class EmbedAnnotator(FrameAnnotator):
         # run the embedding and add video and frame metadata
         obj = self.embedding.embed(batch.img[fnum, :, :, :])
         obj['video'] = [batch.vname] * len(fnum)
-        obj['frame'] = np.array(batch.get_frame_nums())[list(fnum)]
+        obj['frame'] = np.array(batch.get_frame_names())[list(fnum)]
 
         return [obj]
 

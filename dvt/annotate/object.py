@@ -85,7 +85,7 @@ class ObjectAnnotator(FrameAnnotator):
             img = batch.img[fnum, :, :, :]
             t_obj = stack_dict_frames(self.detector.detect(img))
             if t_obj:
-                frame = batch.get_frame_nums()[fnum]
+                frame = batch.get_frame_names()[fnum]
                 t_obj['video'] = [batch.vname] * len(t_obj['top'])
                 t_obj['frame'] = [frame] * len(t_obj['top'])
                 f_obj.append(t_obj)

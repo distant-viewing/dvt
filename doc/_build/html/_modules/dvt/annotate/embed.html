@@ -34,7 +34,38 @@
             
   <h1>Source code for dvt.annotate.embed</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;This module illustrates something.</span>
+<span class="sd">&quot;&quot;&quot;Annotator to embedding a set of frame using a neural network.</span>
+
+<span class="sd">Given a convolutional neural network trained on a supervised learning task,</span>
+<span class="sd">embedding into the penultimate layer (or some other internal layer) gives a</span>
+<span class="sd">useful embedding that can be used similar to word vectors. This module returns</span>
+<span class="sd">an embedding over a (possible subset) of the frames in an input. The module</span>
+<span class="sd">can also be used when the embedding corresponds to a concrete supervised task.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
+<span class="sd">    the a sample usage of the EmbedFrameKerasResNet50 over two batches of the</span>
+<span class="sd">    input. The embedding is applied to every 128 frames.</span>
+
+<span class="sd">    &gt;&gt;&gt; embed = EmbedFrameKerasResNet50()</span>
+<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
+<span class="sd">    &gt;&gt;&gt; fp.load_annotator(EmbedAnnotator(freq=128, embedding=embed))</span>
+<span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
+
+<span class="sd">    Then, collect the output from the annotator and display as a pandas data</span>
+<span class="sd">    frame.</span>
+
+<span class="sd">    &gt;&gt;&gt; fp.collect(&quot;embed&quot;).todf()</span>
+<span class="sd">           video  frame   embed-0     ...      embed-2045  embed-2046  embed-2047</span>
+<span class="sd">    0  input.mp4      0  0.000000     ...        0.000000    0.004976    0.000000</span>
+<span class="sd">    1  input.mp4    128  0.534926     ...        0.100585    0.379687    0.016144</span>
+<span class="sd">    2  input.mp4    256  0.259463     ...        0.663053    0.002361    0.168496</span>
+<span class="sd">    3  input.mp4    384  0.079264     ...        0.351160    0.025871    0.189005</span>
+
+<span class="sd">    [4 rows x 2050 columns]</span>
+
+<span class="sd">    Notice that there are 4 rows because we embedded once every 128 frames and</span>
+<span class="sd">    ran two batches, each with 256 frames.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">cv2</span>
@@ -44,8 +75,18 @@
 
 
 <div class="viewcode-block" id="EmbedAnnotator"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.embed.EmbedAnnotator">[docs]</a><span class="k">class</span> <span class="nc">EmbedAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Here&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Annotator for embedding frames into an ambient space.</span>
 
+<span class="sd">    The annotator will return a numpy array, with one row per processed frame.</span>
+<span class="sd">    Control how frequently the annotator runs by setting the frequency</span>
+<span class="sd">    attribute to a number higher than 1. Note that frequency should be able to</span>
+<span class="sd">    divide the batch size.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        embedding (EmbedFrameKeras): Object to perform the embedding.</span>
+<span class="sd">        freq (int): How often to perform the embedding. For example, setting</span>
+<span class="sd">            the frequency to 2 will embed every other frame in the batch.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;embed&#39;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
@@ -54,10 +95,14 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="EmbedAnnotator.annotate"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.embed.EmbedAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Here</span>
+        <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the embedding annotator.</span>
 
-<span class="sd">        :param batch:</span>
+<span class="sd">        Args:</span>
+<span class="sd">            batch (FrameBatch): A batch of images to annotate.</span>
 
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dictionaries containing the video name, frame, and a</span>
+<span class="sd">            numpy array of the embedding.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># what frames do we annotate?</span>
@@ -72,7 +117,19 @@
 
 
 <div class="viewcode-block" id="EmbedFrameKeras"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.embed.EmbedFrameKeras">[docs]</a><span class="k">class</span> <span class="nc">EmbedFrameKeras</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Here&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;A generic class for applying an embedding to frames.</span>
+
+<span class="sd">    Applies a keras model to a batch of frames. The input of the model is</span>
+<span class="sd">    assumed to be an image with three channels. The class automatically</span>
+<span class="sd">    handles resizing the images to the required input shape.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        model: A keras model to apply to the frames.</span>
+<span class="sd">        preprocess_input: An optional function to preprocess the images. Set to</span>
+<span class="sd">            None (the default) to not apply any preprocessing.</span>
+<span class="sd">        outlayer: Name of the output layer. Set to None (the default) to use</span>
+<span class="sd">            the final layer predictions as the embedding.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">preprocess_input</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">outlayer</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">Model</span>
@@ -87,10 +144,14 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="EmbedFrameKeras.embed"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.embed.EmbedFrameKeras.embed">[docs]</a>    <span class="k">def</span> <span class="nf">embed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Here</span>
+        <span class="sd">&quot;&quot;&quot;Embed a batch of images.</span>
 
-<span class="sd">        :param img:</span>
+<span class="sd">        Args:</span>
+<span class="sd">            img: A four dimensional numpy array to embed using the keras model.</span>
 
+<span class="sd">        Returns:</span>
+<span class="sd">            A numpy array, with a first dimension matching the first dimension</span>
+<span class="sd">            of the input image.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># resize the images</span>
@@ -109,7 +170,19 @@
 
 
 <div class="viewcode-block" id="EmbedFrameKerasResNet50"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.embed.EmbedFrameKerasResNet50">[docs]</a><span class="k">class</span> <span class="nc">EmbedFrameKerasResNet50</span><span class="p">(</span><span class="n">EmbedFrameKeras</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Here&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Example embedding using ResNet50.</span>
+
+<span class="sd">    Provides an example of how to use an embedding annotator and provides</span>
+<span class="sd">    easy access to one of the most popular models for computing image</span>
+<span class="sd">    similarity metrics in an embedding space. See the (very minimal) source</span>
+<span class="sd">    code for how to extend this function to other pre-built keras models.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        model: The ResNet-50 model, tuned to produce the penultimate layer as</span>
+<span class="sd">            an output.</span>
+<span class="sd">        preprocess_input: Default processing function for an image provided as</span>
+<span class="sd">            an array in RGB format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="kn">import</span> <span class="nn">keras.applications.resnet50</span>

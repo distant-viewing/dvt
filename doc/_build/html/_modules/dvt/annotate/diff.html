@@ -42,14 +42,13 @@
 
 <span class="sd">Example:</span>
 <span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
-<span class="sd">    the a sample usage of the different annotator over two batches of the</span>
-<span class="sd">    input.</span>
+<span class="sd">    the a sample usage of the DiffAnnotator over two batches of the input.</span>
 
 <span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
 <span class="sd">    &gt;&gt;&gt; fp.load_annotator(DiffAnnotator(quantiles=[40]))</span>
 <span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
-<span class="sd">    INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;diff&#39;</span>
-<span class="sd">    INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;diff&#39;</span>
+<span class="sd">    INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;embed&#39;</span>
+<span class="sd">    INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;embed&#39;</span>
 
 <span class="sd">    Then, collect the output from the annotator and display as a pandas data</span>
 <span class="sd">    frame. Here, just the head of the data is shown for brevity.</span>
@@ -73,24 +72,49 @@
 
 
 <div class="viewcode-block" id="DiffAnnotator"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.diff.DiffAnnotator">[docs]</a><span class="k">class</span> <span class="nc">DiffAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Here&quot;&quot;&quot;</span>
+    <span class="sd">&quot;&quot;&quot;Annotator for detecting differences between frames.</span>
 
+<span class="sd">    The annotator will return data for each frame in a given batch by showing</span>
+<span class="sd">    how much a frame differs compares to the next one. It computes two kinds of</span>
+<span class="sd">    differences. The first down samples the image to a small square and takes</span>
+<span class="sd">    pixel-by-pixel differences between the frames. The second computes a</span>
+<span class="sd">    histogram in HSV space and compares the histogram counts between frames.</span>
+<span class="sd">    Results for both are given by taking quantiles of the differences. The</span>
+<span class="sd">    histogram differences are normalized to account for comparisons across</span>
+<span class="sd">    different image sizes.</span>
+
+<span class="sd">    Additionally, the average value (darkness) of each frame is provided to</span>
+<span class="sd">    assist with putting the differences in context.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        quantiles (list): A list of integers or floats giving the quantiles to</span>
+<span class="sd">            return. Set to None to only return the average value of each frame.</span>
+<span class="sd">            Inputs are given as percentiles, so [50] will return the median.</span>
+<span class="sd">        size (int): Size of one side of the square used for down sampling the</span>
+<span class="sd">            image.</span>
+<span class="sd">        bins (int): How many bins to include in the histogram differences. Will</span>
+<span class="sd">            make this many bins for each of hue, saturation, and value.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;diff&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">16</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">quantiles</span><span class="p">:</span>
             <span class="n">quantiles</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span> <span class="o">=</span> <span class="n">quantiles</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="DiffAnnotator.annotate"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.diff.DiffAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Here</span>
+        <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the difference annotator.</span>
 
-<span class="sd">        :param batch:</span>
+<span class="sd">        Args:</span>
+<span class="sd">            batch (FrameBatch): A batch of images to annotate.</span>
 
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dictionaries containing the video name, frame, average</span>
+<span class="sd">            value, and any requested quantile and histogram differences.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;video&#39;</span><span class="p">:</span> <span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">vname</span><span class="p">]</span> <span class="o">*</span> <span class="n">batch</span><span class="o">.</span><span class="n">bsize</span><span class="p">}</span>
@@ -99,21 +123,16 @@
 
         <span class="k">for</span> <span class="n">quant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">:</span>
             <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;q</span><span class="si">{0:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">quant</span><span class="p">)</span>
-            <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">l1_quantile</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="n">quant</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+            <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_l1_quantile</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="n">quant</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
 
             <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;h</span><span class="si">{0:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">quant</span><span class="p">)</span>
-            <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">hist_diffs</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="n">quant</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">)</span>
+            <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_hist_diffs</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="n">quant</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="p">[</span><span class="n">output</span><span class="p">]</span></div></div>
 
 
-<div class="viewcode-block" id="l1_quantile"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.diff.l1_quantile">[docs]</a><span class="k">def</span> <span class="nf">l1_quantile</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Here</span>
-
-<span class="sd">    :param batch:</span>
-<span class="sd">    :param quantile:  (Default value = 50)</span>
-<span class="sd">    :param size:  (Default value = 32)</span>
-
+<span class="k">def</span> <span class="nf">_l1_quantile</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute differences between subsequent frames in a batch.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bsize</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">bsize</span>
     <span class="n">msize</span> <span class="o">=</span> <span class="n">bsize</span> <span class="o">+</span> <span class="mi">1</span>
@@ -127,35 +146,25 @@
 
     <span class="n">norm</span> <span class="o">=</span> <span class="n">simg</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">bsize</span><span class="p">),</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">simg</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bsize</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
 
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">norm</span><span class="p">),</span> <span class="n">q</span><span class="o">=</span><span class="n">quantile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">norm</span><span class="p">),</span> <span class="n">q</span><span class="o">=</span><span class="n">quantile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="hist_diffs"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.diff.hist_diffs">[docs]</a><span class="k">def</span> <span class="nf">hist_diffs</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Here</span>
-
-<span class="sd">    :param batch:</span>
-<span class="sd">    :param quantile:  (Default value = 50)</span>
-<span class="sd">    :param bins:  (Default value = 16)</span>
-
+<span class="k">def</span> <span class="nf">_hist_diffs</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute differences between HSV histograms across a batch.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bsize</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">bsize</span>
     <span class="n">msize</span> <span class="o">=</span> <span class="n">bsize</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="k">assert</span> <span class="n">msize</span> <span class="o">&lt;=</span> <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="n">hist_vals</span> <span class="o">=</span> <span class="n">hsv_hist</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">msize</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
+    <span class="n">hist_vals</span> <span class="o">=</span> <span class="n">_hsv_hist</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">msize</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
     <span class="n">norm</span> <span class="o">=</span> <span class="n">hist_vals</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">bsize</span><span class="p">),</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">hist_vals</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bsize</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="p">:]</span>
     <span class="n">norm</span> <span class="o">=</span> <span class="n">norm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span>
 
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">norm</span><span class="p">),</span> <span class="n">q</span><span class="o">=</span><span class="n">quantile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span></div>
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">norm</span><span class="p">),</span> <span class="n">q</span><span class="o">=</span><span class="n">quantile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 
 
-<div class="viewcode-block" id="hsv_hist"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.diff.hsv_hist">[docs]</a><span class="k">def</span> <span class="nf">hsv_hist</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">msize</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Here</span>
-
-<span class="sd">    :param batch:</span>
-<span class="sd">    :param msize:</span>
-<span class="sd">    :param bins:  (Default value = 16)</span>
-
+<span class="k">def</span> <span class="nf">_hsv_hist</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">msize</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute histogram counts from a batch of images.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">hist_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">msize</span><span class="p">,</span> <span class="n">bins</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">iran</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">msize</span><span class="p">):</span>
@@ -164,14 +173,11 @@
             <span class="n">hist</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">calcHist</span><span class="p">([</span><span class="n">hsv</span><span class="p">],</span> <span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">bins</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">256</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="n">hist_vals</span><span class="p">[</span><span class="n">iran</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">bins</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">bins</span><span class="p">)]</span> <span class="o">=</span> <span class="n">hist</span>
 
-    <span class="k">return</span> <span class="n">hist_vals</span></div>
+    <span class="k">return</span> <span class="n">hist_vals</span>
 
 
 <span class="k">def</span> <span class="nf">_average_value_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Here</span>
-
-<span class="sd">    :param batch:</span>
-
+    <span class="sd">&quot;&quot;&quot;Compute the average value across a batch of images.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">img</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_batch</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>

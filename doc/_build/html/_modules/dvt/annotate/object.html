@@ -34,10 +34,42 @@
             
   <h1>Source code for dvt.annotate.object</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;This module illustrates something.</span>
+<span class="sd">&quot;&quot;&quot;Annotator to detect objects.</span>
+
+<span class="sd">Detecting objects in an image is an import task for the analysis of both still</span>
+<span class="sd">and moving images. This modules provides the generic annotator ObjectAnnotator</span>
+<span class="sd">to which a specific object detector can be inserted. The module also supplies</span>
+<span class="sd">a direct wrapper to the RetinaNet algorithm, which includes 80 classes of</span>
+<span class="sd">common objects.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
+<span class="sd">    the a sample usage of the ObjectDetectRetinaNet over two batches of the</span>
+<span class="sd">    input. The embedding is applied to every 128 frames.</span>
+
+<span class="sd">    &gt;&gt;&gt; detector = ObjectDetectRetinaNet()</span>
+<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
+<span class="sd">    &gt;&gt;&gt; fp.load_annotator(ObjectAnnotator(freq=128, detector=detector))</span>
+<span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
+
+<span class="sd">    Then, collect the output from the annotator and display as a pandas data</span>
+<span class="sd">    frame.</span>
+
+<span class="sd">    &gt;&gt;&gt; fp.collect(&quot;embed&quot;).todf()</span>
+<span class="sd">           video  frame   embed-0     ...      embed-2045  embed-2046  embed-2047</span>
+<span class="sd">    0  input.mp4      0  0.000000     ...        0.000000    0.004976    0.000000</span>
+<span class="sd">    1  input.mp4    128  0.534926     ...        0.100585    0.379687    0.016144</span>
+<span class="sd">    2  input.mp4    256  0.259463     ...        0.663053    0.002361    0.168496</span>
+<span class="sd">    3  input.mp4    384  0.079264     ...        0.351160    0.025871    0.189005</span>
+
+<span class="sd">    [4 rows x 2050 columns]</span>
+
+<span class="sd">    Notice that there are 4 rows because we embedded once every 128 frames and</span>
+<span class="sd">    ran two batches, each with 256 frames.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">keras.utils</span> <span class="k">import</span> <span class="n">get_file</span>
 
 <span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">stack_dict_frames</span>
@@ -76,14 +108,16 @@
 <div class="viewcode-block" id="ObjectDetectRetinaNet"><a class="viewcode-back" href="../../../dvt.annotate.html#dvt.annotate.object.ObjectDetectRetinaNet">[docs]</a><span class="k">class</span> <span class="nc">ObjectDetectRetinaNet</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Here&quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">model_path</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
         <span class="kn">from</span> <span class="nn">keras_retinanet</span> <span class="k">import</span> <span class="n">models</span>
         <span class="kn">from</span> <span class="nn">keras_retinanet.utils.image</span> <span class="k">import</span> <span class="n">preprocess_image</span><span class="p">,</span> <span class="n">resize_image</span>
+
+        <span class="n">mloc</span> <span class="o">=</span> <span class="n">get_file</span><span class="p">(</span><span class="s2">&quot;resnet50_coco_best_v2.1.0.h5&quot;</span><span class="p">,</span> <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocess_image</span> <span class="o">=</span> <span class="n">preprocess_image</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">resize_image</span> <span class="o">=</span> <span class="n">resize_image</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">model_path</span><span class="p">,</span> <span class="n">backbone_name</span><span class="o">=</span><span class="s1">&#39;resnet50&#39;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">model</span> <span class="o">=</span> <span class="n">models</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span><span class="n">mloc</span><span class="p">,</span> <span class="n">backbone_name</span><span class="o">=</span><span class="s1">&#39;resnet50&#39;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">lcodes</span> <span class="o">=</span> <span class="p">{</span><span class="mi">0</span><span class="p">:</span> <span class="s1">&#39;person&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">:</span> <span class="s1">&#39;bicycle&#39;</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="s1">&#39;car&#39;</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="s1">&#39;motorcycle&#39;</span><span class="p">,</span>
                        <span class="mi">4</span><span class="p">:</span> <span class="s1">&#39;airplane&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">:</span> <span class="s1">&#39;bus&#39;</span><span class="p">,</span> <span class="mi">6</span><span class="p">:</span> <span class="s1">&#39;train&#39;</span><span class="p">,</span> <span class="mi">7</span><span class="p">:</span> <span class="s1">&#39;truck&#39;</span><span class="p">,</span>
                        <span class="mi">8</span><span class="p">:</span> <span class="s1">&#39;boat&#39;</span><span class="p">,</span> <span class="mi">9</span><span class="p">:</span> <span class="s1">&#39;traffic light&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="p">:</span> <span class="s1">&#39;fire hydrant&#39;</span><span class="p">,</span>

@@ -281,7 +281,7 @@ the input.</p>
 <code class="descname">get_batch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameBatch.get_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameBatch.get_batch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return image data for just the current batch.</p>
 <p>Use this method unless you have a specific need to look ahead at new
-values in the data.</p>
+values in the data. Images are given in RGB space.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -312,7 +312,7 @@ of images.</td>
 <code class="descname">get_frames</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/core.html#FrameBatch.get_frames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.core.FrameBatch.get_frames" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the entire image dataset for the batch.</p>
 <p>Use this method if you need to look ahead at the following batch for
-an annotator to work.</p>
+an annotator to work. Images are given in RGB space.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -571,13 +571,12 @@ collect basic summaries of the overall brightness and saturation of a frame.
 These are all useful for detecting shot boundaries and scene breaks.</p>
 <p class="rubric">Example</p>
 <p>Assuming we have an input named “input.mp4”, the following example shows
-the a sample usage of the different annotator over two batches of the
-input.</p>
+the a sample usage of the DiffAnnotator over two batches of the input.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">DiffAnnotator</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="go">INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;diff&#39;</span>
-<span class="go">INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;diff&#39;</span>
+<span class="go">INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;embed&#39;</span>
+<span class="go">INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;embed&#39;</span>
 </pre></div>
 </div>
 <p>Then, collect the output from the annotator and display as a pandas data
@@ -595,18 +594,77 @@ frame. Here, just the head of the data is shown for brevity.</p>
 detect shot breaks.</p>
 <dl class="class">
 <dt id="dvt.annotate.diff.DiffAnnotator">
-<em class="property">class </em><code class="descclassname">dvt.annotate.diff.</code><code class="descname">DiffAnnotator</code><span class="sig-paren">(</span><em>quantiles=None</em>, <em>bins=16</em>, <em>size=32</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#DiffAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.diff.</code><code class="descname">DiffAnnotator</code><span class="sig-paren">(</span><em>quantiles=None</em>, <em>size=32</em>, <em>bins=16</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#DiffAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
-<p>Here</p>
-<dl class="method">
-<dt id="dvt.annotate.diff.DiffAnnotator.annotate">
-<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#DiffAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here</p>
+<p>Annotator for detecting differences between frames.</p>
+<p>The annotator will return data for each frame in a given batch by showing
+how much a frame differs compares to the next one. It computes two kinds of
+differences. The first down samples the image to a small square and takes
+pixel-by-pixel differences between the frames. The second computes a
+histogram in HSV space and compares the histogram counts between frames.
+Results for both are given by taking quantiles of the differences. The
+histogram differences are normalized to account for comparisons across
+different image sizes.</p>
+<p>Additionally, the average value (darkness) of each frame is provided to
+assist with putting the differences in context.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.diff.DiffAnnotator.quantiles">
+<code class="descname">quantiles</code><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.quantiles" title="Permalink to this definition">¶</a></dt>
+<dd><p>A list of integers or floats giving the quantiles to
+return. Set to None to only return the average value of each frame.
+Inputs are given as percentiles, so [50] will return the median.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – </td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.diff.DiffAnnotator.size">
+<code class="descname">size</code><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>Size of one side of the square used for down sampling the
+image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.diff.DiffAnnotator.bins">
+<code class="descname">bins</code><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.bins" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many bins to include in the histogram differences. Will
+make this many bins for each of hue, saturation, and value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.diff.DiffAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#DiffAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the batch of frames with the difference annotator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="#dvt.annotate.core.FrameBatch" title="dvt.annotate.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, average
+value, and any requested quantile and histogram differences.</td>
 </tr>
 </tbody>
 </table>
@@ -619,81 +677,88 @@ detect shot breaks.</p>
 
 </dd></dl>
 
-<dl class="function">
-<dt id="dvt.annotate.diff.hist_diffs">
-<code class="descclassname">dvt.annotate.diff.</code><code class="descname">hist_diffs</code><span class="sig-paren">(</span><em>batch</em>, <em>quantile=50</em>, <em>bins=16</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#hist_diffs"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.hist_diffs" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>batch</strong> – </li>
-<li><strong>quantile</strong> – (Default value = 50)</li>
-<li><strong>bins</strong> – (Default value = 16)</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="dvt.annotate.diff.hsv_hist">
-<code class="descclassname">dvt.annotate.diff.</code><code class="descname">hsv_hist</code><span class="sig-paren">(</span><em>batch</em>, <em>msize</em>, <em>bins=16</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#hsv_hist"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.hsv_hist" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>batch</strong> – </li>
-<li><strong>msize</strong> – </li>
-<li><strong>bins</strong> – (Default value = 16)</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="function">
-<dt id="dvt.annotate.diff.l1_quantile">
-<code class="descclassname">dvt.annotate.diff.</code><code class="descname">l1_quantile</code><span class="sig-paren">(</span><em>batch</em>, <em>quantile=50</em>, <em>size=32</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/diff.html#l1_quantile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.l1_quantile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>batch</strong> – </li>
-<li><strong>quantile</strong> – (Default value = 50)</li>
-<li><strong>size</strong> – (Default value = 32)</li>
-</ul>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
 </div>
 <div class="section" id="module-dvt.annotate.embed">
 <span id="dvt-annotate-embed-module"></span><h2>dvt.annotate.embed module<a class="headerlink" href="#module-dvt.annotate.embed" title="Permalink to this headline">¶</a></h2>
-<p>This module illustrates something.</p>
+<p>Annotator to embedding a set of frame using a neural network.</p>
+<p>Given a convolutional neural network trained on a supervised learning task,
+embedding into the penultimate layer (or some other internal layer) gives a
+useful embedding that can be used similar to word vectors. This module returns
+an embedding over a (possible subset) of the frames in an input. The module
+can also be used when the embedding corresponds to a concrete supervised task.</p>
+<p class="rubric">Example</p>
+<p>Assuming we have an input named “input.mp4”, the following example shows
+the a sample usage of the EmbedFrameKerasResNet50 over two batches of the
+input. The embedding is applied to every 128 frames.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">embed</span> <span class="o">=</span> <span class="n">EmbedFrameKerasResNet50</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">EmbedAnnotator</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="n">embed</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, collect the output from the annotator and display as a pandas data
+frame.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;embed&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
+<span class="go">       video  frame   embed-0     ...      embed-2045  embed-2046  embed-2047</span>
+<span class="go">0  input.mp4      0  0.000000     ...        0.000000    0.004976    0.000000</span>
+<span class="go">1  input.mp4    128  0.534926     ...        0.100585    0.379687    0.016144</span>
+<span class="go">2  input.mp4    256  0.259463     ...        0.663053    0.002361    0.168496</span>
+<span class="go">3  input.mp4    384  0.079264     ...        0.351160    0.025871    0.189005</span>
+</pre></div>
+</div>
+<p>[4 rows x 2050 columns]</p>
+<p>Notice that there are 4 rows because we embedded once every 128 frames and
+ran two batches, each with 256 frames.</p>
 <dl class="class">
 <dt id="dvt.annotate.embed.EmbedAnnotator">
 <em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedAnnotator</code><span class="sig-paren">(</span><em>embedding</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
-<p>Here</p>
-<dl class="method">
-<dt id="dvt.annotate.embed.EmbedAnnotator.annotate">
-<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here</p>
+<p>Annotator for embedding frames into an ambient space.</p>
+<p>The annotator will return a numpy array, with one row per processed frame.
+Control how frequently the annotator runs by setting the frequency
+attribute to a number higher than 1. Note that frequency should be able to
+divide the batch size.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.embed.EmbedAnnotator.embedding">
+<code class="descname">embedding</code><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.embedding" title="Permalink to this definition">¶</a></dt>
+<dd><p>Object to perform the embedding.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – </td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#dvt.annotate.embed.EmbedFrameKeras" title="dvt.annotate.embed.EmbedFrameKeras">EmbedFrameKeras</a></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.embed.EmbedAnnotator.freq">
+<code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>How often to perform the embedding. For example, setting
+the frequency to 2 will embed every other frame in the batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.embed.EmbedAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the batch of frames with the embedding annotator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="#dvt.annotate.core.FrameBatch" title="dvt.annotate.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, and a
+numpy array of the embedding.</td>
 </tr>
 </tbody>
 </table>
@@ -710,16 +775,42 @@ detect shot breaks.</p>
 <dt id="dvt.annotate.embed.EmbedFrameKeras">
 <em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedFrameKeras</code><span class="sig-paren">(</span><em>model</em>, <em>preprocess_input=None</em>, <em>outlayer=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedFrameKeras"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Here</p>
+<p>A generic class for applying an embedding to frames.</p>
+<p>Applies a keras model to a batch of frames. The input of the model is
+assumed to be an image with three channels. The class automatically
+handles resizing the images to the required input shape.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.embed.EmbedFrameKeras.model">
+<code class="descname">model</code><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>A keras model to apply to the frames.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.embed.EmbedFrameKeras.preprocess_input">
+<code class="descname">preprocess_input</code><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras.preprocess_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>An optional function to preprocess the images. Set to
+None (the default) to not apply any preprocessing.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.embed.EmbedFrameKeras.outlayer">
+<code class="descname">outlayer</code><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras.outlayer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the output layer. Set to None (the default) to use
+the final layer predictions as the embedding.</p>
+</dd></dl>
+
 <dl class="method">
 <dt id="dvt.annotate.embed.EmbedFrameKeras.embed">
 <code class="descname">embed</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedFrameKeras.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras.embed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here</p>
+<dd><p>Embed a batch of images.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> – </td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> – A four dimensional numpy array to embed using the keras model.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A numpy array, with a first dimension matching the first dimension
+of the input image.</td>
 </tr>
 </tbody>
 </table>
@@ -731,26 +822,121 @@ detect shot breaks.</p>
 <dt id="dvt.annotate.embed.EmbedFrameKerasResNet50">
 <em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedFrameKerasResNet50</code><a class="reference internal" href="_modules/dvt/annotate/embed.html#EmbedFrameKerasResNet50"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKerasResNet50" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dvt.annotate.embed.EmbedFrameKeras" title="dvt.annotate.embed.EmbedFrameKeras"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.embed.EmbedFrameKeras</span></code></a></p>
-<p>Here</p>
+<p>Example embedding using ResNet50.</p>
+<p>Provides an example of how to use an embedding annotator and provides
+easy access to one of the most popular models for computing image
+similarity metrics in an embedding space. See the (very minimal) source
+code for how to extend this function to other pre-built keras models.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.embed.EmbedFrameKerasResNet50.model">
+<code class="descname">model</code><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKerasResNet50.model" title="Permalink to this definition">¶</a></dt>
+<dd><p>The ResNet-50 model, tuned to produce the penultimate layer as
+an output.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.embed.EmbedFrameKerasResNet50.preprocess_input">
+<code class="descname">preprocess_input</code><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKerasResNet50.preprocess_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Default processing function for an image provided as
+an array in RGB format.</p>
+</dd></dl>
+
 </dd></dl>
 
 </div>
 <div class="section" id="module-dvt.annotate.face">
 <span id="dvt-annotate-face-module"></span><h2>dvt.annotate.face module<a class="headerlink" href="#module-dvt.annotate.face" title="Permalink to this headline">¶</a></h2>
-<p>This module illustrates something.</p>
+<p>Annotators to detect and identify faces.</p>
+<p>Identifying individuals in an image generally requires two distinct steps. The
+first is detecting bounding boxes for faces in the image and the second is
+identifying the faces themselves. Currently the most common method for doing
+the second step is to project a detected face into a high-dimensional space
+designed such that different images of the same person will be close together
+and images of different people will be farther apart. This module is built
+around this paradigm, allowing for the specification of custom detectors and
+embeddings into the model.</p>
+<p class="rubric">Example</p>
+<p>Assuming we have an input named “input.mp4”, the following example shows
+the sample usage of FaceAnnotator over two batches of the input. A CNN
+model from dlib is used to detect the faces and the VGGFace2 algorithm is
+used to embed the faces into a 2048-dimensional space. The algorithm is
+applied to every 128 frames.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">detector</span> <span class="o">=</span> <span class="n">FaceDetectDlib</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">embedding</span> <span class="o">=</span> <span class="n">FaceEmbedVgg2</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">FaceAnnotator</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">detector</span><span class="o">=</span><span class="n">detector</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="n">embedding</span><span class="o">=</span><span class="n">embedding</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;face&#39;</span>
+<span class="go">INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;face&#39;</span>
+</pre></div>
+</div>
+<p>Then, collect the output from the annotator and display as a pandas data
+frame.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
+<span class="go">   frame  bottom      video     ...      embed-2045  embed-2046  embed-2047</span>
+<span class="go">0    128     171  input.mp4     ...        7.355998    0.000000    0.000000</span>
+<span class="go">1    384     209  input.mp4     ...        0.128695    0.640979    0.207890</span>
+<span class="go">2    384     220  input.mp4     ...        0.187535    0.754207    0.705644</span>
+</pre></div>
+</div>
+<p>[3 rows x 2055 columns]</p>
+<p>The detector was run on four frames (0, 128, 256, and 384). It found one
+face at frame 128 and two faces at frame 384.</p>
 <dl class="class">
 <dt id="dvt.annotate.face.FaceAnnotator">
 <em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceAnnotator</code><span class="sig-paren">(</span><em>detector=None</em>, <em>embedding=None</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
-<p>Here</p>
-<dl class="method">
-<dt id="dvt.annotate.face.FaceAnnotator.annotate">
-<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
-<dd><table class="docutils field-list" frame="void" rules="none">
+<p>Annotator for detecting faces and embedding them as a face vector.</p>
+<p>The annotator will return a list with one DictList item for every frame
+with a detected face. If an embedding is supplied, the DictList items
+will contain a numpy array with the face embeddings.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceAnnotator.detector">
+<code class="descname">detector</code><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.detector" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object with a method called detect that takes an image
+and returns a set of detect faces. Can be set to None (default) as
+a pass-through option for testing.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceAnnotator.embedding">
+<code class="descname">embedding</code><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.embedding" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object with a method embed that takes an image along with
+a set of bounding boxed and returns embeddings of the faces as a
+numpy array. Set to None (default) to only run the face detector.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceAnnotator.freq">
+<code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>How often to perform the embedding. For example, setting
+the frequency to 2 will embed every other frame in the batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> – </td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.face.FaceAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the batch of frames with the face annotator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="#dvt.annotate.core.FrameBatch" title="dvt.annotate.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, bounding
+box coordinates (top, bottom, left, and right). If an embedding is
+included, the result will also contain a numpy array of the
+embedding for each face.</td>
 </tr>
 </tbody>
 </table>
@@ -767,16 +953,37 @@ detect shot breaks.</p>
 <dt id="dvt.annotate.face.FaceDetectDlib">
 <em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceDetectDlib</code><span class="sig-paren">(</span><em>cutoff=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceDetectDlib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Here</p>
-<dl class="method">
-<dt id="dvt.annotate.face.FaceDetectDlib.detect">
-<code class="descname">detect</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceDetectDlib.detect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib.detect" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here</p>
+<p>Detect faces using the dlib CNN model.</p>
+<p>A face detector that balances speed and accuracy.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceDetectDlib.cutoff">
+<code class="descname">cutoff</code><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib.cutoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cutoff value for which faces to include in the final
+output. Set to zero (default) to include all faces.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> – </td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.face.FaceDetectDlib.detect">
+<code class="descname">detect</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceDetectDlib.detect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib.detect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect faces in an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> (<em>numpy array</em>) – A single image stored as a three-dimensional
+numpy array.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries where each dictionary represents a detected
+face. Keys include the bounding box (top, left, bottom, right) as
+well as a confidence score.</td>
 </tr>
 </tbody>
 </table>
@@ -788,19 +995,25 @@ detect shot breaks.</p>
 <dt id="dvt.annotate.face.FaceEmbedDlib">
 <em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceEmbedDlib</code><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceEmbedDlib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedDlib" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Here</p>
+<p>Embed faces using the dlib CNN model.</p>
+<p>A face embedding that balances ease of use with accuracy.</p>
 <dl class="method">
 <dt id="dvt.annotate.face.FaceEmbedDlib.embed">
 <code class="descname">embed</code><span class="sig-paren">(</span><em>img</em>, <em>faces</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceEmbedDlib.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedDlib.embed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here</p>
+<dd><p>Embed detected faces in an image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>img</strong> – </li>
-<li><strong>faces</strong> – </li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>img</strong> (<em>numpy array</em>) – A single image stored as a three-dimensional
+numpy array.</li>
+<li><strong>faces</strong> (<em>DictList</em>) – A DictList giving the location of detected faces
+in the image.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A numpy array with one row for each input face and 128 columns.</p>
 </td>
 </tr>
 </tbody>
@@ -813,19 +1026,26 @@ detect shot breaks.</p>
 <dt id="dvt.annotate.face.FaceEmbedVgg2">
 <em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceEmbedVgg2</code><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceEmbedVgg2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedVgg2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Here</p>
+<p>Embed faces using the VGGFace2 model.</p>
+<p>A face embedding with state-of-the-art results, particularly suitable when
+there are small or non-forward-facing examples in the dataset.</p>
 <dl class="method">
 <dt id="dvt.annotate.face.FaceEmbedVgg2.embed">
 <code class="descname">embed</code><span class="sig-paren">(</span><em>img</em>, <em>faces</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/face.html#FaceEmbedVgg2.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedVgg2.embed" title="Permalink to this definition">¶</a></dt>
-<dd><p>Here</p>
+<dd><p>Embed detected faces in an image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>img</strong> – </li>
-<li><strong>faces</strong> – </li>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>img</strong> (<em>numpy array</em>) – A single image stored as a three-dimensional
+numpy array.</li>
+<li><strong>faces</strong> (<em>DictList</em>) – A DictList giving the location of detected faces
+in the image.</li>
 </ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A numpy array with one row for each input face and 2048 columns.</p>
 </td>
 </tr>
 </tbody>
@@ -837,7 +1057,35 @@ detect shot breaks.</p>
 </div>
 <div class="section" id="module-dvt.annotate.object">
 <span id="dvt-annotate-object-module"></span><h2>dvt.annotate.object module<a class="headerlink" href="#module-dvt.annotate.object" title="Permalink to this headline">¶</a></h2>
-<p>This module illustrates something.</p>
+<p>Annotator to detect objects.</p>
+<p>Detecting objects in an image is an import task for the analysis of both still
+and moving images. This modules provides the generic annotator ObjectAnnotator
+to which a specific object detector can be inserted. The module also supplies
+a direct wrapper to the RetinaNet algorithm, which includes 80 classes of
+common objects.</p>
+<p class="rubric">Example</p>
+<p>Assuming we have an input named “input.mp4”, the following example shows
+the a sample usage of the ObjectDetectRetinaNet over two batches of the
+input. The embedding is applied to every 128 frames.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">detector</span> <span class="o">=</span> <span class="n">ObjectDetectRetinaNet</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">ObjectAnnotator</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">detector</span><span class="o">=</span><span class="n">detector</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Then, collect the output from the annotator and display as a pandas data
+frame.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;embed&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
+<span class="go">       video  frame   embed-0     ...      embed-2045  embed-2046  embed-2047</span>
+<span class="go">0  input.mp4      0  0.000000     ...        0.000000    0.004976    0.000000</span>
+<span class="go">1  input.mp4    128  0.534926     ...        0.100585    0.379687    0.016144</span>
+<span class="go">2  input.mp4    256  0.259463     ...        0.663053    0.002361    0.168496</span>
+<span class="go">3  input.mp4    384  0.079264     ...        0.351160    0.025871    0.189005</span>
+</pre></div>
+</div>
+<p>[4 rows x 2050 columns]</p>
+<p>Notice that there are 4 rows because we embedded once every 128 frames and
+ran two batches, each with 256 frames.</p>
 <dl class="class">
 <dt id="dvt.annotate.object.ObjectAnnotator">
 <em class="property">class </em><code class="descclassname">dvt.annotate.object.</code><code class="descname">ObjectAnnotator</code><span class="sig-paren">(</span><em>detector</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/object.html#ObjectAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.object.ObjectAnnotator" title="Permalink to this definition">¶</a></dt>
@@ -866,7 +1114,7 @@ detect shot breaks.</p>
 
 <dl class="class">
 <dt id="dvt.annotate.object.ObjectDetectRetinaNet">
-<em class="property">class </em><code class="descclassname">dvt.annotate.object.</code><code class="descname">ObjectDetectRetinaNet</code><span class="sig-paren">(</span><em>model_path</em>, <em>cutoff=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/object.html#ObjectDetectRetinaNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.object.ObjectDetectRetinaNet" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.object.</code><code class="descname">ObjectDetectRetinaNet</code><span class="sig-paren">(</span><em>cutoff=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/annotate/object.html#ObjectDetectRetinaNet"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.object.ObjectDetectRetinaNet" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Here</p>
 <dl class="method">

@@ -95,7 +95,7 @@ class FaceAnnotator(FrameAnnotator):
             img = batch.img[fnum, :, :, :]
             t_faces = stack_dict_frames(self.detector.detect(img))
             if t_faces:
-                frame = batch.get_frame_nums()[fnum]
+                frame = batch.get_frame_names()[fnum]
                 t_faces['video'] = [batch.vname] * len(t_faces['top'])
                 t_faces['frame'] = [frame] * len(t_faces['top'])
                 if self.embedding is not None:

@@ -83,7 +83,7 @@ class DiffAnnotator(FrameAnnotator):
         """
 
         output = {'video': [batch.vname] * batch.bsize}
-        output['frame'] = batch.get_frame_nums()
+        output['frame'] = batch.get_frame_names()
         output['avg_value'] = _average_value_batch(batch)
 
         for quant in self.quantiles:

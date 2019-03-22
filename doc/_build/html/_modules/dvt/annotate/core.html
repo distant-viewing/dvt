@@ -284,9 +284,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">VideoCapture</span><span class="p">(</span><span class="n">input_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">bsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;height&#39;</span><span class="p">],</span>
                               <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s1">&#39;width&#39;</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_fill_bandwidth</span><span class="p">()</span>  <span class="c1"># fill the buffer with the first batch</span>
@@ -377,7 +377,7 @@
         <span class="sd">&quot;&quot;&quot;Return the entire image dataset for the batch.</span>
 
 <span class="sd">        Use this method if you need to look ahead at the following batch for</span>
-<span class="sd">        an annotator to work.</span>
+<span class="sd">        an annotator to work. Images are given in RGB space.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A four-dimensional array containing pixels from the current and</span>
@@ -389,7 +389,7 @@
         <span class="sd">&quot;&quot;&quot;Return image data for just the current batch.</span>
 
 <span class="sd">        Use this method unless you have a specific need to look ahead at new</span>
-<span class="sd">        values in the data.</span>
+<span class="sd">        values in the data. Images are given in RGB space.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A four-dimensional array containing pixels from the current batch</span>

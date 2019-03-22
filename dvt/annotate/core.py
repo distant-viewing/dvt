@@ -40,6 +40,8 @@ Example:
 """
 
 import collections
+import glob
+import itertools
 import logging
 import os
 
@@ -108,11 +110,17 @@ class FrameProcessor:
                 next_values = anno.annotate(batch)
                 if next_values is not None:
                     self.output[anno.name] += next_values
-                msg = "processed batch {0:s} to {1:s} with annotator: '{2:s}'"
-                logging.info(msg.format(_format_time(batch.start),
-                                        _format_time(batch.end), anno.name))
+                if isinstance(batch.fnames[0], int):
+                    msg = "processed {0:s} to {1:s} with annotator: '{2:s}'"
+                    logging.info(msg.format(_format_time(batch.start),
+                                            _format_time(batch.end),
+                                                         anno.name))
+                else:
+                    msg = "processed {0:s} with annotator: '{1:s}'"
+                    logging.info(msg.format(batch.fnames[0], anno.name))
+
             if max_batch is not None:
-                if batch.frame >= (max_batch - 1) * batch.bsize:
+                if batch.bnum >= max_batch + 1:
                     return
 
     def clear(self):
@@ -214,7 +222,7 @@ class FrameAnnotator:
 
 
 class FrameInput:
-    """An input object for extracting batches of images from an input source.
+    """An input object for extracting batches of images from an input video.
 
     Once initialized, subsequent calls to the next_batch method should be
     called to cycle through batches of frames. The continue_read flag will be
@@ -277,10 +285,13 @@ class FrameInput:
         self.end = self._video_cap.get(cv2.CAP_PROP_POS_MSEC)
         self.fcount = self.fcount + self.bsize
 
+        # get frame names
+        fnames = list(range(int(frame_start), int(frame_start + self.bsize)))
+
         # return batch of frames.
         return FrameBatch(img=self._img, vname=self.vname, start=self.start,
                           end=self.end, continue_read=self.continue_read,
-                          frame=frame_start)
+                          fnames=fnames, bnum=(frame_start//self.bsize))
 
     def _metadata(self):
         """Fill metadata attribute using metadata from the video source.
@@ -307,6 +318,75 @@ class FrameInput:
                 self._img[idx + self.bsize, :, :, :] = 0
 
 
+class ImageInput:
+    """An input object for create batches of images from input images.
+
+    Once initialized, subsequent calls to the next_batch method should be
+    called to cycle through batches of frames. The continue_read flag will be
+    turn false when all of data from the sources has been returned. Note that
+    the batch will always be of size 1 and include a look-ahead region of all
+    black pixels. This is needed because not all images will be the same size.
+
+    Attributes:
+        bsize (int): Number of frames in a batch. Always 1.
+        vname (str): Name of the video file.
+        continue_read (bool): Indicates whether there more frames to read from
+            the input.
+        fcount (int): Pointer to the next image to return.
+        meta (dict): A dictionary containing additional metadata about the
+            video file.
+    """
+
+    def __init__(self, input_paths, vname=""):
+        """Construct a new input from a set of paths.
+
+        Args:
+            input_paths (str or list): Paths the images. Will use glob
+                expansion on the elements.
+            vname (str): Name of the input. Defaults to an empty string.
+        """
+        self.bsize = 1
+        self.vname = vname
+        self.continue_read = True
+        self.fcount = 0
+        self.start = 0
+        self.meta = {'type': 'image', 'height': -1, 'width': -1}
+
+        # find input paths
+        if not isinstance(input_paths, list):
+            input_paths = []
+
+        input_paths = [glob.glob(x, recursive=True) for x in input_paths]
+        self.paths = list(itertools.chain.from_iterable(input_paths))
+
+    def next_batch(self):
+        """Move forward one batch and return the current FrameBatch object.
+
+        Returns:
+            A FrameBatch object that contains the next set of frames.
+        """
+
+        assert self.continue_read, "No more input to read."
+
+        this_index = self.fcount
+
+        # read the next image and create buffer
+        img = cv2.imread(self.paths[this_index])
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = np.stack([img, np.zeros_like(img)])
+
+        # is this the last image?
+        self.fcount += 1
+        if self.fcount >= len(self.paths):
+            self.continue_read = False
+
+        # return batch of frames.
+        return FrameBatch(img=img, vname=self.vname, start=float(this_index),
+                          end=float(this_index),
+                          continue_read=self.continue_read,
+                          fnames=[self.paths[this_index]],
+                          bnum=this_index)
+
 class FrameBatch:
     """A collection of frames and associated metadata.
 
@@ -325,18 +405,20 @@ class FrameBatch:
         end (float): Time code at the end of the current batch.
         continue_read (bool): Indicates whether there more frames to read from
             the input.
-        frame (int): Frame counter for the first frame in the current batch.
+        fnames (list): Names of frames in the batch.
         bsize (int): Number of frames in a batch.
+        bnum (int): The batch number.
 
     """
-    def __init__(self, img, vname, start, end, continue_read, frame):
+    def __init__(self, img, vname, start, end, continue_read, fnames, bnum):
         self.img = img
         self.vname = vname
         self.start = start
         self.end = end
         self.continue_read = continue_read
-        self.frame = frame
+        self.fnames = fnames
         self.bsize = img.shape[0] // 2
+        self.bnum = bnum
 
     def get_frames(self):
         """Return the entire image dataset for the batch.
@@ -362,12 +444,10 @@ class FrameBatch:
         """
         return self.img[:self.bsize, :, :, :]
 
-    def get_frame_nums(self):
-        """Generate frame numbers for the current batch of data.
+    def get_frame_names(self):
+        """Return frame names for the current batch of data.
 
         Returns:
-            A list of integers, with length equal to the batch size.
+            A list of names of length equal to the batch size.
         """
-        start = int(self.frame)
-        end = int(self.frame + self.bsize)
-        return list(range(start, end))
+        return self.fnames
