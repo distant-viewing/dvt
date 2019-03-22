@@ -3,5 +3,5 @@ keras
 tensorflow
 scipy>=1.0.0
 h5py
-cv2
+opencv-python
 keras_retinanet
