@@ -14,6 +14,7 @@ from dvt.annotate.face import (
     FaceEmbedDlib,
     FaceEmbedVgg2,
 )
+from dvt.annotate.meta import VideoMetaAnnotator
 from dvt.annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
 from dvt.annotate.png import PngAnnotator
 
@@ -262,6 +263,46 @@ class TestPng:
         img1 = cv2.imread(os.path.join("test-data/img/frame-000076.png"))
         img2 = cv2.imread(os.path.join(dname, "frame-000076.png"))
         assert np.all(img1 == img2)
+
+
+class TestMeta:
+
+    def test_meta_output_video(self):
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(VideoMetaAnnotator())
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("meta")
+
+        expected_keys = ['width', 'type', 'vname', 'fps', 'height', 'frames']
+        assert set(obj_out.keys()) == set(expected_keys)
+        assert obj_out['width'] == [708]
+        assert obj_out['height'] == [480]
+        assert obj_out['type'] == ['video']
+        assert obj_out['vname'] == ['video-clip.mp4']
+        assert obj_out['fps'] == [29.97002997002997]
+        assert obj_out['frames'] == [379]
+
+    def test_meta_output_images(self):
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(VideoMetaAnnotator())
+
+        iobj = ImageInput(
+            input_paths=[
+                "test-data/img/frame-000076.png",
+                "test-data/img/frame-000506.png",
+            ]
+        )
+        fpobj.process(iobj, max_batch=2)
+        obj_out = fpobj.collect("meta")
+
+        expected_keys = ['width', 'type', 'vname', 'height']
+        assert set(obj_out.keys()) == set(expected_keys)
+        assert obj_out['width'] == [-1]
+        assert obj_out['height'] == [-1]
+        assert obj_out['type'] == ['image']
+        assert obj_out['vname'] == ['']
 
 
 if __name__ == "__main__":

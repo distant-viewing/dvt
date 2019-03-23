@@ -5,7 +5,8 @@ python:
 
 install:
   - pip install --upgrade pip; pip install -r requirements.txt
+  - python install dvt
 
 script:
-  - python setup.py test
-
+  - cd test; pytest --disable-warnings --cov=dvt --cov-report term-missing .
+  - codecov
