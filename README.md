@@ -145,7 +145,9 @@ cagg.aggregate(obj_diff).todf()
 ```python
 obj_face.todf().head()
 ```
-```
+
+
+
 ```python
 obj_diff.todf().head()
 ```

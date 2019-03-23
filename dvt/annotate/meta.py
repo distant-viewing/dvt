@@ -35,6 +35,7 @@ import numpy as np
 
 from .core import FrameAnnotator
 
+
 class MetaAnnotator(FrameAnnotator):
     """Return table of metadata about a input object.
 
@@ -58,7 +59,7 @@ class MetaAnnotator(FrameAnnotator):
             ival: A FrameInput object.
         """
         self.meta = ival.meta
-        self.meta['vname'] = ival.vname
+        self.meta["vname"] = ival.vname
 
     def annotate(self, batch):
         """Return metadata.

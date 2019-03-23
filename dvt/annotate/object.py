@@ -108,7 +108,12 @@ class ObjectDetectRetinaNet:
         from keras_retinanet import models
         from keras_retinanet.utils.image import preprocess_image, resize_image
 
-        mloc = get_file("resnet50_coco_best_v2.1.0.h5", origin="")
+        mloc = get_file(
+            "resnet50_coco_best_v2.1.0.h5",
+            origin="https://github.com/distant-viewing/dvt/"
+            "releases/download/0.0.1/"
+            "resnet50_coco_best_v2.1.0.h5",
+        )
 
         self.preprocess_image = preprocess_image
         self.resize_image = resize_image

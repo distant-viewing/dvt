@@ -266,7 +266,6 @@ class TestPng:
 
 
 class TestMeta:
-
     def test_meta_output_video(self):
         fpobj = FrameProcessor()
         fpobj.load_annotator(MetaAnnotator())
@@ -275,14 +274,14 @@ class TestMeta:
         fpobj.process(finput, max_batch=2)
         obj_out = fpobj.collect("meta")
 
-        expected_keys = ['width', 'type', 'vname', 'fps', 'height', 'frames']
+        expected_keys = ["width", "type", "vname", "fps", "height", "frames"]
         assert set(obj_out.keys()) == set(expected_keys)
-        assert obj_out['width'] == [708]
-        assert obj_out['height'] == [480]
-        assert obj_out['type'] == ['video']
-        assert obj_out['vname'] == ['video-clip.mp4']
-        assert obj_out['fps'] == [29.97002997002997]
-        assert obj_out['frames'] == [379]
+        assert obj_out["width"] == [708]
+        assert obj_out["height"] == [480]
+        assert obj_out["type"] == ["video"]
+        assert obj_out["vname"] == ["video-clip.mp4"]
+        assert obj_out["fps"] == [29.97002997002997]
+        assert obj_out["frames"] == [379]
 
     def test_meta_output_images(self):
         fpobj = FrameProcessor()
@@ -297,12 +296,12 @@ class TestMeta:
         fpobj.process(iobj, max_batch=2)
         obj_out = fpobj.collect("meta")
 
-        expected_keys = ['width', 'type', 'vname', 'height']
+        expected_keys = ["width", "type", "vname", "height"]
         assert set(obj_out.keys()) == set(expected_keys)
-        assert obj_out['width'] == [-1]
-        assert obj_out['height'] == [-1]
-        assert obj_out['type'] == ['image']
-        assert obj_out['vname'] == ['']
+        assert obj_out["width"] == [-1]
+        assert obj_out["height"] == [-1]
+        assert obj_out["type"] == ["image"]
+        assert obj_out["vname"] == [""]
 
 
 if __name__ == "__main__":

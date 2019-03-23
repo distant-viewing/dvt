@@ -116,7 +116,12 @@ class FaceDetectDlib:
     """
 
     def __init__(self, cutoff=0):
-        mloc = get_file("mmod_human_face_detector.dat", origin="")
+        mloc = get_file(
+            "mmod_human_face_detector.dat",
+            origin="https://github.com/distant-viewing/dvt/"
+            "releases/download/0.0.1/"
+            "mmod_human_face_detector.dat",
+        )
         self.cutoff = cutoff
         self._cfd = dlib.cnn_face_detection_model_v1(mloc)
 
@@ -166,10 +171,20 @@ class FaceEmbedDlib:
     """
 
     def __init__(self):
-        mloc = get_file("dlib_face_recognition_resnet_model_v1.dat", origin="")
+        mloc = get_file(
+            "dlib_face_recognition_resnet_model_v1.dat",
+            origin="https://github.com/distant-viewing/dvt/"
+            "releases/download/0.0.1/"
+            "dlib_face_recognition_resnet_model_v1.dat",
+        )
         self.encode = dlib.face_recognition_model_v1(mloc)
 
-        mloc = get_file("shape_predictor_5_face_landmarks.dat", origin="")
+        mloc = get_file(
+            "shape_predictor_5_face_landmarks.dat",
+            origin="https://github.com/distant-viewing/dvt/"
+            "releases/download/0.0.1/"
+            "shape_predictor_5_face_landmarks.dat",
+        )
         self.pose = dlib.shape_predictor(mloc)
 
     def embed(self, img, faces):
@@ -212,7 +227,12 @@ class FaceEmbedVgg2:
     def __init__(self):
         from keras.models import load_model
 
-        mloc = get_file("vggface2-resnet50.h5", origin="")
+        mloc = get_file(
+            "vggface2-resnet50.h5",
+            origin="https://github.com/distant-viewing/dvt/"
+            "releases/download/0.0.1/"
+            "vggface2-resnet50.h5",
+        )
         self._model = load_model(mloc)
         self._iformat = K.image_data_format()
 
