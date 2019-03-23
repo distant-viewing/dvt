@@ -1,4 +1,5 @@
 numpy
+pandas
 keras
 tensorflow
 scipy>=1.0.0
