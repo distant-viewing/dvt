@@ -35,8 +35,8 @@ import numpy as np
 
 from .core import FrameAnnotator
 
-class VideoMetaAnnotator(FrameAnnotator):
-    """Return table of metadata about a video input.
+class MetaAnnotator(FrameAnnotator):
+    """Return table of metadata about a input object.
 
     Attributes:
         meta (dict): A dictionary containing the metadata.

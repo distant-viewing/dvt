@@ -14,7 +14,7 @@ from dvt.annotate.face import (
     FaceEmbedDlib,
     FaceEmbedVgg2,
 )
-from dvt.annotate.meta import VideoMetaAnnotator
+from dvt.annotate.meta import MetaAnnotator
 from dvt.annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
 from dvt.annotate.png import PngAnnotator
 
@@ -269,7 +269,7 @@ class TestMeta:
 
     def test_meta_output_video(self):
         fpobj = FrameProcessor()
-        fpobj.load_annotator(VideoMetaAnnotator())
+        fpobj.load_annotator(MetaAnnotator())
 
         finput = FrameInput("test-data/video-clip.mp4", bsize=8)
         fpobj.process(finput, max_batch=2)
@@ -286,7 +286,7 @@ class TestMeta:
 
     def test_meta_output_images(self):
         fpobj = FrameProcessor()
-        fpobj.load_annotator(VideoMetaAnnotator())
+        fpobj.load_annotator(MetaAnnotator())
 
         iobj = ImageInput(
             input_paths=[

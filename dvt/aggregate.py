@@ -43,7 +43,7 @@ class CutAggregator(Aggregator):
         """
 
         # grab the data, initialize counters, and create output `cuts`
-        ops = ldframe["diff"]
+        ops = ldframe
         this_video = ""
         ignore_this_frame = True
         current_cut_start = 0
