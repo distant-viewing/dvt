@@ -5,8 +5,9 @@ python:
 
 install:
   - pip install --upgrade pip; pip install -r requirements.txt
+  - pip install -U pytest
   - python setup.py install
 
 script:
-  - cd test; pytest --disable-warnings --cov=dvt --cov-report term-missing .
-  - codecov
+  - cd tests; pytest --disable-warnings --cov=dvt --cov-report term-missing .
+  - cd tests; codecov
