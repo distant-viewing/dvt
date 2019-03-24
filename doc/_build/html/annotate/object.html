@@ -1,0 +1,367 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Object Annotations &mdash; dvt 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'0.0.1',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Png Annotations" href="png.html" />
+    <link rel="prev" title="Metadata Annotations" href="meta.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Quickstart Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#annotations">Annotations</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="diff.html">Frame Difference Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="embed.html">Embed Image Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="face.html">Face Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="meta.html">Metadata Annotations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Object Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="png.html">Png Annotations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
+        
+      <li>Object Annotations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/annotate/object.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dvt.annotate.object">
+<span id="object-annotations"></span><h1>Object Annotations<a class="headerlink" href="#module-dvt.annotate.object" title="Permalink to this headline">¶</a></h1>
+<p>Annotator to detect objects.</p>
+<p>Detecting objects in an image is an import task for the analysis of both still
+and moving images. This modules provides the generic annotator ObjectAnnotator
+to which a specific object detector can be inserted. The module also supplies
+a direct wrapper to the RetinaNet algorithm, which includes 80 classes of
+common objects.</p>
+<p class="rubric">Example</p>
+<p>Assuming we have an input named “input.mp4”, the following example shows
+the a sample usage of the ObjectDetectRetinaNet over two batches of the
+input. The embedding is applied to every 128 frames.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">detector</span> <span class="o">=</span> <span class="n">ObjectDetectRetinaNet</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">ObjectAnnotator</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">detector</span><span class="o">=</span><span class="n">detector</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;object&#39;</span>
+<span class="go">INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;object&#39;</span>
+</pre></div>
+</div>
+<p>Then, collect the output from the annotator and display as a pandas data
+frame.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
+<span class="go">    frame     score      video  left  right  bottom  top   class</span>
+<span class="go">0     128  0.984119  input.mp4   181    466     474   75  person</span>
+<span class="go">1     256  0.934686  input.mp4     0    304     480  136  person</span>
+<span class="go">2     256  0.750618  input.mp4   367    469     306  186  person</span>
+<span class="go">3     256  0.726257  input.mp4   540    708     420  224  person</span>
+<span class="go">4     256  0.683815  input.mp4   112    298     368   49  person</span>
+<span class="go">5     256  0.643473  input.mp4   517    666     355  207  person</span>
+<span class="go">6     256  0.618098  input.mp4   496    618     314  180  person</span>
+<span class="go">7     256  0.503872  input.mp4   143    275     279   11  person</span>
+<span class="go">8     384  0.911823  input.mp4     0    326     479   89  person</span>
+<span class="go">9     384  0.837799  input.mp4   345    708     476   56  person</span>
+<span class="go">10    384  0.511585  input.mp4   141    708     470  183   couch</span>
+<span class="go">11    384  0.500984  input.mp4    52    687     480   91  person</span>
+</pre></div>
+</div>
+<p>The detector was run on four frames (0, 128, 256, and 384). Here, it found
+a total of 11 people and one couch.</p>
+<dl class="class">
+<dt id="dvt.annotate.object.ObjectAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.object.</code><code class="descname">ObjectAnnotator</code><span class="sig-paren">(</span><em>detector</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.object.ObjectAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<p>Annotator for detecting objects in frames or images.</p>
+<p>The annotator will return a list with one DictList item for every frame
+with a detected face.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.object.ObjectAnnotator.detector">
+<code class="descname">detector</code><a class="headerlink" href="#dvt.annotate.object.ObjectAnnotator.detector" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object with a method called detect that takes an image
+and returns a set of detect faces.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.object.ObjectAnnotator.freq">
+<code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.object.ObjectAnnotator.freq" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – How often to perform the embedding. For example, setting
+the frequency to 2 will embed every other frame in the batch.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.object.ObjectAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.object.ObjectAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the batch of frames with the object detector.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="core.html#dvt.annotate.core.FrameBatch" title="dvt.annotate.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, and any
+additional information (i.e., bounding boxes or object names)
+supplied by the detector.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.object.ObjectAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'object'</em><a class="headerlink" href="#dvt.annotate.object.ObjectAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.object.ObjectDetectRetinaNet">
+<em class="property">class </em><code class="descclassname">dvt.annotate.object.</code><code class="descname">ObjectDetectRetinaNet</code><span class="sig-paren">(</span><em>cutoff=0.5</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.object.ObjectDetectRetinaNet" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Detect objects using RetinaNet.</p>
+<p>An object detector that locates 80 object types.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.object.ObjectDetectRetinaNet.cutoff">
+<code class="descname">cutoff</code><a class="headerlink" href="#dvt.annotate.object.ObjectDetectRetinaNet.cutoff" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – A cutoff value for which objects to include in the
+final output. Set to zero (default) to include all object. The
+default is 0.5.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.object.ObjectDetectRetinaNet.detect">
+<code class="descname">detect</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.object.ObjectDetectRetinaNet.detect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect objects in an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> (<em>numpy array</em>) – A single image stored as a three-dimensional
+numpy array.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries where each dictionary represents a detected
+face. Keys include the bounding box (top, left, bottom, right), a
+confidence score, and the class of the object.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="png.html" class="btn btn-neutral float-right" title="Png Annotations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="meta.html" class="btn btn-neutral float-left" title="Metadata Annotations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Taylor Arnold
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+
+    
+   
+
+</body>
+</html>

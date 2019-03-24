@@ -1,0 +1,336 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Frame Difference Annotations &mdash; dvt 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'0.0.1',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Embed Image Annotations" href="embed.html" />
+    <link rel="prev" title="Generic Classes" href="core.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Quickstart Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#annotations">Annotations</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Frame Difference Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="embed.html">Embed Image Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="face.html">Face Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="meta.html">Metadata Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="object.html">Object Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="png.html">Png Annotations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
+        
+      <li>Frame Difference Annotations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/annotate/diff.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dvt.annotate.diff">
+<span id="frame-difference-annotations"></span><h1>Frame Difference Annotations<a class="headerlink" href="#module-dvt.annotate.diff" title="Permalink to this headline">¶</a></h1>
+<p>Annotators for finding difference between subsequent frames.</p>
+<p>The annotators here detect differences from one frame to the next. They all
+collect basic summaries of the overall brightness and saturation of a frame.
+These are all useful for detecting shot boundaries and scene breaks.</p>
+<p class="rubric">Example</p>
+<p>Assuming we have an input named “input.mp4”, the following example shows
+the a sample usage of the DiffAnnotator over two batches of the input.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">DiffAnnotator</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">]))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;embed&#39;</span>
+<span class="go">INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;embed&#39;</span>
+</pre></div>
+</div>
+<p>Then, collect the output from the annotator and display as a pandas data
+frame. Here, just the head of the data is shown for brevity.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;diff&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+<span class="go">   q40      video  frame  h40  avg_value</span>
+<span class="go">0  0.0  input.mp4      0  0.0   2.552584</span>
+<span class="go">1  0.0  input.mp4      1  0.0   2.921136</span>
+<span class="go">2  0.0  input.mp4      2  0.0   2.697502</span>
+<span class="go">3  0.0  input.mp4      3  0.0   2.830626</span>
+<span class="go">4  0.0  input.mp4      4  0.0   2.560596</span>
+</pre></div>
+</div>
+<p>The output can be further processed with related aggregator classes to
+detect shot breaks.</p>
+<dl class="class">
+<dt id="dvt.annotate.diff.DiffAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.diff.</code><code class="descname">DiffAnnotator</code><span class="sig-paren">(</span><em>quantiles=None</em>, <em>size=32</em>, <em>bins=16</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<p>Annotator for detecting differences between frames.</p>
+<p>The annotator will return data for each frame in a given batch by showing
+how much a frame differs compares to the next one. It computes two kinds of
+differences. The first down samples the image to a small square and takes
+pixel-by-pixel differences between the frames. The second computes a
+histogram in HSV space and compares the histogram counts between frames.
+Results for both are given by taking quantiles of the differences. The
+histogram differences are normalized to account for comparisons across
+different image sizes.</p>
+<p>Additionally, the average value (darkness) of each frame is provided to
+assist with putting the differences in context.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.diff.DiffAnnotator.quantiles">
+<code class="descname">quantiles</code><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.quantiles" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>list</em> – A list of integers or floats giving the quantiles to
+return. Set to None to only return the average value of each frame.
+Inputs are given as percentiles, so [50] will return the median.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.diff.DiffAnnotator.size">
+<code class="descname">size</code><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.size" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – Size of one side of the square used for down sampling the
+image.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.diff.DiffAnnotator.bins">
+<code class="descname">bins</code><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.bins" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – How many bins to include in the histogram differences. Will
+make this many bins for each of hue, saturation, and value.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.diff.DiffAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the batch of frames with the difference annotator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="core.html#dvt.annotate.core.FrameBatch" title="dvt.annotate.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, average
+value, and any requested quantile and histogram differences.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.diff.DiffAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'diff'</em><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="embed.html" class="btn btn-neutral float-right" title="Embed Image Annotations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="core.html" class="btn btn-neutral float-left" title="Generic Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Taylor Arnold
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+
+    
+   
+
+</body>
+</html>

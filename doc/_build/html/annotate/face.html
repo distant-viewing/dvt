@@ -1,0 +1,440 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Face Annotations &mdash; dvt 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript">
+          var DOCUMENTATION_OPTIONS = {
+              URL_ROOT:'../',
+              VERSION:'0.0.1',
+              LANGUAGE:'None',
+              COLLAPSE_INDEX:false,
+              FILE_SUFFIX:'.html',
+              HAS_SOURCE:  true,
+              SOURCELINK_SUFFIX: '.txt'
+          };
+      </script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Metadata Annotations" href="meta.html" />
+    <link rel="prev" title="Embed Image Annotations" href="embed.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Quickstart Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#annotations">Annotations</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="diff.html">Frame Difference Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="embed.html">Embed Image Annotations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Face Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="meta.html">Metadata Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="object.html">Object Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="png.html">Png Annotations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
+        
+      <li>Face Annotations</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/annotate/face.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dvt.annotate.face">
+<span id="face-annotations"></span><h1>Face Annotations<a class="headerlink" href="#module-dvt.annotate.face" title="Permalink to this headline">¶</a></h1>
+<p>Annotators to detect and identify faces.</p>
+<p>Identifying individuals in an image generally requires two distinct steps. The
+first is detecting bounding boxes for faces in the image and the second is
+identifying the faces themselves. Currently the most common method for doing
+the second step is to project a detected face into a high-dimensional space
+designed such that different images of the same person will be close together
+and images of different people will be farther apart. This module is built
+around this paradigm, allowing for the specification of custom detectors and
+embeddings into the model.</p>
+<p class="rubric">Example</p>
+<p>Assuming we have an input named “input.mp4”, the following example shows
+the sample usage of FaceAnnotator over two batches of the input. A CNN
+model from dlib is used to detect the faces and the VGGFace2 algorithm is
+used to embed the faces into a 2048-dimensional space. The algorithm is
+applied to every 128 frames.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">detector</span> <span class="o">=</span> <span class="n">FaceDetectDlib</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">embedding</span> <span class="o">=</span> <span class="n">FaceEmbedVgg2</span><span class="p">()</span>
+<span class="go">&gt;&gt;&gt;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">FaceAnnotator</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">detector</span><span class="o">=</span><span class="n">detector</span><span class="p">,</span>
+<span class="gp">... </span>                  <span class="n">embedding</span><span class="o">=</span><span class="n">embedding</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="go">INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;face&#39;</span>
+<span class="go">INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;face&#39;</span>
+</pre></div>
+</div>
+<p>Then, collect the output from the annotator and display as a pandas data
+frame.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
+<span class="go">   frame  bottom      video     ...      embed-2045  embed-2046  embed-2047</span>
+<span class="go">0    128     171  input.mp4     ...        7.355998    0.000000    0.000000</span>
+<span class="go">1    384     209  input.mp4     ...        0.128695    0.640979    0.207890</span>
+<span class="go">2    384     220  input.mp4     ...        0.187535    0.754207    0.705644</span>
+</pre></div>
+</div>
+<p>[3 rows x 2055 columns]</p>
+<p>The detector was run on four frames (0, 128, 256, and 384). It found one
+face at frame 128 and two faces at frame 384.</p>
+<dl class="class">
+<dt id="dvt.annotate.face.FaceAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceAnnotator</code><span class="sig-paren">(</span><em>detector</em>, <em>embedding=None</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<p>Annotator for detecting faces and embedding them as a face vector.</p>
+<p>The annotator will return a list with one DictList item for every frame
+with a detected face. If an embedding is supplied, the DictList items
+will contain a numpy array with the face embeddings.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceAnnotator.detector">
+<code class="descname">detector</code><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.detector" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object with a method called detect that takes an image
+and returns a set of detect faces. Can be set to None (default) as
+a pass-through option for testing.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceAnnotator.embedding">
+<code class="descname">embedding</code><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.embedding" title="Permalink to this definition">¶</a></dt>
+<dd><p>An object with a method embed that takes an image along with
+a set of bounding boxed and returns embeddings of the faces as a
+numpy array. Set to None (default) to only run the face detector.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceAnnotator.freq">
+<code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.freq" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>int</em> – How often to perform the embedding. For example, setting
+the frequency to 2 will embed every other frame in the batch.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.face.FaceAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the batch of frames with the face annotator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="core.html#dvt.annotate.core.FrameBatch" title="dvt.annotate.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, bounding
+box coordinates (top, bottom, left, and right). If an embedding is
+included, the result will also contain a numpy array of the
+embedding for each face.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'face'</em><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.face.FaceDetectDlib">
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceDetectDlib</code><span class="sig-paren">(</span><em>cutoff=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Detect faces using the dlib CNN model.</p>
+<p>A face detector that balances speed and accuracy.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceDetectDlib.cutoff">
+<code class="descname">cutoff</code><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib.cutoff" title="Permalink to this definition">¶</a></dt>
+<dd><p><em>float</em> – A cutoff value for which faces to include in the final
+output. Set to zero (default) to include all faces.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.face.FaceDetectDlib.detect">
+<code class="descname">detect</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib.detect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect faces in an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> (<em>numpy array</em>) – A single image stored as a three-dimensional
+numpy array.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries where each dictionary represents a detected
+face. Keys include the bounding box (top, left, bottom, right) as
+well as a confidence score.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.face.FaceEmbedDlib">
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceEmbedDlib</code><a class="headerlink" href="#dvt.annotate.face.FaceEmbedDlib" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Embed faces using the dlib CNN model.</p>
+<p>A face embedding that balances ease of use with accuracy.</p>
+<dl class="method">
+<dt id="dvt.annotate.face.FaceEmbedDlib.embed">
+<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em>, <em>faces</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceEmbedDlib.embed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Embed detected faces in an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>img</strong> (<em>numpy array</em>) – A single image stored as a three-dimensional
+numpy array.</li>
+<li><strong>faces</strong> (<em>DictList</em>) – A DictList giving the location of detected faces
+in the image.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A numpy array with one row for each input face and 128 columns.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.face.FaceEmbedVgg2">
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceEmbedVgg2</code><a class="headerlink" href="#dvt.annotate.face.FaceEmbedVgg2" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Embed faces using the VGGFace2 model.</p>
+<p>A face embedding with state-of-the-art results, particularly suitable when
+there are small or non-forward-facing examples in the dataset.</p>
+<dl class="method">
+<dt id="dvt.annotate.face.FaceEmbedVgg2.embed">
+<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em>, <em>faces</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceEmbedVgg2.embed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Embed detected faces in an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>img</strong> (<em>numpy array</em>) – A single image stored as a three-dimensional
+numpy array.</li>
+<li><strong>faces</strong> (<em>DictList</em>) – A DictList giving the location of detected faces
+in the image.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A numpy array with one row for each input face and 2048 columns.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="meta.html" class="btn btn-neutral float-right" title="Metadata Annotations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="embed.html" class="btn btn-neutral float-left" title="Embed Image Annotations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Taylor Arnold
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+
+    
+   
+
+</body>
+</html>

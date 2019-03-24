@@ -1,6 +1,6 @@
 # Distant Viewing Toolkit (DVT): Cultural Analysis of Still and Moving Images
 
-[![Build Status](https://travis-ci.org/distant-viewing/dvt.svg?branch=master)](https://travis-ci.org/distant-viewing/dvt)  [![ReadTheDocs](https://readthedocs.org/projects/dvt/badge/?version=latest)](https://readthedocs.org/projects/dvt/badge/?version=latest) [![codecov](https://codecov.io/gh/distant-viewing/dvt/branch/master/graph/badge.svg)](https://codecov.io/gh/distant-viewing/dvt)  [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/dvt.svg)](https://pypi.python.org/pypi/dvt/) [![PyPI version shields.io](https://img.shields.io/pypi/v/dvt.svg)](https://pypi.python.org/pypi/dvt/)
+[![Build Status](https://travis-ci.org/distant-viewing/dvt.svg?branch=master)](https://travis-ci.org/distant-viewing/dvt)  [![codecov](https://codecov.io/gh/distant-viewing/dvt/branch/master/graph/badge.svg)](https://codecov.io/gh/distant-viewing/dvt)  [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/dvt.svg)](https://pypi.python.org/pypi/dvt/) [![PyPI version shields.io](https://img.shields.io/pypi/v/dvt.svg)](https://pypi.python.org/pypi/dvt/)
 
 The Distant TV Toolkit is a python module designed to automatically extract
 metadata features from a corpus of images. It was initially designed for moving
@@ -74,7 +74,7 @@ Now, create a frame processor and add four annotators: (i) metadata, (ii) png
 files, (iii) differences between successive frames, and (iv) faces. The
 `quantiles` input to the `DiffAnnotator` indicates that we want to compute the
 40th percentile in differences between frames. The face detector take a long time
-to run when not on a GPU, so we restrict it to running only every 64 frames. 
+to run when not on a GPU, so we restrict it to running only every 64 frames.
 
 ```python
 fpobj = FrameProcessor()
@@ -105,7 +105,7 @@ INFO:root:processed 00:00:08,541 to 00:00:10,010 with annotator: 'face'
 
 The output is now stored in the `fpobj` object. To access it, we call its
 `collect_all` method. This method returns a dictionary of custom objects
-(`DictFrame`, an extension of an ordered dictionary). Each can be converted 
+(`DictFrame`, an extension of an ordered dictionary). Each can be converted
 to a Pandas data frame for ease of viewing the output or saving as a csv
 file.
 
@@ -144,7 +144,7 @@ Instead, its used for its side-effects. You will see that there are individual
 frames from the video now saved in the directory "video-clip-frames".
 
 ### Difference
- 
+
 The difference annotator indicates the differences between successive frames,
 as well as information about the average value (brightness) of each frame.
 
