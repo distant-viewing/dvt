@@ -1,27 +1,60 @@
 # -*- coding: utf-8 -*-
-"""This module illustrates something.
+"""Aggregate frame level information to detect cuts.
+
+The aggregator functions here take local information about frames and estimates
+where cuts in the video occur.
+
+Example:
+    Assuming we have an input named "input.mp4", the following example shows
+    the a sample usage of a CutAggregator over two batches of the input. First
+    we need to collect differences between successive frames:
+
+    >>> fp = FrameProcessor()
+    >>> fp.load_annotator(DiffAnnotator(quantiles=[40]))
+    >>> fp.process(FrameInput("input.mp4"), max_batch=2)
+    >>> obj = fp.collect_all()
+
+    Then, construct a cut aggregator with a cut-off score for both histograms
+    (0.2) and pixels ()
+
+    >>> ca = CutAggregator(cut_vals={'h40': 0.2, 'q40': 3})
+    >>> ca.aggregate(obj).todf()
+           video  frame_start  frame_end
+    0  input.mp4            0         92
+    1  input.mp4           93        176
+    2  input.mp4          177        212
+    3  input.mp4          213        247
+    4  input.mp4          248        293
+    5  input.mp4          294        402
+    6  input.mp4          403        511
+
+    Additional options allow for ignoring frames that are too dark, have a cut
+    that is too close to another, or include additional cut-off values.
 """
 
-from .utils import stack_dict_frames
-
-
-class Aggregator:
-    """Here"""
-
-    def __init__(self):
-        pass
-
-    def aggregate(self, ldframe):
-        """Here
-
-        :param ldframe:
-
-        """
-        pass
+from ..utils import stack_dict_frames
+from .core import Aggregator
 
 
 class CutAggregator(Aggregator):
-    """Here"""
+    """Uses difference between successive frames to detect cuts.
+
+    This aggregator uses information from the difference annotator to detect
+    the cuts.
+
+    Attributes:
+        min_len (int): minimum allowed length of a cut.
+        ignore_vals (dict): Dictionary of cutoffs that cause a frame to be
+            ignored for the purpose of detecting cuts. Keys indicate the
+            variables in the differences output and values show the minimum
+            value allowed for a frame to be considered for a cut. Typically
+            used to ignore frames that are too dark (i.e., during fades). Set
+            to None (default) if no ignored values are needed.
+        cut_vals (dict): Dictionary of cutoffs that cause a frame to be
+            considered a cut. Keys indicate the variables in the differences
+            output and values are the cutoffs. Setting to None (default) will
+            return no cuts.
+    """
 
     def __init__(self, min_len=1, ignore_vals=None, cut_vals=None):
         if ignore_vals is None:
@@ -36,14 +69,19 @@ class CutAggregator(Aggregator):
         super().__init__()
 
     def aggregate(self, ldframe):
-        """Here
+        """Aggregate difference annotator.
 
-        :param ldframe:
+        Args:
+            ldframe (dict): A dictionary of DictFrames from a FrameAnnotator.
+                Must contain an entry with the key 'diff', which is used in the
+                annotation.
 
+        Returns:
+            A dictionary frame giving the detected cuts.
         """
 
         # grab the data, initialize counters, and create output `cuts`
-        ops = ldframe
+        ops = ldframe["diff"]
         this_video = ""
         ignore_this_frame = True
         current_cut_start = 0

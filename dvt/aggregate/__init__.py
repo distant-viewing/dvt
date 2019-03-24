@@ -4,8 +4,7 @@ from __future__ import absolute_import
 import warnings
 import os
 
-from . import annotate
-from . import aggregate
-from . import utils
+from . import core
+from . import cut
 
 __version__ = "0.1.0"

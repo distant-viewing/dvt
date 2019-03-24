@@ -105,7 +105,7 @@ class TestFrameInput:
         assert not fobj.continue_read
 
         frames = batch.get_frames()
-        bwidth = frames[batch.bsize :, :, :, :]
+        bwidth = frames[batch.bsize:, :, :, :]
         assert np.max(bwidth) == 0
 
     def test_get_frame_names(self):
