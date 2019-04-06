@@ -4,6 +4,7 @@ import tempfile
 import numpy as np
 import cv2
 import pytest
+import tensorflow as tf
 
 from dvt.annotate.core import FrameProcessor, FrameInput, ImageInput
 from dvt.annotate.diff import DiffAnnotator
@@ -50,7 +51,7 @@ class TestDiffAnno:
 
 
 class TestEmbed:
-    def test_embed_resnet(self):
+    def test_embed_resnet(self, setup_tensorflow):
         anno = EmbedAnnotator(freq=4, embedding=EmbedFrameKerasResNet50())
         fpobj = FrameProcessor()
         fpobj.load_annotator(anno)
