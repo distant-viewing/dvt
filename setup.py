@@ -2,8 +2,8 @@ from setuptools import setup
 from setuptools import find_packages
 
 setup(
-    name="Distant Viewing Toolkit",
-    version="0.0.4",
+    name="dvt",
+    version="0.0.7",
     description="Cultural Analysis of Moving Images",
     long_description="Distant Viewing uses and develops computational"
     "techniques to analyse moving image culture on a large"
