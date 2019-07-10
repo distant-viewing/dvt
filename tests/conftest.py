@@ -11,3 +11,6 @@ def setup_tensorflow():
     config.gpu_options.visible_device_list = "0"
     set_session(tf.Session(config=config))
 
+    # fix a local bug
+    import os
+    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"

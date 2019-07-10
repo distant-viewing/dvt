@@ -12,6 +12,7 @@ from dvt.annotate.embed import EmbedAnnotator, EmbedFrameKerasResNet50
 from dvt.annotate.face import (
     FaceAnnotator,
     FaceDetectDlib,
+    FaceDetectMtcnn,
     FaceEmbedDlib,
     FaceEmbedVgg2,
 )
@@ -107,6 +108,48 @@ class TestFace:
         ]
         assert set(obj_out.keys()) == set(expected_keys)
         assert obj_out.shape == (7, 7)
+
+    def test_face_detector_only_mtcnn(self):
+        anno = FaceAnnotator(detector=FaceDetectMtcnn(), freq=4)
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(anno)
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("face")
+
+        expected_keys = [
+            "video",
+            "frame",
+            "confidence",
+            "top",
+            "bottom",
+            "left",
+            "right",
+        ]
+        assert set(obj_out.keys()) == set(expected_keys)
+        assert obj_out.shape == (8, 7)
+
+    def test_face_detector_cutoff_mtcnn(self):
+        anno = FaceAnnotator(detector=FaceDetectMtcnn(cutoff=0.99997), freq=4)
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(anno)
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("face")
+
+        expected_keys = [
+            "video",
+            "frame",
+            "confidence",
+            "top",
+            "bottom",
+            "left",
+            "right",
+        ]
+        assert set(obj_out.keys()) == set(expected_keys)
+        assert obj_out.shape == (4, 7)
 
     def test_face_dlib_embed(self):
         anno = FaceAnnotator(

@@ -42,6 +42,8 @@ Example:
     face at frame 128 and two faces at frame 384.
 """
 
+import importlib
+
 import numpy as np
 from keras.utils import get_file
 from keras import backend as K
@@ -164,6 +166,58 @@ class FaceDetectDlib:
         return faces
 
 
+class FaceDetectMtcnn:
+    """Detect faces using the Multi-task Cascaded CNN model.
+
+    Attributes:
+        cutoff (float): A cutoff value for which faces to include in the final
+            output. Set to zero (default) to include all faces.
+    """
+
+    def __init__(self, cutoff=0):
+        self.mtcnn = importlib.import_module('mtcnn.mtcnn')
+        self.cutoff = cutoff
+        self._mt = self.mtcnn.MTCNN(min_face_size=20)
+
+    def detect(self, img):
+        """Detect faces in an image.
+
+        Args:
+            img (numpy array): A single image stored as a three-dimensional
+                numpy array.
+
+        Returns:
+            A list of dictionaries where each dictionary represents a detected
+            face. Keys include the bounding box (top, left, bottom, right) as
+            well as a confidence score.
+        """
+        dets = self._mt.detect_faces(img)
+
+        faces = []
+        for det in dets:
+            if det['confidence'] >= self.cutoff:
+                bbox = _trim_bbox(
+                    (
+                        det['box'][1] - det['box'][3],
+                        det['box'][0] + det['box'][2],
+                        det['box'][1] + det['box'][3],
+                        det['box'][0] - det['box'][2],
+                    ),
+                    img.shape,
+                )
+                faces += [
+                    {
+                        "top": bbox[0],
+                        "right": bbox[1],
+                        "bottom": bbox[2],
+                        "left": bbox[3],
+                        "confidence": det['confidence'],
+                    }
+                ]
+
+        return faces
+
+
 class FaceEmbedDlib:
     """Embed faces using the dlib CNN model.
 
@@ -204,7 +258,7 @@ class FaceEmbedDlib:
         embed_mat = []
         for ind in range(len(faces["top"])):
             # detect pose
-            rec = dlib.rectangle(
+            rec = self.dlib.rectangle(
                 left=faces["left"][ind],
                 top=faces["top"][ind],
                 right=faces["right"][ind],
