@@ -42,7 +42,6 @@ Example:
     face at frame 128 and two faces at frame 384.
 """
 
-import dlib
 import numpy as np
 from keras.utils import get_file
 from keras import backend as K
@@ -122,8 +121,9 @@ class FaceDetectDlib:
             "releases/download/0.0.1/"
             "mmod_human_face_detector.dat",
         )
+        self.dlib = importlib.import_module('dlib')
         self.cutoff = cutoff
-        self._cfd = dlib.cnn_face_detection_model_v1(mloc)
+        self._cfd = self.dlib.cnn_face_detection_model_v1(mloc)
 
     def detect(self, img):
         """Detect faces in an image.
@@ -177,7 +177,9 @@ class FaceEmbedDlib:
             "releases/download/0.0.1/"
             "dlib_face_recognition_resnet_model_v1.dat",
         )
-        self.encode = dlib.face_recognition_model_v1(mloc)
+        self.dlib = importlib.import_module('dlib')
+
+        self.encode = self.dlib.face_recognition_model_v1(mloc)
 
         mloc = get_file(
             "shape_predictor_5_face_landmarks.dat",
@@ -185,7 +187,7 @@ class FaceEmbedDlib:
             "releases/download/0.0.1/"
             "shape_predictor_5_face_landmarks.dat",
         )
-        self.pose = dlib.shape_predictor(mloc)
+        self.pose = self.dlib.shape_predictor(mloc)
 
     def embed(self, img, faces):
         """Embed detected faces in an image.
