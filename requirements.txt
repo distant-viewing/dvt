@@ -6,6 +6,7 @@ scipy>=1.0.0
 h5py
 opencv-python
 keras_retinanet
+mtcnn
 dlib
 pytest
 pytest-cov
