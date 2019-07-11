@@ -204,5 +204,5 @@ obj['face'].todf()
 
 Notice that there are two faces in frame 0, 64, and 192 but four faces
 detected in frame 128. In fact, all six of the main cast members are in
-frame 128, but two are two small and obscured to be found by the dlib
+frame 128, but two are too small and obscured to be found by the dlib
 algorithm.

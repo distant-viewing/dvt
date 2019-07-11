@@ -17,13 +17,17 @@ class ColorAnnotator(FrameAnnotator):
     Attributes:
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will computer every other frame in the batch.
+        num_buckets (tuple): A tuple of three numbers giving the maximum number
+            of buckets in each color channel, hue, saturation, and value. These
+            should each be divisible by 256. Default is (16, 4, 4).
     """
 
-    name = "face"
+    name = "color"
 
-    def __init__(self, freq=1):
+    def __init__(self, freq=1, num_buckets=(16, 4, 4)):
 
         self.freq = freq
+        self.num_buckets = num_buckets
         super().__init__()
 
     def annotate(self, batch):
@@ -39,31 +43,31 @@ class ColorAnnotator(FrameAnnotator):
             embedding for each face.
         """
 
-        f_faces = []
+        # run the color analysis on each frame
+        hgrams = []
         for fnum in range(0, batch.bsize, self.freq):
-            img = batch.img[fnum, :, :, :]
-            t_faces = stack_dict_frames(self.detector.detect(img))
-            if t_faces:
-                frame = batch.get_frame_names()[fnum]
-                t_faces["video"] = [batch.vname] * len(t_faces["top"])
-                t_faces["frame"] = [frame] * len(t_faces["top"])
-                if self.embedding is not None:
-                    t_faces["embed"] = self.embedding.embed(img, t_faces)
-                f_faces.append(t_faces)
+            hgrams += [_get_color_histogram(batch.img[fnum, :, :, :],
+                       self.num_buckets)]
 
-        return f_faces
+        obj = {'color': np.vstack(hgrams)}
+
+        # Add video and frame metadata
+        frames = range(0, batch.bsize, self.freq)
+        obj["video"] = [batch.vname] * len(frames)
+        obj["frame"] = np.array(batch.get_frame_names())[list(frames)]
+
+        return [obj]
 
 
-def get_color_histogram(img):
-    img_hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
-    mask = np.int64( (img_hsv[:, :, 1] > 100) & (img_hsv[:, :, 1] > 100))
-    vals = np.histogram(img_hsv[:, :, 0], weights=mask)
-    np.int32(vals[0] * 1000 / np.sum(vals[0]))
+def _get_color_histogram(img, num_buckets):
 
     img_hsv = np.int64(cv2.cvtColor(img, cv2.COLOR_RGB2HSV))
-    img_hsv[:, :, 0] = img_hsv[:, :, 0] // 16
-    img_hsv[:, :, 1] = (img_hsv[:, :, 1] // 64) * 16
-    img_hsv[:, :, 2] = (img_hsv[:, :, 2] // 64) * (16*4)
+    max_sizes = tuple([int(256 / x) for x in num_buckets])
 
+    z = img_hsv[:, :, 0] // max_sizes[0] + \
+        (img_hsv[:, :, 1] // max_sizes[1]) * num_buckets[0] + \
+        (img_hsv[:, :, 2] // max_sizes[2]) * num_buckets[0] * num_buckets[1]
 
-    np.sum(img_hsv, axis=2)
+    msize = num_buckets[0]*num_buckets[1]*num_buckets[2]
+
+    return np.bincount(z.flatten(), minlength=msize)

@@ -6,6 +6,7 @@ import cv2
 import pytest
 import tensorflow as tf
 
+from dvt.annotate.color import ColorAnnotator
 from dvt.annotate.core import FrameProcessor, FrameInput, ImageInput
 from dvt.annotate.diff import DiffAnnotator
 from dvt.annotate.embed import EmbedAnnotator, EmbedFrameKerasResNet50
@@ -21,6 +22,21 @@ from dvt.annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
 from dvt.annotate.png import PngAnnotator
 
 from dvt.utils import DictFrame, get_batch
+
+
+class TestColorAnno:
+    def test_default(self):
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(ColorAnnotator())
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("color")
+        keys = list(obj_out.keys())
+
+        assert set(obj_out.keys()) == set(["video", "frame", "color"])
+        assert issubclass(type(obj_out["color"]), np.ndarray)
+        assert obj_out["color"].shape == (16, 256)
 
 
 class TestDiffAnno:
