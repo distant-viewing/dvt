@@ -6,7 +6,6 @@ import numpy as np
 import cv2
 
 from .core import FrameAnnotator
-from ..utils import stack_dict_frames, sub_image, _trim_bbox
 
 
 class ColorAnnotator(FrameAnnotator):
@@ -16,14 +15,8 @@ class ColorAnnotator(FrameAnnotator):
     for hue, saturation, and value.
 
     Attributes:
-        detector: An object with a method called detect that takes an image
-            and returns a set of detect faces. Can be set to None (default) as
-            a pass-through option for testing.
-        embedding: An object with a method embed that takes an image along with
-            a set of bounding boxed and returns embeddings of the faces as a
-            numpy array. Set to None (default) to only run the face detector.
         freq (int): How often to perform the embedding. For example, setting
-            the frequency to 2 will embed every other frame in the batch.
+            the frequency to 2 will computer every other frame in the batch.
     """
 
     name = "face"
@@ -34,7 +27,7 @@ class ColorAnnotator(FrameAnnotator):
         super().__init__()
 
     def annotate(self, batch):
-        """Annotate the batch of frames with the face annotator.
+        """Annotate the batch of frames with the color annotator.
 
         Args:
             batch (FrameBatch): A batch of images to annotate.
@@ -65,3 +58,12 @@ def get_color_histogram(img):
     img_hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
     mask = np.int64( (img_hsv[:, :, 1] > 100) & (img_hsv[:, :, 1] > 100))
     vals = np.histogram(img_hsv[:, :, 0], weights=mask)
+    np.int32(vals[0] * 1000 / np.sum(vals[0]))
+
+    img_hsv = np.int64(cv2.cvtColor(img, cv2.COLOR_RGB2HSV))
+    img_hsv[:, :, 0] = img_hsv[:, :, 0] // 16
+    img_hsv[:, :, 1] = (img_hsv[:, :, 1] // 64) * 16
+    img_hsv[:, :, 2] = (img_hsv[:, :, 2] // 64) * (16*4)
+
+
+    np.sum(img_hsv, axis=2)

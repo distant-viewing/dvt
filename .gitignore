@@ -1,6 +1,9 @@
 # Remove macOS files
 .DS_Store
 
+# virtual environment
+dview/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
