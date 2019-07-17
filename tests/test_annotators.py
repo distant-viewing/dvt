@@ -7,6 +7,8 @@ import pytest
 import tensorflow as tf
 
 from dvt.annotate.color import ColorAnnotator
+from dvt.annotate.cielab import CIElabAnnotator
+from dvt.annotate.clutter import ClutterAnnotator
 from dvt.annotate.core import FrameProcessor, FrameInput, ImageInput
 from dvt.annotate.diff import DiffAnnotator
 from dvt.annotate.embed import EmbedAnnotator, EmbedFrameKerasResNet50
@@ -22,6 +24,51 @@ from dvt.annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
 from dvt.annotate.png import PngAnnotator
 
 from dvt.utils import DictFrame, get_batch
+
+class TestCIElabAnno:
+    def test_with_dominant(self):
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(CIElabAnnotator())
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("cielab")
+        keys = list(obj_out.keys())
+
+        assert set(obj_out.keys()) == set(["video", "frame", "cielab",
+        "dominant_colors"])
+        assert issubclass(type(obj_out["cielab"]), np.ndarray)
+        assert issubclass(type(obj_out["dominant_colors"]), np.ndarray)
+        assert obj_out["cielab"].shape == (16, 4096)
+        assert obj_out["dominant_colors"].shape == (16, 5, 3)
+        
+    def test_histogram_only(self):
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(CIElabAnnotator(num_dominant=0))
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("cielab")
+        keys = list(obj_out.keys())
+
+        assert set(obj_out.keys()) == set(["video", "frame", "cielab"])
+        assert issubclass(type(obj_out["cielab"]), np.ndarray)
+        assert obj_out["cielab"].shape == (16, 4096)
+
+
+class TestClutterAnno:
+    def test_clutter(self):
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(ClutterAnnotator())
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("clutter")
+        keys = list(obj_out.keys())
+
+        assert set(obj_out.keys()) == set(["video", "frame", "clutter"])
+        assert issubclass(type(obj_out["clutter"]), np.ndarray)
+        assert obj_out["clutter"].shape == (16, 1)
 
 
 class TestColorAnno:

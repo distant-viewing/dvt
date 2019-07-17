@@ -8,5 +8,7 @@ from . import face
 from . import png
 from . import object 
 from . import meta 
+from . import cielab
+from . import clutter
 
 __version__ = "0.1.0"
