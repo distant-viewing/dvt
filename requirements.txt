@@ -13,3 +13,4 @@ pytest-cov
 pytest-pep8
 codecov
 cmake
+pyrtools
