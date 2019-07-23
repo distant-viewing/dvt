@@ -12,7 +12,7 @@ class CIElabAnnotator(FrameAnnotator):
     """Annotator for constructing a color histogram and extracting the dominant
     colours for an image in CIELAB colorspace.
 
-    The annotator will return a histogram describing the color distribution 
+    The annotator will return a histogram describing the color distribution
     of an image, and a list of the most dominant colors.
 
     Attributes:
@@ -40,7 +40,7 @@ class CIElabAnnotator(FrameAnnotator):
             batch (FrameBatch): A batch of images to annotate.
 
         Returns:
-            A list of dictionaries containing the video name, frame, the 
+            A list of dictionaries containing the video name, frame, the
             CIELAB histogram of length (num_buckets[0] * num_buckets[1] *
             num_buckets[2]), and an array of dominant colors of shape
             (num_dominant, 3).
@@ -72,13 +72,13 @@ class CIElabAnnotator(FrameAnnotator):
 
 def _get_cielab_histogram(img, num_buckets):
 
-    return cv2.calcHist([img], [0, 1, 2], 
+    return cv2.calcHist([img], [0, 1, 2],
                 None, num_buckets, [0, 256, 0, 256, 0, 256]).reshape(-1)
 
 
 def _get_cielab_dominant(img, num_dominant):
     img_flat = img.reshape(-1, 3).astype(np.float32)
-    
+
     # increasing iter would give 'better' clustering, at the cost of speed
     dominant_colors, _ = kmeans(img_flat, num_dominant, iter=5)
 

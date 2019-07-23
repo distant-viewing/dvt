@@ -2,9 +2,10 @@
 """Annotators to extract clutter or visual complexity values.
 """
 
+import importlib
+
 import numpy as np
 import cv2
-import pyrtools as pt
 
 from .core import FrameAnnotator
 
@@ -12,7 +13,7 @@ class ClutterAnnotator(FrameAnnotator):
     """Annotator for extracting the clutter or visual complexity value from a
     frame. The clutter value is calculated based on the Subband Entropy
     algorithm proposed by Ruth Rosenholtz, Yuanzhen Li, and Lisa Nakano. in
-    "Measuring Visual Clutter". Journal of Vision, 7(2), 2007. 
+    "Measuring Visual Clutter". Journal of Vision, 7(2), 2007.
 
     The annotator will return a a single value per frame, describing its
     clutter value.
@@ -67,7 +68,8 @@ def _entropy(samples):
 
 
 def _band_entropy(img, wlevels, wor):
-    sfpyr = pt.pyramids.SteerablePyramidFreq(img, wlevels, wor-1) 
+    pt = importlib.import_module('pyrtools')
+    sfpyr = pt.pyramids.SteerablePyramidFreq(img, wlevels, wor-1)
 
     en_band = np.zeros((sfpyr.num_scales, sfpyr.num_orientations))
 
@@ -103,7 +105,7 @@ def _get_clutter(img, wlevels=3, wght_chrom=0.0625):
 
     if dchrom == 1: return clutter_se
 
-    for i in range(1,3): 
+    for i in range(1,3):
         chrom = img[:,:,i]
         if (np.max(chrom)-np.min(chrom)) < 0.008:
             chrom = np.zeros(chrom.shape)
