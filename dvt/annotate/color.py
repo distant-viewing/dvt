@@ -46,10 +46,9 @@ class ColorAnnotator(FrameAnnotator):
         # run the color analysis on each frame
         hgrams = []
         for fnum in range(0, batch.bsize, self.freq):
-            hgrams += [_get_color_histogram(batch.img[fnum, :, :, :],
-                       self.num_buckets)]
+            hgrams += [_get_color_histogram(batch.img[fnum, :, :, :], self.num_buckets)]
 
-        obj = {'color': np.vstack(hgrams)}
+        obj = {"color": np.vstack(hgrams)}
 
         # Add video and frame metadata
         frames = range(0, batch.bsize, self.freq)
@@ -64,10 +63,12 @@ def _get_color_histogram(img, num_buckets):
     img_hsv = np.int64(cv2.cvtColor(img, cv2.COLOR_RGB2HSV))
     max_sizes = tuple([int(256 / x) for x in num_buckets])
 
-    z = img_hsv[:, :, 0] // max_sizes[0] + \
-        (img_hsv[:, :, 1] // max_sizes[1]) * num_buckets[0] + \
-        (img_hsv[:, :, 2] // max_sizes[2]) * num_buckets[0] * num_buckets[1]
+    z = (
+        img_hsv[:, :, 0] // max_sizes[0]
+        + (img_hsv[:, :, 1] // max_sizes[1]) * num_buckets[0]
+        + (img_hsv[:, :, 2] // max_sizes[2]) * num_buckets[0] * num_buckets[1]
+    )
 
-    msize = num_buckets[0]*num_buckets[1]*num_buckets[2]
+    msize = num_buckets[0] * num_buckets[1] * num_buckets[2]
 
     return np.bincount(z.flatten(), minlength=msize)

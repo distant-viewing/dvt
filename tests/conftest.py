@@ -13,4 +13,5 @@ def setup_tensorflow():
 
     # fix a local bug
     import os
+
     os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"

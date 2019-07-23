@@ -25,6 +25,7 @@ from dvt.annotate.png import PngAnnotator
 
 from dvt.utils import DictFrame, get_batch
 
+
 class TestCIElabAnno:
     def test_with_dominant(self):
         fpobj = FrameProcessor()
@@ -35,13 +36,14 @@ class TestCIElabAnno:
         obj_out = fpobj.collect("cielab")
         keys = list(obj_out.keys())
 
-        assert set(obj_out.keys()) == set(["video", "frame", "cielab",
-        "dominant_colors"])
+        assert set(obj_out.keys()) == set(
+            ["video", "frame", "cielab", "dominant_colors"]
+        )
         assert issubclass(type(obj_out["cielab"]), np.ndarray)
         assert issubclass(type(obj_out["dominant_colors"]), np.ndarray)
         assert obj_out["cielab"].shape == (16, 4096)
         assert obj_out["dominant_colors"].shape == (16, 5, 3)
-        
+
     def test_histogram_only(self):
         fpobj = FrameProcessor()
         fpobj.load_annotator(CIElabAnnotator(num_dominant=0))

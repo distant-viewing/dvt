@@ -6,8 +6,8 @@ from . import diff
 from . import embed
 from . import face
 from . import png
-from . import object 
-from . import meta 
+from . import object
+from . import meta
 from . import cielab
 from . import clutter
 

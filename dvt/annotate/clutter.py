@@ -9,6 +9,7 @@ import cv2
 
 from .core import FrameAnnotator
 
+
 class ClutterAnnotator(FrameAnnotator):
     """Annotator for extracting the clutter or visual complexity value from a
     frame. The clutter value is calculated based on the Subband Entropy
@@ -46,7 +47,7 @@ class ClutterAnnotator(FrameAnnotator):
         for fnum in range(0, batch.bsize, self.freq):
             clutter_val += [_get_clutter(batch.img[fnum, :, :, :])]
 
-        obj = {'clutter': np.vstack(clutter_val)}
+        obj = {"clutter": np.vstack(clutter_val)}
 
         # Add video and frame metadata
         frames = range(0, batch.bsize, self.freq)
@@ -60,16 +61,16 @@ def _entropy(samples):
     nsamples = samples.size
     nbins = int(np.ceil(np.sqrt(nsamples)))
 
-    bincount,_ = np.histogram(samples, nbins)
-    H = bincount[ np.where(bincount > 0) ]
+    bincount, _ = np.histogram(samples, nbins)
+    H = bincount[np.where(bincount > 0)]
     H = H / float(sum(H))
 
     return -sum(H * np.log2(H))
 
 
 def _band_entropy(img, wlevels, wor):
-    pt = importlib.import_module('pyrtools')
-    sfpyr = pt.pyramids.SteerablePyramidFreq(img, wlevels, wor-1)
+    pt = importlib.import_module("pyrtools")
+    sfpyr = pt.pyramids.SteerablePyramidFreq(img, wlevels, wor - 1)
 
     en_band = np.zeros((sfpyr.num_scales, sfpyr.num_orientations))
 
@@ -82,35 +83,24 @@ def _band_entropy(img, wlevels, wor):
 
 
 def _get_clutter(img, wlevels=3, wght_chrom=0.0625):
-    if len(img.shape) == 3:
-        ht, wth, dchrom = img.shape
-    else:
-        ht, wth = img.shape
-        dchrom = 1
-
-    if dchrom == 4:
-        img = img[:,:,:3]
-        dchrom = 3
-
-    if dchrom == 3:
-        img = cv2.cvtColor(img, cv2.COLOR_RGB2LAB)
+    ht, wth, dchrom = img.shape
+    img = cv2.cvtColor(img, cv2.COLOR_RGB2LAB)
 
     wor = 4
-    if dchrom == 1:
-        L = img
-    else:
-        L = img[:,:,0]
+    L = img[:, :, 0]
+
     en_band = _band_entropy(L, wlevels, wor)
     clutter_se = np.mean(en_band)
 
-    if dchrom == 1: return clutter_se
+    if dchrom == 1:
+        return clutter_se
 
-    for i in range(1,3):
-        chrom = img[:,:,i]
-        if (np.max(chrom)-np.min(chrom)) < 0.008:
+    for i in range(1, 3):
+        chrom = img[:, :, i]
+        if (np.max(chrom) - np.min(chrom)) < 0.008:
             chrom = np.zeros(chrom.shape)
         en_band = _band_entropy(chrom, wlevels, wor)
-        clutter_se += wght_chrom*np.mean(en_band)
+        clutter_se += wght_chrom * np.mean(en_band)
 
-    clutter_se /= (1+2*wght_chrom)
+    clutter_se /= 1 + 2 * wght_chrom
     return clutter_se

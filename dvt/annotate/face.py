@@ -123,7 +123,7 @@ class FaceDetectDlib:
             "releases/download/0.0.1/"
             "mmod_human_face_detector.dat",
         )
-        self.dlib = importlib.import_module('dlib')
+        self.dlib = importlib.import_module("dlib")
         self.cutoff = cutoff
         self._cfd = self.dlib.cnn_face_detection_model_v1(mloc)
 
@@ -175,7 +175,7 @@ class FaceDetectMtcnn:
     """
 
     def __init__(self, cutoff=0):
-        self.mtcnn = importlib.import_module('mtcnn.mtcnn')
+        self.mtcnn = importlib.import_module("mtcnn.mtcnn")
         self.cutoff = cutoff
         self._mt = self.mtcnn.MTCNN(min_face_size=20)
 
@@ -195,13 +195,13 @@ class FaceDetectMtcnn:
 
         faces = []
         for det in dets:
-            if det['confidence'] >= self.cutoff:
+            if det["confidence"] >= self.cutoff:
                 bbox = _trim_bbox(
                     (
-                        det['box'][1] - det['box'][3],
-                        det['box'][0] + det['box'][2],
-                        det['box'][1] + det['box'][3],
-                        det['box'][0] - det['box'][2],
+                        det["box"][1] - det["box"][3],
+                        det["box"][0] + det["box"][2],
+                        det["box"][1] + det["box"][3],
+                        det["box"][0] - det["box"][2],
                     ),
                     img.shape,
                 )
@@ -211,7 +211,7 @@ class FaceDetectMtcnn:
                         "right": bbox[1],
                         "bottom": bbox[2],
                         "left": bbox[3],
-                        "confidence": det['confidence'],
+                        "confidence": det["confidence"],
                     }
                 ]
 
@@ -231,7 +231,7 @@ class FaceEmbedDlib:
             "releases/download/0.0.1/"
             "dlib_face_recognition_resnet_model_v1.dat",
         )
-        self.dlib = importlib.import_module('dlib')
+        self.dlib = importlib.import_module("dlib")
 
         self.encode = self.dlib.face_recognition_model_v1(mloc)
 

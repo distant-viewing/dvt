@@ -8,6 +8,7 @@ from scipy.cluster.vq import kmeans
 
 from .core import FrameAnnotator
 
+
 class CIElabAnnotator(FrameAnnotator):
     """Annotator for constructing a color histogram and extracting the dominant
     colours for an image in CIELAB colorspace.
@@ -52,15 +53,14 @@ class CIElabAnnotator(FrameAnnotator):
         for fnum in range(0, batch.bsize, self.freq):
             img_lab = cv2.cvtColor(batch.img[fnum, :, :, :], cv2.COLOR_RGB2LAB)
 
-            hgrams += [_get_cielab_histogram(img_lab,
-                       self.num_buckets)]
+            hgrams += [_get_cielab_histogram(img_lab, self.num_buckets)]
             if self.num_dominant > 0:
                 dominant += [_get_cielab_dominant(img_lab, self.num_dominant)]
 
-        obj = {'cielab': np.vstack(hgrams)}
+        obj = {"cielab": np.vstack(hgrams)}
 
         if self.num_dominant > 0:
-            obj['dominant_colors'] = np.stack(dominant)
+            obj["dominant_colors"] = np.stack(dominant)
 
         # Add video and frame metadata
         frames = range(0, batch.bsize, self.freq)
@@ -72,8 +72,9 @@ class CIElabAnnotator(FrameAnnotator):
 
 def _get_cielab_histogram(img, num_buckets):
 
-    return cv2.calcHist([img], [0, 1, 2],
-                None, num_buckets, [0, 256, 0, 256, 0, 256]).reshape(-1)
+    return cv2.calcHist(
+        [img], [0, 1, 2], None, num_buckets, [0, 256, 0, 256, 0, 256]
+    ).reshape(-1)
 
 
 def _get_cielab_dominant(img, num_dominant):
