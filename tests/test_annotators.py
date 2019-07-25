@@ -42,7 +42,7 @@ class TestCIElabAnno:
         assert issubclass(type(obj_out["cielab"]), np.ndarray)
         assert issubclass(type(obj_out["dominant_colors"]), np.ndarray)
         assert obj_out["cielab"].shape == (16, 4096)
-        assert obj_out["dominant_colors"].shape == (16, 5, 3)
+        assert obj_out["dominant_colors"].shape == (16, 5)
 
     def test_histogram_only(self):
         fpobj = FrameProcessor()

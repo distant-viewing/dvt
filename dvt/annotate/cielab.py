@@ -60,7 +60,14 @@ class CIElabAnnotator(FrameAnnotator):
         obj = {"cielab": np.vstack(hgrams)}
 
         if self.num_dominant > 0:
-            obj["dominant_colors"] = np.stack(dominant)
+            obj_rgb = cv2.cvtColor(np.stack(dominant), cv2.COLOR_LAB2RGB)
+
+            out = np.zeros(shape=obj_rgb.shape[:2], dtype=np.dtype("<U7"))
+            for i, obj_frame in enumerate(obj_rgb):
+                for j, oc in enumerate(obj_frame):
+                    out[i, j] = "#{0:02x}{1:02x}{2:02x}".format(oc[0], oc[1], oc[2])
+
+            obj["dominant_colors"] = out
 
         # Add video and frame metadata
         frames = range(0, batch.bsize, self.freq)
