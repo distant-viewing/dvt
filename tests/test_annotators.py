@@ -317,6 +317,20 @@ class TestPng:
         assert obj_out == DictFrame()
         assert set(os.listdir(dname)) == expected_files
 
+    def test_png_resize(self):
+        dname = tempfile.mkdtemp()  # creates directory
+
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(PngAnnotator(output_dir=dname, size=(32, 64)))
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=4)
+        fpobj.process(finput, max_batch=2)
+
+        expected_files = set(["frame-{0:06d}.png".format(x) for x in range(8)])
+        obj_out = fpobj.collect("png")
+        assert obj_out == DictFrame()
+        assert set(os.listdir(dname)) == expected_files
+
     def test_png_new_dir(self):
         dname = tempfile.mkdtemp()  # creates directory
         dname = os.path.join(dname, "temp2")  # this directory will not exist

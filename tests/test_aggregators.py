@@ -2,11 +2,7 @@ import pytest
 
 from dvt.annotate.core import FrameProcessor, FrameInput
 from dvt.annotate.diff import DiffAnnotator
-from dvt.annotate.face import (
-    FaceAnnotator,
-    FaceDetectDlib,
-    FaceEmbedVgg2,
-)
+from dvt.annotate.face import FaceAnnotator, FaceDetectDlib, FaceEmbedVgg2
 from dvt.aggregate.core import Aggregator
 from dvt.aggregate.cut import CutAggregator
 from dvt.aggregate.people import PeopleAggregator
@@ -32,13 +28,24 @@ class TestPeopleAggregator:
         fpobj.process(finput, max_batch=2)
         obj_out = fpobj.collect_all()
 
-        pa = PeopleAggregator(face_names=['person 1', 'person 2'],
-                              fprint=obj_out['face']['embed'][[0, 1]])
+        pa = PeopleAggregator(
+            face_names=["person 1", "person 2"], fprint=obj_out["face"]["embed"][[0, 1]]
+        )
         agg = pa.aggregate(obj_out).todf()
 
-        assert set(agg.keys()) == set(["video", "frame", "top", "bottom",
-                                       "right", "left", "confidence", "person",
-                                       "person-dist"])
+        assert set(agg.keys()) == set(
+            [
+                "video",
+                "frame",
+                "top",
+                "bottom",
+                "right",
+                "left",
+                "confidence",
+                "person",
+                "person-dist",
+            ]
+        )
 
 
 class TestCutAggregator:

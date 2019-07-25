@@ -37,15 +37,19 @@ class PngAnnotator(FrameAnnotator):
             created if the location does not yet exist.
         freq (int): How often to save the image. For example, setting
             the frequency to 2 will save every other frame in the batch.
+        size (tuple): What should the size of the output images be? Set to None,
+            the default, to preserve the size as given in the input file. Given
+            as a tuple of (width, height).
     """
 
     name = "png"
 
-    def __init__(self, output_dir, freq=1):
+    def __init__(self, output_dir, freq=1, size=None):
         self.freq = freq
         self.output_dir = os.path.expanduser(output_dir)
         if not os.path.isdir(self.output_dir):
             os.makedirs(self.output_dir)
+        self.size = size
 
         super().__init__()
 
@@ -69,6 +73,10 @@ class PngAnnotator(FrameAnnotator):
                 opath = os.path.splitext(opath)[0] + ".png"
 
             opath = os.path.join(self.output_dir, opath)
-            cv2.imwrite(filename=opath, img=img)
+            if self.size is not None:
+                img_resize = cv2.resize(img, self.size)
+                cv2.imwrite(filename=opath, img=img_resize)
+            else:
+                cv2.imwrite(filename=opath, img=img)
 
         return []
