@@ -6,7 +6,6 @@ import cv2
 import pytest
 import tensorflow as tf
 
-from dvt.annotate.color import ColorAnnotator
 from dvt.annotate.cielab import CIElabAnnotator
 from dvt.annotate.clutter import ClutterAnnotator
 from dvt.annotate.core import FrameProcessor, FrameInput, ImageInput
@@ -71,21 +70,6 @@ class TestClutterAnno:
         assert set(obj_out.keys()) == set(["video", "frame", "clutter"])
         assert issubclass(type(obj_out["clutter"]), np.ndarray)
         assert obj_out["clutter"].shape == (16, 1)
-
-
-class TestColorAnno:
-    def test_default(self):
-        fpobj = FrameProcessor()
-        fpobj.load_annotator(ColorAnnotator())
-
-        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
-        fpobj.process(finput, max_batch=2)
-        obj_out = fpobj.collect("color")
-        keys = list(obj_out.keys())
-
-        assert set(obj_out.keys()) == set(["video", "frame", "color"])
-        assert issubclass(type(obj_out["color"]), np.ndarray)
-        assert obj_out["color"].shape == (16, 256)
 
 
 class TestDiffAnno:
