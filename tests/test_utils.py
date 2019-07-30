@@ -59,7 +59,11 @@ class TestDictFrame:
             }
         )
         dframe2 = DictFrame(
-            {"x": [0, 1], "y": ["a", "b"], "embed": np.random.normal(0, 1, (2, 20))}
+            {
+                "x": [0, 1],
+                "y": ["a", "b"],
+                "embed": np.random.normal(0, 1, (2, 20)),
+            }
         )
 
         dframe3 = stack_dict_frames([dframe1, dframe2])
@@ -78,7 +82,11 @@ class TestDictFrame:
             }
         )
         dframe2 = DictFrame(
-            {"x": [0, 1], "y": ["a", "b"], "embed": np.random.normal(0, 1, (2, 20))}
+            {
+                "x": [0, 1],
+                "y": ["a", "b"],
+                "embed": np.random.normal(0, 1, (2, 20)),
+            }
         )
 
         dframe3 = dframe1 + dframe2

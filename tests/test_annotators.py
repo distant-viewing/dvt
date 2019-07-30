@@ -291,7 +291,9 @@ class TestObject:
         assert obj_out.shape == (17, 8)
 
     def test_object_detection_cutoff(self):
-        anno = ObjectAnnotator(freq=4, detector=ObjectDetectRetinaNet(cutoff=0.6))
+        anno = ObjectAnnotator(
+            freq=4, detector=ObjectDetectRetinaNet(cutoff=0.6)
+        )
         fpobj = FrameProcessor()
         fpobj.load_annotator(anno)
 
@@ -313,6 +315,20 @@ class TestPng:
         fpobj.process(finput, max_batch=2)
 
         expected_files = set(["frame-{0:06d}.png".format(x) for x in range(8)])
+        obj_out = fpobj.collect("png")
+        assert obj_out == DictFrame()
+        assert set(os.listdir(dname)) == expected_files
+
+    def test_png_set_frames(self):
+        dname = tempfile.mkdtemp()  # creates directory
+
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(PngAnnotator(output_dir=dname, frames=[0, 3]))
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=4)
+        fpobj.process(finput, max_batch=2)
+
+        expected_files = set(["frame-{0:06d}.png".format(x) for x in [0, 3]])
         obj_out = fpobj.collect("png")
         assert obj_out == DictFrame()
         assert set(os.listdir(dname)) == expected_files
@@ -409,6 +425,38 @@ class TestMeta:
         assert obj_out["height"] == [-1]
         assert obj_out["type"] == ["image"]
         assert obj_out["vname"] == [""]
+
+
+class TestFixedFrames:
+    def test_fixed_frames(self):
+        # only grab these frames
+        frames = [0, 3, 17, 18, 21]
+
+        # create processor pipeline
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(CIElabAnnotator(frames=frames))
+        fpobj.load_annotator(ClutterAnnotator(frames=frames))
+        fpobj.load_annotator(
+            EmbedAnnotator(embedding=EmbedFrameKerasResNet50(), frames=frames)
+        )
+        fpobj.load_annotator(
+            FaceAnnotator(detector=FaceDetectDlib(), frames=frames)
+        )
+        fpobj.load_annotator(
+            ObjectAnnotator(detector=ObjectDetectRetinaNet(), frames=frames)
+        )
+
+        # run over the input, making sure to include a batch (the middle one)
+        # that does not have any data
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=3)
+
+        # check that the output is the correct size
+        assert fpobj.collect("clutter")["frame"].tolist() == frames
+        assert fpobj.collect("cielab")["frame"].tolist() == frames
+        assert fpobj.collect("embed")["frame"].tolist() == frames
+        assert set(fpobj.collect("face")["frame"]) == set(frames)
+        assert set(fpobj.collect("object")["frame"]) == set(frames)
 
 
 if __name__ == "__main__":

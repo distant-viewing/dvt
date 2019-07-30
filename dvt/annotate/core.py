@@ -265,7 +265,8 @@ class FrameInput:
         self.meta = self._metadata()
 
         self._img = np.zeros(
-            (bsize * 2, self.meta["height"], self.meta["width"], 3), dtype=np.uint8
+            (bsize * 2, self.meta["height"], self.meta["width"], 3),
+            dtype=np.uint8,
         )
         self._fill_bandwidth()  # fill the buffer with the first batch
         self._continue = True  # is there any more input left in the video
@@ -330,7 +331,9 @@ class FrameInput:
             self._continue, frame = self._video_cap.read()
             if self._continue:
                 rgb_id = cv2.COLOR_BGR2RGB
-                self._img[idx + self.bsize, :, :, :] = cv2.cvtColor(frame, rgb_id)
+                self._img[idx + self.bsize, :, :, :] = cv2.cvtColor(
+                    frame, rgb_id
+                )
             else:
                 self._img[idx + self.bsize, :, :, :] = 0
 

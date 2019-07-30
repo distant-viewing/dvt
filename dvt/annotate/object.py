@@ -46,6 +46,7 @@ from keras.utils import get_file
 
 from .core import FrameAnnotator
 from ..utils import stack_dict_frames
+from ..utils import _proc_frame_list, _which_frames
 
 
 class ObjectAnnotator(FrameAnnotator):
@@ -59,13 +60,18 @@ class ObjectAnnotator(FrameAnnotator):
             and returns a set of detect faces.
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will embed every other frame in the batch.
+        frames (array of ints): An optional list of frames to process. This
+            should be a list of integers or a 1D numpy array of integers. If set
+            to something other than None, the freq input is ignored.
     """
 
     name = "object"
 
-    def __init__(self, detector, freq=1):
+    def __init__(self, detector, freq=1, frames=None):
         self.freq = freq
         self.detector = detector
+        self.frames = _proc_frame_list(frames)
+
         super().__init__()
 
     def annotate(self, batch):
@@ -81,7 +87,7 @@ class ObjectAnnotator(FrameAnnotator):
         """
 
         f_obj = []
-        for fnum in range(0, batch.bsize, self.freq):
+        for fnum in _which_frames(batch, self.freq, self.frames):
             img = batch.img[fnum, :, :, :]
             t_obj = stack_dict_frames(self.detector.detect(img))
             if t_obj:

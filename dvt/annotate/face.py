@@ -50,6 +50,7 @@ from keras import backend as K
 
 from .core import FrameAnnotator
 from ..utils import stack_dict_frames, sub_image, _trim_bbox
+from ..utils import _proc_frame_list, _which_frames
 
 
 class FaceAnnotator(FrameAnnotator):
@@ -68,14 +69,18 @@ class FaceAnnotator(FrameAnnotator):
             numpy array. Set to None (default) to only run the face detector.
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will embed every other frame in the batch.
+        frames (array of ints): An optional list of frames to process. This
+            should be a list of integers or a 1D numpy array of integers. If set
+            to something other than None, the freq input is ignored.
     """
 
     name = "face"
 
-    def __init__(self, detector, embedding=None, freq=1):
+    def __init__(self, detector, embedding=None, freq=1, frames=None):
         self.freq = freq
         self.detector = detector
         self.embedding = embedding
+        self.frames = _proc_frame_list(frames)
         super().__init__()
 
     def annotate(self, batch):
@@ -92,7 +97,7 @@ class FaceAnnotator(FrameAnnotator):
         """
 
         f_faces = []
-        for fnum in range(0, batch.bsize, self.freq):
+        for fnum in _which_frames(batch, self.freq, self.frames):
             img = batch.img[fnum, :, :, :]
             t_faces = stack_dict_frames(self.detector.detect(img))
             if t_faces:

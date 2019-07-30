@@ -29,7 +29,8 @@ class TestPeopleAggregator:
         obj_out = fpobj.collect_all()
 
         pa = PeopleAggregator(
-            face_names=["person 1", "person 2"], fprint=obj_out["face"]["embed"][[0, 1]]
+            face_names=["person 1", "person 2"],
+            fprint=obj_out["face"]["embed"][[0, 1]],
         )
         agg = pa.aggregate(obj_out).todf()
 

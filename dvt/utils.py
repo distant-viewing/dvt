@@ -92,7 +92,9 @@ class DictFrame(collections.OrderedDict):
             assert isinstance(value, (list, np.ndarray)), (
                 "Error in data type of '" + key + "'."
             )
-            assert len(value) == self.shape[0], "Error in length of '" + key + "'."
+            assert len(value) == self.shape[0], (
+                "Error in length of '" + key + "'."
+            )
 
     def _compute_shape(self):
         """ """
@@ -218,7 +220,12 @@ def sub_image(img, top, right, bottom, left, fct=1, output_shape=None):
     center = [int((top + bottom) / 2), int((left + right) / 2)]
     height = int((bottom - top) / 2 * fct)
     width = int((right - left) / 2 * fct)
-    box = [center[0] - height, center[0] + height, center[1] - width, center[1] + width]
+    box = [
+        center[0] - height,
+        center[0] + height,
+        center[1] - width,
+        center[1] + width,
+    ]
 
     # crop the image as an array
     box[0] = max(0, box[0])
@@ -293,3 +300,18 @@ def _trim_bbox(css, image_shape):
         min(css[2], image_shape[0]),
         max(css[3], 0),
     )
+
+
+def _proc_frame_list(frames):
+    if frames is not None:
+        frames = np.array(frames)
+    return frames
+
+
+def _which_frames(batch, freq, frames):
+    """Determine which frame numbers should be used.
+    """
+    if frames is None:
+        return list(range(0, batch.bsize, freq))
+    else:
+        return np.flatnonzero(np.isin(batch.fnames, frames)).tolist()

@@ -37,6 +37,7 @@ import cv2
 import numpy as np
 
 from .core import FrameAnnotator
+from ..utils import _proc_frame_list, _which_frames
 
 
 class EmbedAnnotator(FrameAnnotator):
@@ -51,13 +52,17 @@ class EmbedAnnotator(FrameAnnotator):
         embedding (EmbedFrameKeras): Object to perform the embedding.
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will embed every other frame in the batch.
+        frames (array of ints): An optional list of frames to process. This
+            should be a list of integers or a 1D numpy array of integers. If set
+            to something other than None, the freq input is ignored.
     """
 
     name = "embed"
 
-    def __init__(self, embedding, freq=1):
+    def __init__(self, embedding, freq=1, frames=None):
         self.freq = freq
         self.embedding = embedding
+        self.frames = _proc_frame_list(frames)
         super().__init__()
 
     def annotate(self, batch):
@@ -72,7 +77,9 @@ class EmbedAnnotator(FrameAnnotator):
         """
 
         # what frames do we annotate?
-        fnum = range(0, batch.bsize, self.freq)
+        fnum = _which_frames(batch, self.freq, self.frames)
+        if not fnum:
+            return
 
         # run the embedding and add video and frame metadata
         obj = self.embedding.embed(batch.img[fnum, :, :, :])
@@ -101,7 +108,9 @@ class EmbedFrameKeras:
         from keras.models import Model
 
         if outlayer is not None:
-            model = Model(inputs=model.input, outputs=model.get_layer(outlayer).output)
+            model = Model(
+                inputs=model.input, outputs=model.get_layer(outlayer).output
+            )
 
         self.input_shape = (model.input_shape[1], model.input_shape[2])
         self.model = model
