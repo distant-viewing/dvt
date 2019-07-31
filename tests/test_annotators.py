@@ -18,8 +18,10 @@ from dvt.annotate.face import (
     FaceEmbedDlib,
     FaceEmbedVgg2,
 )
+from dvt.annotate.hofm import HOFMAnnotator
 from dvt.annotate.meta import MetaAnnotator
 from dvt.annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
+from dvt.annotate.opticalflow import OpticalFlowAnnotator
 from dvt.annotate.png import PngAnnotator
 
 from dvt.utils import DictFrame, get_batch
@@ -267,6 +269,34 @@ class TestFace:
         assert (emb1 != emb2).any()
 
 
+class TestHOFM:
+    def test_hofm_default(self):
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(HOFMAnnotator())
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("hofm")
+        keys = list(obj_out.keys())
+
+        assert set(obj_out.keys()) == set(["video", "frame", "hofm"])
+        assert issubclass(type(obj_out["hofm"]), np.ndarray)
+        assert obj_out["hofm"].shape == (16, 3*3*6*8)
+
+    def test_hofm_blocks(self):
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(HOFMAnnotator(blocks=2))
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("hofm")
+        keys = list(obj_out.keys())
+
+        assert set(obj_out.keys()) == set(["video", "frame", "hofm"])
+        assert issubclass(type(obj_out["hofm"]), np.ndarray)
+        assert obj_out["hofm"].shape == (16, 2*2*6*8)
+
+
 class TestObject:
     def test_object_detection(self):
         anno = ObjectAnnotator(freq=4, detector=ObjectDetectRetinaNet())
@@ -303,6 +333,32 @@ class TestObject:
 
         assert obj_out.shape == (12, 8)
 
+class TestOpticalFlow:
+    def test_optical_flow_color(self):
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(OpticalFlowAnnotator())
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("opticalflow")
+        keys = list(obj_out.keys())
+
+        assert set(obj_out.keys()) == set(["video", "frame", "opticalflow"])
+        assert issubclass(type(obj_out["opticalflow"]), np.ndarray)
+        assert obj_out["opticalflow"].shape == (16, 480, 708, 3)
+
+    def test_optical_flow_raw(self):
+        fpobj = FrameProcessor()
+        fpobj.load_annotator(OpticalFlowAnnotator(raw=True))
+
+        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
+        fpobj.process(finput, max_batch=2)
+        obj_out = fpobj.collect("opticalflow")
+        keys = list(obj_out.keys())
+
+        assert set(obj_out.keys()) == set(["video", "frame", "opticalflow"])
+        assert issubclass(type(obj_out["opticalflow"]), np.ndarray)
+        assert obj_out["opticalflow"].shape == (16, 480, 708, 2)
 
 class TestPng:
     def test_png_existing_dir(self):

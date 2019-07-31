@@ -7,8 +7,10 @@ from . import core
 from . import diff
 from . import embed
 from . import face
+from . import hofm
 from . import png
 from . import object
+from . import opticalflow
 from . import meta
 
 __version__ = "0.1.0"
