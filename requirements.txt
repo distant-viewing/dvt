@@ -3,6 +3,7 @@ pandas
 keras
 tensorflow
 scipy>=1.0.0
+scikit-image
 h5py
 opencv-python
 keras_retinanet
