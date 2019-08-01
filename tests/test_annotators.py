@@ -103,7 +103,7 @@ class TestDiffAnno:
 
 
 class TestEmbed:
-    def test_embed_resnet(self, setup_tensorflow):
+    def test_embed_resnet(self, run_setup_tensorflow):
         anno = EmbedAnnotator(freq=4, embedding=EmbedFrameKerasResNet50())
         fpobj = FrameProcessor()
         fpobj.load_annotator(anno)
@@ -298,7 +298,7 @@ class TestHOFM:
 
 
 class TestObject:
-    def test_object_detection(self):
+    def test_object_detection(self, run_setup_tensorflow):
         anno = ObjectAnnotator(freq=4, detector=ObjectDetectRetinaNet())
         fpobj = FrameProcessor()
         fpobj.load_annotator(anno)

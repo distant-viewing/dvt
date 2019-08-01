@@ -242,6 +242,30 @@ def sub_image(img, top, right, bottom, left, fct=1, output_shape=None):
     return np.uint8(img_scaled)
 
 
+def setup_tensorflow():
+    """Setup options for TensorFlow.
+
+    These options should allow most users to run TensorFlow with either a
+    GPU or CPU.
+    """
+    from keras.backend.tensorflow_backend import set_session
+    import tensorflow as tf
+    import os
+
+    # supress warnings
+    tf.logging.set_verbosity(tf.logging.ERROR)
+    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+
+    # ensure that keras does not use all of the available memory
+    config = tf.ConfigProto()
+    config.gpu_options.per_process_gpu_memory_fraction = 0.3
+    config.gpu_options.visible_device_list = "0"
+    set_session(tf.Session(config=config))
+
+    # fix a common local bug
+    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+
+
 def _process_df_input(data):
     """Helper function to construct a dictionary frame.
 
@@ -260,11 +284,12 @@ def _process_df_input(data):
     return collections.OrderedDict(data)
 
 
-def _format_time(msec):
+def _format_time(msec, include_msec=False):
     """Takes a millisecond and produces a ISO-8601 formatted string.
 
     Args:
         msec (int): Time in milliseconds.
+        include_msec (bool): Should millisecods be included in the output?
 
     Returns:
         String of the data in ISO-8601 format.
@@ -275,9 +300,16 @@ def _format_time(msec):
     second = (msec % (1000 * 60)) // (1000)
     remainder = msec % 1000
 
-    return "{0:02d}:{1:02d}:{2:02d},{3:03d}".format(
-        hour, minute, second, int(remainder)
-    )
+    if include_msec:
+        output = "{0:02d}:{1:02d}:{2:02d},{3:03d}".format(
+            hour, minute, second, int(remainder)
+        )
+    else:
+        output = "{0:02d}:{1:02d}:{2:02d}".format(
+            hour, minute, second, int(remainder)
+        )
+
+    return output
 
 
 def _trim_bbox(css, image_shape):

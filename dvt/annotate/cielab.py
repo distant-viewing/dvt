@@ -73,7 +73,8 @@ class CIElabAnnotator(FrameAnnotator):
         if self.num_dominant > 0:
             obj_rgb = cv2.cvtColor(np.stack(dominant), cv2.COLOR_LAB2RGB)
 
-            out = np.zeros(shape=obj_rgb.shape[:2], dtype=np.dtype("<U7"))
+            shp = (obj_rgb.shape[0], self.num_dominant)
+            out = np.full(shp, "#000000", dtype=np.dtype("<U7"))
             for i, obj_frame in enumerate(obj_rgb):
                 for j, oc in enumerate(obj_frame):
                     out[i, j] = "#{0:02x}{1:02x}{2:02x}".format(

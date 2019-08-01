@@ -41,6 +41,8 @@ Example:
     a total of 11 people and one couch.
 """
 
+import warnings
+
 import numpy as np
 from keras.utils import get_file
 
@@ -124,7 +126,10 @@ class ObjectDetectRetinaNet:
         self.preprocess_image = preprocess_image
         self.resize_image = resize_image
         self.cutoff = cutoff
-        self.model = models.load_model(mloc, backbone_name="resnet50")
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore")
+            self.model = models.load_model(mloc, backbone_name="resnet50")
+
         self.lcodes = {
             0: "person",
             1: "bicycle",

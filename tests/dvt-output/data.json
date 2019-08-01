@@ -1,0 +1,74 @@
+[
+    {
+        "dominant_colors": [
+            "#715c52",
+            "#120b0a",
+            "#362921",
+            "#514138",
+            "#918987"
+        ],
+        "frame_end": 74,
+        "frame_start": 0,
+        "img_path": "img/frame-000000.png",
+        "max_face_size": 196,
+        "num_faces": 2,
+        "num_people": 2,
+        "obj_list": "oven; person",
+        "time_end": "00:00:02",
+        "time_start": "00:00:00"
+    },
+    {
+        "dominant_colors": [
+            "#36251c",
+            "#755d4d",
+            "#a29182",
+            "#130a0a",
+            "#553f31"
+        ],
+        "frame_end": 154,
+        "frame_start": 75,
+        "img_path": "img/frame-000075.png",
+        "max_face_size": 114,
+        "num_faces": 4,
+        "num_people": 5,
+        "obj_list": "person",
+        "time_end": "00:00:05",
+        "time_start": "00:00:02"
+    },
+    {
+        "dominant_colors": [
+            "#908480",
+            "#0d0907",
+            "#34261e",
+            "#6b564c",
+            "#4a3f35"
+        ],
+        "frame_end": 299,
+        "frame_start": 155,
+        "img_path": "img/frame-000155.png",
+        "max_face_size": 192,
+        "num_faces": 2,
+        "num_people": 2,
+        "obj_list": "person",
+        "time_end": "00:00:09",
+        "time_start": "00:00:05"
+    },
+    {
+        "dominant_colors": [
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000"
+        ],
+        "frame_end": 383,
+        "frame_start": 300,
+        "img_path": "img/frame-000300.png",
+        "max_face_size": 0,
+        "num_faces": 0,
+        "num_people": 0,
+        "obj_list": "",
+        "time_end": "00:00:12",
+        "time_start": "00:00:10"
+    }
+]
