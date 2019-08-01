@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
-"""Annotator to extract dense Optical Flow using the opencv 
-Gunnar Farneback’s algorithm and represent it as a 
+"""Annotator to extract dense Optical Flow using the opencv
+Gunnar Farneback’s algorithm and represent it as a
 histogram of optical flow orientation and magnitude (HOFM),
 as described in https://doi.org/10.1109/SIBGRAPI.2015.21
 """
 
+import importlib
+
 import numpy as np
 import cv2
-from skimage.util import view_as_blocks
 
 from .core import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames
 
 
 class HOFMAnnotator(FrameAnnotator):
-    """Annotator to extract dense Optical Flow using the opencv 
-    Gunnar Farneback’s algorithm and represent it as a 
+    """Annotator to extract dense Optical Flow using the opencv
+    Gunnar Farneback’s algorithm and represent it as a
     histogram of optical flow orientation and magnitude (HOFM),
     as described in https://doi.org/10.1109/SIBGRAPI.2015.21
 
@@ -39,9 +40,15 @@ class HOFMAnnotator(FrameAnnotator):
     name = "hofm"
 
     def __init__(
-        self, freq=1, blocks=3, mag_buckets = [0, 20, 40, 60, 80, 100],
-        ang_buckets = [0, 45, 90, 135, 180, 225, 270, 315, 360], frames=None):
+        self,
+        freq=1,
+        blocks=3,
+        mag_buckets=[0, 20, 40, 60, 80, 100],
+        ang_buckets=[0, 45, 90, 135, 180, 225, 270, 315, 360],
+        frames=None,
+    ):
 
+        self.skutil = importlib.import_module("skimage.util")
         self.freq = freq
         self.blocks = blocks
         self.mag_buckets = mag_buckets
@@ -68,15 +75,24 @@ class HOFMAnnotator(FrameAnnotator):
         # run the optical flow analysis on each frame
         hofm = []
         for fnum in frames:
-            current_gray = cv2.cvtColor(batch.img[fnum, :, :, :],
-                    cv2.COLOR_RGB2GRAY)
-            next_gray = cv2.cvtColor(batch.img[fnum+1, :, :, :],
-                    cv2.COLOR_RGB2GRAY)
+            current_gray = cv2.cvtColor(
+                batch.img[fnum, :, :, :], cv2.COLOR_RGB2GRAY
+            )
+            next_gray = cv2.cvtColor(
+                batch.img[fnum + 1, :, :, :], cv2.COLOR_RGB2GRAY
+            )
 
             flow = _get_optical_flow(current_gray, next_gray)
 
-            hofm.append(_make_block_hofm(flow, self.blocks,
-                self.mag_buckets, self.ang_buckets).flatten())
+            hofm.append(
+                _make_block_hofm(
+                    flow,
+                    self.blocks,
+                    self.mag_buckets,
+                    self.ang_buckets,
+                    self.skutil,
+                ).flatten()
+            )
 
         obj = {"hofm": np.stack(hofm)}
 
@@ -89,31 +105,41 @@ class HOFMAnnotator(FrameAnnotator):
 
 def _get_optical_flow(current_frame, next_frame):
 
-    return cv2.calcOpticalFlowFarneback(current_frame, 
-                            next_frame, flow=None,
-                            pyr_scale=0.5, levels=1, winsize=15,
-                            iterations=2,
-                            poly_n=5, poly_sigma=1.1, flags=0)
+    return cv2.calcOpticalFlowFarneback(
+        current_frame,
+        next_frame,
+        flow=None,
+        pyr_scale=0.5,
+        levels=1,
+        winsize=15,
+        iterations=2,
+        poly_n=5,
+        poly_sigma=1.1,
+        flags=0,
+    )
 
 
-def _make_block_hofm(flow, blocks, mag_buckets, ang_buckets):
-    mag, ang = cv2.cartToPolar(flow[...,0], flow[...,1], angleInDegrees=True)
+def _make_block_hofm(flow, blocks, mag_buckets, ang_buckets, skutil):
+    mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1], angleInDegrees=True)
 
     mag_digit = np.digitize(mag, mag_buckets)
     # mod so 360 falls into first bucket
-    ang_digit = np.digitize(ang%360, ang_buckets) 
-    
-    mag_blocks = view_as_blocks(mag_digit, (blocks,blocks))
-    ang_blocks = view_as_blocks(ang_digit, (blocks,blocks))
+    ang_digit = np.digitize(ang % 360, ang_buckets)
 
-    histogram = np.zeros((blocks, blocks, len(mag_buckets), 
-        len(ang_buckets)-1))
+    mag_blocks = skutil.view_as_blocks(mag_digit, (blocks, blocks))
+    ang_blocks = skutil.view_as_blocks(ang_digit, (blocks, blocks))
+
+    histogram = np.zeros(
+        (blocks, blocks, len(mag_buckets), len(ang_buckets) - 1)
+    )
 
     for x in range(blocks):
         for y in range(blocks):
-            for m,a in zip(mag_blocks[:,:,x,y].flatten(), 
-                    ang_blocks[:,:,x,y].flatten()):
-                histogram[x,y, m-1,a-1] += 1
+            for m, a in zip(
+                mag_blocks[:, :, x, y].flatten(),
+                ang_blocks[:, :, x, y].flatten(),
+            ):
+                histogram[x, y, m - 1, a - 1] += 1
         # normalize by block size (h,w)
-        histogram[x,y,:,:] /= mag_blocks[:,:,x,y].size 
+        histogram[x, y, :, :] /= mag_blocks[:, :, x, y].size
     return histogram

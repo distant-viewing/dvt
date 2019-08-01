@@ -281,7 +281,7 @@ class TestHOFM:
 
         assert set(obj_out.keys()) == set(["video", "frame", "hofm"])
         assert issubclass(type(obj_out["hofm"]), np.ndarray)
-        assert obj_out["hofm"].shape == (16, 3*3*6*8)
+        assert obj_out["hofm"].shape == (16, 3 * 3 * 6 * 8)
 
     def test_hofm_blocks(self):
         fpobj = FrameProcessor()
@@ -294,7 +294,7 @@ class TestHOFM:
 
         assert set(obj_out.keys()) == set(["video", "frame", "hofm"])
         assert issubclass(type(obj_out["hofm"]), np.ndarray)
-        assert obj_out["hofm"].shape == (16, 2*2*6*8)
+        assert obj_out["hofm"].shape == (16, 2 * 2 * 6 * 8)
 
 
 class TestObject:
@@ -333,6 +333,7 @@ class TestObject:
 
         assert obj_out.shape == (12, 8)
 
+
 class TestOpticalFlow:
     def test_optical_flow_color(self):
         fpobj = FrameProcessor()
@@ -359,6 +360,7 @@ class TestOpticalFlow:
         assert set(obj_out.keys()) == set(["video", "frame", "opticalflow"])
         assert issubclass(type(obj_out["opticalflow"]), np.ndarray)
         assert obj_out["opticalflow"].shape == (16, 480, 708, 2)
+
 
 class TestPng:
     def test_png_existing_dir(self):
@@ -501,6 +503,8 @@ class TestFixedFrames:
         fpobj.load_annotator(
             ObjectAnnotator(detector=ObjectDetectRetinaNet(), frames=frames)
         )
+        fpobj.load_annotator(HOFMAnnotator(frames=frames))
+        fpobj.load_annotator(OpticalFlowAnnotator(frames=frames))
 
         # run over the input, making sure to include a batch (the middle one)
         # that does not have any data
@@ -513,6 +517,8 @@ class TestFixedFrames:
         assert fpobj.collect("embed")["frame"].tolist() == frames
         assert set(fpobj.collect("face")["frame"]) == set(frames)
         assert set(fpobj.collect("object")["frame"]) == set(frames)
+        assert set(fpobj.collect("hofm")["frame"]) == set(frames)
+        assert set(fpobj.collect("opticalflow")["frame"]) == set(frames)
 
 
 if __name__ == "__main__":

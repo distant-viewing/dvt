@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Annotator to extract dense Optical Flow using the opencv 
+"""Annotator to extract dense Optical Flow using the opencv
 Gunnar Farneback’s algorithm.
 """
 
@@ -29,9 +29,7 @@ class OpticalFlowAnnotator(FrameAnnotator):
 
     name = "opticalflow"
 
-    def __init__(
-        self, freq=1, raw=False, frames=None
-    ):
+    def __init__(self, freq=1, raw=False, frames=None):
 
         self.freq = freq
         self.raw = raw
@@ -57,16 +55,17 @@ class OpticalFlowAnnotator(FrameAnnotator):
         # run the optical flow analysis on each frame
         flow = []
         for fnum in frames:
-            current_gray = cv2.cvtColor(batch.img[fnum, :, :, :],
-                    cv2.COLOR_RGB2GRAY)
-            next_gray = cv2.cvtColor(batch.img[fnum+1, :, :, :],
-                    cv2.COLOR_RGB2GRAY)
+            current_gray = cv2.cvtColor(
+                batch.img[fnum, :, :, :], cv2.COLOR_RGB2GRAY
+            )
+            next_gray = cv2.cvtColor(
+                batch.img[fnum + 1, :, :, :], cv2.COLOR_RGB2GRAY
+            )
 
             flow += [_get_optical_flow(current_gray, next_gray)]
 
             if not self.raw:
-                flow[-1] = _flow_to_color(
-                        flow[-1])
+                flow[-1] = _flow_to_color(flow[-1])
 
         obj = {"opticalflow": np.stack(flow)}
 
@@ -79,14 +78,23 @@ class OpticalFlowAnnotator(FrameAnnotator):
 
 def _get_optical_flow(current_frame, next_frame):
 
-    return cv2.calcOpticalFlowFarneback(current_frame, 
-                            next_frame, flow=None,
-                            pyr_scale=0.5, levels=1, winsize=15,
-                            iterations=2,
-                            poly_n=5, poly_sigma=1.1, flags=0)
+    return cv2.calcOpticalFlowFarneback(
+        current_frame,
+        next_frame,
+        flow=None,
+        pyr_scale=0.5,
+        levels=1,
+        winsize=15,
+        iterations=2,
+        poly_n=5,
+        poly_sigma=1.1,
+        flags=0,
+    )
+
 
 # Optical flow to color image conversion code adapted from:
 # https://github.com/tomrunia/OpticalFlow_Visualization
+
 
 def _make_colorwheel():
     """
@@ -110,27 +118,27 @@ def _make_colorwheel():
 
     # RY
     colorwheel[0:RY, 0] = 255
-    colorwheel[0:RY, 1] = np.floor(255*np.arange(0,RY)/RY)
-    col = col+RY
+    colorwheel[0:RY, 1] = np.floor(255 * np.arange(0, RY) / RY)
+    col = col + RY
     # YG
-    colorwheel[col:col+YG, 0] = 255 - np.floor(255*np.arange(0,YG)/YG)
-    colorwheel[col:col+YG, 1] = 255
-    col = col+YG
+    colorwheel[col : col + YG, 0] = 255 - np.floor(255 * np.arange(0, YG) / YG)
+    colorwheel[col : col + YG, 1] = 255
+    col = col + YG
     # GC
-    colorwheel[col:col+GC, 1] = 255
-    colorwheel[col:col+GC, 2] = np.floor(255*np.arange(0,GC)/GC)
-    col = col+GC
+    colorwheel[col : col + GC, 1] = 255
+    colorwheel[col : col + GC, 2] = np.floor(255 * np.arange(0, GC) / GC)
+    col = col + GC
     # CB
-    colorwheel[col:col+CB, 1] = 255 - np.floor(255*np.arange(CB)/CB)
-    colorwheel[col:col+CB, 2] = 255
-    col = col+CB
+    colorwheel[col : col + CB, 1] = 255 - np.floor(255 * np.arange(CB) / CB)
+    colorwheel[col : col + CB, 2] = 255
+    col = col + CB
     # BM
-    colorwheel[col:col+BM, 2] = 255
-    colorwheel[col:col+BM, 0] = np.floor(255*np.arange(0,BM)/BM)
-    col = col+BM
+    colorwheel[col : col + BM, 2] = 255
+    colorwheel[col : col + BM, 0] = np.floor(255 * np.arange(0, BM) / BM)
+    col = col + BM
     # MR
-    colorwheel[col:col+MR, 2] = 255 - np.floor(255*np.arange(MR)/MR)
-    colorwheel[col:col+MR, 0] = 255
+    colorwheel[col : col + MR, 2] = 255 - np.floor(255 * np.arange(MR) / MR)
+    colorwheel[col : col + MR, 0] = 255
     return colorwheel
 
 
@@ -151,9 +159,9 @@ def _flow_compute_color(u, v):
     ncols = colorwheel.shape[0]
 
     rad = np.sqrt(np.square(u) + np.square(v))
-    a = np.arctan2(-v, -u)/np.pi
+    a = np.arctan2(-v, -u) / np.pi
 
-    fk = (a+1) / 2*(ncols-1)
+    fk = (a + 1) / 2 * (ncols - 1)
     k0 = np.floor(fk).astype(np.int32)
     k1 = k0 + 1
     k1[k1 == ncols] = 0
@@ -161,16 +169,16 @@ def _flow_compute_color(u, v):
 
     for i in range(colorwheel.shape[1]):
 
-        tmp = colorwheel[:,i]
+        tmp = colorwheel[:, i]
         col0 = tmp[k0] / 255.0
         col1 = tmp[k1] / 255.0
-        col = (1-f)*col0 + f*col1
+        col = (1 - f) * col0 + f * col1
 
-        idx = (rad <= 1)
-        col[idx]  = 1 - rad[idx] * (1-col[idx])
-        col[~idx] = col[~idx] * 0.75   # out of range?
+        idx = rad <= 1
+        col[idx] = 1 - rad[idx] * (1 - col[idx])
+        col[~idx] = col[~idx] * 0.75  # out of range?
 
-        flow_image[:,:,i] = np.floor(255 * col)
+        flow_image[:, :, i] = np.floor(255 * col)
 
     return flow_image
 
@@ -182,18 +190,18 @@ def _flow_to_color(flow_uv, clip_flow=None):
     According to the Matlab source code of Deqing Sun
 
     Attributes:
-        flow_uv (np.ndarray): np.ndarray of optical flow with shape [H,W,2] 
+        flow_uv (np.ndarray): np.ndarray of optical flow with shape [H,W,2]
         clip_flow (float): maximum clipping value for flow
     """
 
-    assert flow_uv.ndim == 3, 'input flow must have three dimensions'
-    assert flow_uv.shape[2] == 2, 'input flow must have shape [H,W,2]'
+    assert flow_uv.ndim == 3, "input flow must have three dimensions"
+    assert flow_uv.shape[2] == 2, "input flow must have shape [H,W,2]"
 
     if clip_flow is not None:
         flow_uv = np.clip(flow_uv, 0, clip_flow)
 
-    u = flow_uv[:,:,0]
-    v = flow_uv[:,:,1]
+    u = flow_uv[:, :, 0]
+    v = flow_uv[:, :, 1]
 
     rad = np.sqrt(np.square(u) + np.square(v))
     rad_max = np.max(rad)
