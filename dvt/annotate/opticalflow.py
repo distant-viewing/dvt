@@ -211,8 +211,6 @@ def _flow_to_color(flow_uv):
     assert flow_uv.ndim == 3, "input flow must have three dimensions"
     assert flow_uv.shape[2] == 2, "input flow must have shape [H,W,2]"
 
-    flow_uv = np.clip(flow_uv, 0, clip_flow)
-
     u = flow_uv[:, :, 0]
     v = flow_uv[:, :, 1]
 
