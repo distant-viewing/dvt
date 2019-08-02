@@ -2,16 +2,16 @@ from os import makedirs
 from os.path import exists, join, abspath
 import tempfile
 
-from dvt.pipeline.web import WebPipeline
+from dvt.pipeline.video import VideoPipeline
 
 
-class TestWebPipeline:
+class TestVideoPipeline:
     def test_with_default(self):
         finput = abspath(join("test-data", "video-clip.mp4"))
 
         dname = tempfile.mkdtemp()  # creates directory
 
-        wp = WebPipeline(finput, dname)
+        wp = VideoPipeline(finput, dname)
         wp.run()
 
         assert (wp.cuts["mpoint"] == [37, 114, 227, 341]).all()

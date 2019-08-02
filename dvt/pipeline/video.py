@@ -23,7 +23,7 @@ from ..utils import setup_tensorflow, _format_time
 from .utils import _get_cuts
 
 
-class WebPipeline:
+class VideoPipeline:
     """Contains
     """
 
