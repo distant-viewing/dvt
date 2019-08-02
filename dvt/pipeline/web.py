@@ -17,6 +17,7 @@ from ..annotate.meta import MetaAnnotator
 from ..annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
 from ..annotate.png import PngAnnotator
 from ..aggregate.cut import CutAggregator
+from ..aggregate.length import ShotLengthAggregator
 from ..utils import setup_tensorflow, _format_time
 from .utils import _get_cuts, _add_annotations_to_image
 
@@ -72,6 +73,10 @@ class WebPipeline:
         fpobj.process(fri)
         self.pipeline_data = fpobj.collect_all()
 
+        self.pipeline_data["length"] = ShotLengthAggregator().aggregate(
+            self.pipeline_data, frames
+        )
+
     def _annotate_images(self):
         img_output_dir = os.path.join(self.doutput, "img-anno")
         if not os.path.exists(img_output_dir):
@@ -90,9 +95,9 @@ class WebPipeline:
     def _make_json(self):
         nframes = len(self.cuts["mpoint"])
         fps = self.pipeline_data["meta"]["fps"][0]
-        num_faces, max_face_size, num_people, obj_list = _process_objects(
-            self.pipeline_data, self.cuts["mpoint"]
-        )
+        ldata = self.pipeline_data["length"]
+
+        print(ldata.todf())
 
         output = []
         for iter in range(nframes):
@@ -117,40 +122,17 @@ class WebPipeline:
                     "dominant_colors": self.pipeline_data["cielab"][
                         "dominant_colors"
                     ][iter].tolist(),
-                    "num_faces": int(num_faces[iter]),
-                    "max_face_size": int(max_face_size[iter]),
-                    "num_people": int(num_people[iter]),
-                    "obj_list": obj_list[iter],
+                    "num_faces": int(ldata["num_faces"][iter]),
+                    "num_people": int(ldata["num_people"][iter]),
+                    "largest_face": int(ldata["largest_face"][iter]),
+                    "largest_body": int(ldata["largest_body"][iter]),
+                    "obj_list": ldata["objects"][iter],
+                    "shot_length": ldata["shot_length"][iter],
                 }
             ]
 
         with open(os.path.join(self.doutput, "data.json"), "w") as fout:
             json.dump(output, fout, sort_keys=True, indent=4)
-
-
-def _process_objects(pipeline_data, frame_set):
-    face_array = np.array(pipeline_data["face"]["frame"])
-    obj_array = np.array(pipeline_data["object"]["frame"])
-    face_size = np.array(pipeline_data["face"]["bottom"]) - np.array(
-        pipeline_data["face"]["top"]
-    )
-    classes = np.array(pipeline_data["object"]["class"])
-    obj_conf = np.array(pipeline_data["object"]["score"])
-
-    num_faces = []
-    max_face_size = []
-    num_people = []
-    obj_list = []
-
-    for this_frame in frame_set:
-        faces = np.nonzero(face_array == this_frame)[0]
-        num_faces.append(len(faces))
-        max_face_size.append(np.max(face_size[faces], initial=0))
-        objs = np.nonzero((obj_array == this_frame) & (obj_conf > 0.7))[0]
-        num_people.append(np.sum(classes[objs] == "person"))
-        obj_list.append("; ".join(list(set(classes[objs]))))
-
-    return num_faces, max_face_size, num_people, obj_list
 
 
 def _copy_web():

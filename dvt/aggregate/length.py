@@ -99,13 +99,15 @@ class ShotLengthAggregator(Aggregator):
 
         super().__init__()
 
-    def aggregate(self, ldframe):
+    def aggregate(self, ldframe, frames=None):
         """Determine shot lengths using detected faces and objects.
 
         Args:
             ldframe (dict): A dictionary of DictFrames from a FrameAnnotator.
                 Must contain an entry with the keys 'meta', 'face' and 'object',
                 which are used in the annotation.
+            frames (list): An optional list of frames. Otherwise, will annotate
+                any frame with a detected face or object.
 
         Returns:
             A dictionary frame giving the detected people, with one row per
@@ -129,7 +131,11 @@ class ShotLengthAggregator(Aggregator):
         face_scores = np.array(face["confidence"])
         objs_scores = np.array(objs["score"])
         objs_object = np.array(objs["class"])
-        frames = sorted(set(face_frames).union(objs_frames))
+
+        # what frames to include?
+        if frames is None:
+            frames = set(face_frames).union(objs_frames)
+        frames = sorted(frames)
 
         # create the output
         output = DictFrame(
@@ -170,7 +176,7 @@ class ShotLengthAggregator(Aggregator):
             )
 
             output["shot_length"][fnum] = self.shot_names[
-                np.argmax(self.shot_sizes > output["largest_face"][fnum])
+                np.argmax(self.shot_sizes >= output["largest_face"][fnum])
             ]
 
         return DictFrame(output)
