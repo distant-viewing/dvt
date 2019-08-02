@@ -13,6 +13,7 @@ __pycache__/
 *.so
 
 # Distribution / packaging
+coverage.xml
 .Python
 build/
 develop-eggs/
