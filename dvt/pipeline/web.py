@@ -11,13 +11,14 @@ import numpy as np
 from ..annotate.cielab import CIElabAnnotator
 from ..annotate.diff import DiffAnnotator
 from ..annotate.core import FrameProcessor, FrameInput, ImageInput
-from ..annotate.face import FaceAnnotator, FaceDetectMtcnn
+from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceDetectDlib
 from ..annotate.embed import EmbedAnnotator, EmbedFrameKerasResNet50
 from ..annotate.meta import MetaAnnotator
 from ..annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
 from ..annotate.png import PngAnnotator
 from ..aggregate.cut import CutAggregator
 from ..utils import setup_tensorflow, _format_time
+from .utils import _get_cuts, _add_annotations_to_image
 
 
 class WebPipeline:
@@ -36,35 +37,20 @@ class WebPipeline:
         self.finput = finput
         self.doutput = doutput
         self.cuts = None
-        self.cut_data = None
+        self.pipeline_data = None
 
     def run(self):
         if not os.path.exists(self.doutput):
             os.makedirs(self.doutput)
 
-        self._get_cuts()
-        self._process_cuts()
+        self.cuts = _get_cuts(self.finput)
+        self._run_pipeline()
+        self._annotate_images()
         self._make_json()
 
         _copy_web()
 
-    def _get_cuts(self):
-        fpobj = FrameProcessor()
-        fpobj.load_annotator(DiffAnnotator(quantiles=[40]))
-        fri = FrameInput(self.finput, bsize=128)
-        fpobj.process(fri)
-        obj_out = fpobj.collect_all()
-
-        ca = CutAggregator(cut_vals={"q40": 4})
-        agg = ca.aggregate(obj_out)
-        agg["frame_start"] = np.array(agg["frame_start"])
-        agg["frame_end"] = np.array(agg["frame_end"])
-        agg["mpoint"] = (
-            agg["frame_start"] + (agg["frame_end"] - agg["frame_start"]) // 2
-        )
-        self.cuts = agg
-
-    def _process_cuts(self):
+    def _run_pipeline(self):
         frames = self.cuts["mpoint"]
 
         fpobj = FrameProcessor()
@@ -84,13 +70,28 @@ class WebPipeline:
 
         fri = FrameInput(self.finput, bsize=128)
         fpobj.process(fri)
-        self.cut_data = fpobj.collect_all()
+        self.pipeline_data = fpobj.collect_all()
+
+    def _annotate_images(self):
+        img_output_dir = os.path.join(self.doutput, "img-anno")
+        if not os.path.exists(img_output_dir):
+            os.makedirs(img_output_dir)
+
+        for frame in self.cuts["mpoint"]:
+            _add_annotations_to_image(
+                os.path.join(
+                    self.doutput, "img", "frame-{0:06d}.png".format(frame)
+                ),
+                img_output_dir,
+                frame,
+                self.pipeline_data,
+            )
 
     def _make_json(self):
         nframes = len(self.cuts["mpoint"])
-        fps = self.cut_data["meta"]["fps"][0]
+        fps = self.pipeline_data["meta"]["fps"][0]
         num_faces, max_face_size, num_people, obj_list = _process_objects(
-            self.cut_data, self.cuts["mpoint"]
+            self.pipeline_data, self.cuts["mpoint"]
         )
 
         output = []
@@ -111,11 +112,9 @@ class WebPipeline:
                     ),
                     "img_path": os.path.join(
                         "img",
-                        "frame-{0:06d}.png".format(
-                            self.cuts["frame_start"][iter]
-                        ),
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"][iter]),
                     ),
-                    "dominant_colors": self.cut_data["cielab"][
+                    "dominant_colors": self.pipeline_data["cielab"][
                         "dominant_colors"
                     ][iter].tolist(),
                     "num_faces": int(num_faces[iter]),
@@ -129,14 +128,14 @@ class WebPipeline:
             json.dump(output, fout, sort_keys=True, indent=4)
 
 
-def _process_objects(cut_data, frame_set):
-    face_array = np.array(cut_data["face"]["frame"])
-    obj_array = np.array(cut_data["object"]["frame"])
-    face_size = np.array(cut_data["face"]["bottom"]) - np.array(
-        cut_data["face"]["top"]
+def _process_objects(pipeline_data, frame_set):
+    face_array = np.array(pipeline_data["face"]["frame"])
+    obj_array = np.array(pipeline_data["object"]["frame"])
+    face_size = np.array(pipeline_data["face"]["bottom"]) - np.array(
+        pipeline_data["face"]["top"]
     )
-    classes = np.array(cut_data["object"]["class"])
-    obj_conf = np.array(cut_data["object"]["score"])
+    classes = np.array(pipeline_data["object"]["class"])
+    obj_conf = np.array(pipeline_data["object"]["score"])
 
     num_faces = []
     max_face_size = []

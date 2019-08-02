@@ -5,7 +5,8 @@ import warnings
 import os
 
 from . import core
-from . import people
 from . import cut
+from . import length
+from . import people
 
 __version__ = "0.1.0"

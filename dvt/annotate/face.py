@@ -203,10 +203,10 @@ class FaceDetectMtcnn:
             if det["confidence"] >= self.cutoff:
                 bbox = _trim_bbox(
                     (
-                        det["box"][1] - det["box"][3],
+                        det["box"][1],
                         det["box"][0] + det["box"][2],
                         det["box"][1] + det["box"][3],
-                        det["box"][0] - det["box"][2],
+                        det["box"][0],
                     ),
                     img.shape,
                 )

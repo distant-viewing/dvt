@@ -3,8 +3,12 @@ import pytest
 from dvt.annotate.core import FrameProcessor, FrameInput
 from dvt.annotate.diff import DiffAnnotator
 from dvt.annotate.face import FaceAnnotator, FaceDetectDlib, FaceEmbedVgg2
+from dvt.annotate.meta import MetaAnnotator
+from dvt.annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
+
 from dvt.aggregate.core import Aggregator
 from dvt.aggregate.cut import CutAggregator
+from dvt.aggregate.length import ShotLengthAggregator
 from dvt.aggregate.people import PeopleAggregator
 
 from dvt.utils import DictFrame
@@ -90,6 +94,36 @@ class TestCutAggregator:
         agg = ca.aggregate(obj_out)
 
         assert agg == DictFrame()
+
+
+class TestShotLengthAggregator:
+    def test_lengths(self):
+        fp = FrameProcessor()
+        fp.load_annotator(MetaAnnotator())
+        fp.load_annotator(FaceAnnotator(detector=FaceDetectDlib(), freq=128))
+        fp.load_annotator(
+            ObjectAnnotator(detector=ObjectDetectRetinaNet(), freq=128)
+        )
+
+        fp.process(FrameInput("test-data/video-clip.mp4"), max_batch=2)
+        obj = fp.collect_all()
+
+        sla = ShotLengthAggregator()
+        agg = sla.aggregate(obj)
+        pdf = agg.todf()
+
+        assert set(agg.keys()) == set(
+            [
+                "frame",
+                "num_faces",
+                "num_people",
+                "largest_face",
+                "largest_body",
+                "shot_length",
+                "objects",
+            ]
+        )
+        assert agg["shot_length"] == ["5-MCU", "3-MLS", "5-MCU"]
 
 
 if __name__ == "__main__":

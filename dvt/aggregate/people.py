@@ -47,7 +47,7 @@ class PeopleAggregator(Aggregator):
 
     You will need to provide baseline faces for the annotator to compare to.
     Note that the annotator returns the nearest faces along with the distance
-    to each face. Users can filter
+    to each face.
 
     Attributes:
         face_names (list): List of names associated with each face in the set of
