@@ -35,8 +35,8 @@ class OpticalFlowAnnotator(FrameAnnotator):
 
     def __init__(self, freq=1, raw=False, frames=None, output_dir=None):
         if output_dir is not None:
-            if not os.path.isdir(self.output_dir):
-                os.makedirs(self.output_dir)
+            if not os.path.isdir(output_dir):
+                os.makedirs(output_dir)
 
         self.freq = freq
         self.raw = raw
@@ -57,6 +57,7 @@ class OpticalFlowAnnotator(FrameAnnotator):
         """
         # determine which frames to work on
         frames = _which_frames(batch, self.freq, self.frames)
+        frame_names = np.array(batch.get_frame_names())
         if not frames:
             return
 
@@ -76,7 +77,8 @@ class OpticalFlowAnnotator(FrameAnnotator):
                 flow[-1] = _flow_to_color(flow[-1])
                 if self.output_dir is not None:
                     opath = os.path.join(
-                        self.output_dir, "frame-{0:6d}.png".format(fnum)
+                        self.output_dir,
+                        "frame-{0:06d}.png".format(frame_names[fnum]),
                     )
                     cv2.imwrite(filename=opath, img=flow[-1])
 
@@ -84,7 +86,7 @@ class OpticalFlowAnnotator(FrameAnnotator):
 
         # Add video and frame metadata
         obj["video"] = [batch.vname] * len(frames)
-        obj["frame"] = np.array(batch.get_frame_names())[list(frames)]
+        obj["frame"] = frame_names[list(frames)]
 
         return [obj]
 
@@ -196,7 +198,7 @@ def _flow_compute_color(u, v):
     return flow_image
 
 
-def _flow_to_color(flow_uv, clip_flow=None):
+def _flow_to_color(flow_uv):
     """
     Expects a two dimensional flow image of shape [H,W,2]
     According to the C++ source code of Daniel Scharstein
@@ -204,14 +206,12 @@ def _flow_to_color(flow_uv, clip_flow=None):
 
     Attributes:
         flow_uv (np.ndarray): np.ndarray of optical flow with shape [H,W,2]
-        clip_flow (float): maximum clipping value for flow
     """
 
     assert flow_uv.ndim == 3, "input flow must have three dimensions"
     assert flow_uv.shape[2] == 2, "input flow must have shape [H,W,2]"
 
-    if clip_flow is not None:
-        flow_uv = np.clip(flow_uv, 0, clip_flow)
+    flow_uv = np.clip(flow_uv, 0, clip_flow)
 
     u = flow_uv[:, :, 0]
     v = flow_uv[:, :, 1]

@@ -336,8 +336,11 @@ class TestObject:
 
 class TestOpticalFlow:
     def test_optical_flow_color(self):
+        dname = tempfile.mkdtemp()  # create temporary directory
+        os.rmdir(dname)  # destroy directory, for testing
+
         fpobj = FrameProcessor()
-        fpobj.load_annotator(OpticalFlowAnnotator())
+        fpobj.load_annotator(OpticalFlowAnnotator(output_dir=dname))
 
         finput = FrameInput("test-data/video-clip.mp4", bsize=8)
         fpobj.process(finput, max_batch=2)
