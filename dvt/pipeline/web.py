@@ -17,9 +17,10 @@ from ..annotate.meta import MetaAnnotator
 from ..annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
 from ..annotate.png import PngAnnotator
 from ..aggregate.cut import CutAggregator
+from ..aggregate.display import DisplayAggregator
 from ..aggregate.length import ShotLengthAggregator
 from ..utils import setup_tensorflow, _format_time
-from .utils import _get_cuts, _add_annotations_to_image
+from .utils import _get_cuts
 
 
 class WebPipeline:
@@ -82,22 +83,16 @@ class WebPipeline:
         if not os.path.exists(img_output_dir):
             os.makedirs(img_output_dir)
 
-        for frame in self.cuts["mpoint"]:
-            _add_annotations_to_image(
-                os.path.join(
-                    self.doutput, "img", "frame-{0:06d}.png".format(frame)
-                ),
-                img_output_dir,
-                frame,
-                self.pipeline_data,
-            )
+        da = DisplayAggregator(
+            input_dir=os.path.join(self.doutput, "img"),
+            output_dir=img_output_dir,
+        )
+        da.aggregate(self.pipeline_data, self.cuts["mpoint"])
 
     def _make_json(self):
         nframes = len(self.cuts["mpoint"])
         fps = self.pipeline_data["meta"]["fps"][0]
         ldata = self.pipeline_data["length"]
-
-        print(ldata.todf())
 
         output = []
         for iter in range(nframes):

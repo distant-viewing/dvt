@@ -51,7 +51,7 @@ class PngAnnotator(FrameAnnotator):
 
     def __init__(self, output_dir, freq=1, size=None, frames=None):
         self.freq = freq
-        self.output_dir = os.path.expanduser(output_dir)
+        self.output_dir = os.path.abspath(os.path.expanduser(output_dir))
         if not os.path.isdir(self.output_dir):
             os.makedirs(self.output_dir)
         self.size = size

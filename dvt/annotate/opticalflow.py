@@ -3,6 +3,8 @@
 Gunnar Farneback’s algorithm.
 """
 
+import os
+
 import numpy as np
 import cv2
 
@@ -21,19 +23,25 @@ class OpticalFlowAnnotator(FrameAnnotator):
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will computer every other frame in the batch.
         raw (bool): Return optical flow as color image by default, raw returns
-        the raw output as produced by the opencv algorithm.
+            the raw output as produced by the opencv algorithm.
         frames (array of ints): An optional list of frames to process. This
             should be a list of integers or a 1D numpy array of integers. If set
             to something other than None, the freq input is ignored.
+        output_dir (string): optional location to store the computed images.
+            Only used if raw is set to False.
     """
 
     name = "opticalflow"
 
-    def __init__(self, freq=1, raw=False, frames=None):
+    def __init__(self, freq=1, raw=False, frames=None, output_dir=None):
+        if output_dir is not None:
+            if not os.path.isdir(self.output_dir):
+                os.makedirs(self.output_dir)
 
         self.freq = freq
         self.raw = raw
         self.frames = _proc_frame_list(frames)
+        self.output_dir = output_dir
         super().__init__()
 
     def annotate(self, batch):
@@ -66,6 +74,11 @@ class OpticalFlowAnnotator(FrameAnnotator):
 
             if not self.raw:
                 flow[-1] = _flow_to_color(flow[-1])
+                if self.output_dir is not None:
+                    opath = os.path.join(
+                        self.output_dir, "frame-{0:6d}.png".format(fnum)
+                    )
+                    cv2.imwrite(filename=opath, img=flow[-1])
 
         obj = {"opticalflow": np.stack(flow)}
 

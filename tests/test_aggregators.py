@@ -1,13 +1,19 @@
 import pytest
 
+import os.path
+import tempfile
+
+
 from dvt.annotate.core import FrameProcessor, FrameInput
 from dvt.annotate.diff import DiffAnnotator
 from dvt.annotate.face import FaceAnnotator, FaceDetectDlib, FaceEmbedVgg2
 from dvt.annotate.meta import MetaAnnotator
 from dvt.annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
+from dvt.annotate.png import PngAnnotator
 
 from dvt.aggregate.core import Aggregator
 from dvt.aggregate.cut import CutAggregator
+from dvt.aggregate.display import DisplayAggregator
 from dvt.aggregate.length import ShotLengthAggregator
 from dvt.aggregate.people import PeopleAggregator
 
@@ -124,6 +130,41 @@ class TestShotLengthAggregator:
             ]
         )
         assert agg["shot_length"] == ["5-MCU", "3-MLS", "5-MCU"]
+
+
+class TestDisplayAggregator:
+    def test_lengths(self):
+        dname_png = tempfile.mkdtemp()
+        dname_dis = tempfile.mkdtemp()
+
+        fp = FrameProcessor()
+        fp.load_annotator(PngAnnotator(output_dir=dname_png, freq=128))
+        fp.load_annotator(FaceAnnotator(detector=FaceDetectDlib(), freq=128))
+        fp.load_annotator(
+            ObjectAnnotator(detector=ObjectDetectRetinaNet(), freq=128)
+        )
+
+        fp.process(FrameInput("test-data/video-clip.mp4"), max_batch=2)
+        obj = fp.collect_all()
+
+        da = DisplayAggregator(input_dir=dname_png, output_dir=dname_dis)
+        agg = da.aggregate(obj)
+        assert agg == None
+
+        # should have a total of four original png files
+        expected_files = set(
+            ["frame-{0:06d}.png".format(x) for x in [0, 128, 256, 384]]
+        )
+        assert set(os.listdir(dname_png)) == expected_files
+
+        # should have only three new png files because, be default, only frames
+        # with detected information have data; this can be changed this by
+        # providing a the desired list of frames as argument to the aggregate
+        # method of DisplayAggregator
+        expected_files = set(
+            ["frame-{0:06d}.png".format(x) for x in [0, 128, 256]]
+        )
+        assert set(os.listdir(dname_dis)) == expected_files
 
 
 if __name__ == "__main__":
