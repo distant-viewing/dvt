@@ -5,9 +5,8 @@ python:
   - "3.7"
 
 install:
-  - pip install --upgrade pip; pip install -r requirements.txt
-  - pip install -U pytest
-  - python setup.py install
+  - pip install --upgrade pip
+  - pip install .[tests,optional]
 
 script:
   - cd tests; pytest --disable-warnings --cov=dvt --cov-report term-missing .
