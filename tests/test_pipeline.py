@@ -12,6 +12,7 @@ class TestVideoPipeline:
         dname = tempfile.mkdtemp()  # creates directory
 
         wp = VideoPipeline(finput, dname)
+        wp.make_breaks()
         wp.run()
 
         assert (wp.cuts["mpoint"] == [37, 114, 227, 341]).all()
@@ -24,7 +25,7 @@ class TestVideoPipeline:
 
     def test_with_cwd(self):
         finput = abspath(join("test-data", "video-clip.mp4"))
-        wp = WebPipeline(finput)
+        wp = VideoPipeline(finput)
 
 
 if __name__ == "__main__":

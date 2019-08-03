@@ -112,7 +112,7 @@ class FrameProcessor:
                     self.output[anno.name] += next_values
                 if isinstance(batch.fnames[0], int):
                     msg = "processed {0:s} to {1:s} with annotator: '{2:s}'"
-                    logging.info(
+                    logging.debug(
                         msg.format(
                             _format_time(batch.start),
                             _format_time(batch.end),
@@ -121,7 +121,7 @@ class FrameProcessor:
                     )
                 else:
                     msg = "processed {0:s} with annotator: '{1:s}'"
-                    logging.info(msg.format(batch.fnames[0], anno.name))
+                    logging.debug(msg.format(batch.fnames[0], anno.name))
 
             if max_batch is not None:
                 if batch.bnum >= max_batch - 1:

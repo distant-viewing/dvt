@@ -12,45 +12,66 @@ from ..annotate.cielab import CIElabAnnotator
 from ..annotate.diff import DiffAnnotator
 from ..annotate.core import FrameProcessor, FrameInput, ImageInput
 from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceDetectDlib
-from ..annotate.embed import EmbedAnnotator, EmbedFrameKerasResNet50
 from ..annotate.meta import MetaAnnotator
 from ..annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
+from ..annotate.opticalflow import OpticalFlowAnnotator
 from ..annotate.png import PngAnnotator
 from ..aggregate.cut import CutAggregator
 from ..aggregate.display import DisplayAggregator
 from ..aggregate.length import ShotLengthAggregator
-from ..utils import setup_tensorflow, _format_time
+from ..utils import setup_tensorflow, _format_time, DictFrame
 from .utils import _get_cuts
 
 
 class VideoPipeline:
-    """Contains
+    """Contains a predefined annotators to process an input video file.
     """
 
-    def __init__(self, finput, doutput=None):
-        # setup tensorflow
+    def __init__(self, finput, doutput=None, diff_co=10, cut_min_length=30):
         setup_tensorflow()
 
-        # find absolute path to the input and determine where the output will
-        # live
+        # find absolute path to the input and determine the output location
         finput = os.path.abspath(finput)
         if doutput is None:
             doutput = os.path.join(os.getcwd(), "dvt-output")
+
         self.finput = finput
         self.doutput = doutput
+        self.diff_co = diff_co
+        self.cut_min_length = cut_min_length
         self.cuts = None
         self.pipeline_data = None
 
-    def run(self):
+    def make_breaks(self, freq=0):
+        if freq <= 0:
+            self.cuts = _get_cuts(
+                self.finput, self.diff_co, self.cut_min_length
+            )
+        else:
+            nframes = _get_meta(self.finput)["frames"]
+            cuts = DictFrame(
+                {"frame_start": list(range(0, nframes - 1, freq))}
+            )
+            cuts["frame_end"] = [x + 1 for x in cuts["frame_start"][-1]]
+            cuts["frame_end"].extend([nframes - 1])
+            cuts["mpoint"] = (
+                cuts["frame_start"]
+                + (cuts["frame_end"] - cuts["frame_start"]) // 2
+            )
+            self.cuts = cuts
+
+    def run(self, level=2):
         if not os.path.exists(self.doutput):
             os.makedirs(self.doutput)
 
-        self.cuts = _get_cuts(self.finput)
         self._run_pipeline()
-        self._annotate_images()
         self._make_json()
 
-        _copy_web()
+        if level >= 1:
+            self._annotate_images()
+
+        if level >= 2:
+            _copy_web()
 
     def _run_pipeline(self):
         frames = self.cuts["mpoint"]
@@ -60,6 +81,12 @@ class VideoPipeline:
         fpobj.load_annotator(
             PngAnnotator(
                 output_dir=os.path.join(self.doutput, "img"), frames=frames
+            )
+        )
+        fpobj.load_annotator(
+            OpticalFlowAnnotator(
+                output_dir=os.path.join(self.doutput, "img-flow"),
+                frames=frames,
             )
         )
         fpobj.load_annotator(CIElabAnnotator(frames=frames, num_dominant=5))
@@ -112,6 +139,14 @@ class VideoPipeline:
                     ),
                     "img_path": os.path.join(
                         "img",
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"][iter]),
+                    ),
+                    "anno_path": os.path.join(
+                        "img-anno",
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"][iter]),
+                    ),
+                    "flow_path": os.path.join(
+                        "img-flow",
                         "frame-{0:06d}.png".format(self.cuts["mpoint"][iter]),
                     ),
                     "dominant_colors": self.pipeline_data["cielab"][

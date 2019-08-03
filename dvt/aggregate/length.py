@@ -104,10 +104,10 @@ class ShotLengthAggregator(Aggregator):
 
         Args:
             ldframe (dict): A dictionary of DictFrames from a FrameAnnotator.
-                Must contain an entry with the keys 'meta', 'face' and 'object',
-                which are used in the annotation.
-            frames (list): An optional list of frames. Otherwise, will annotate
-                any frame with a detected face or object.
+                Must contain an entry with the keys 'meta', 'face' and
+                'object', which are used in the annotation.
+            frames (list): An optional list of frames. Otherwise, will
+                annotate any frame with a detected face or object.
 
         Returns:
             A dictionary frame giving the detected people, with one row per
