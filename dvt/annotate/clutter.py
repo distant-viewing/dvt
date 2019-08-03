@@ -24,8 +24,8 @@ class ClutterAnnotator(FrameAnnotator):
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will computer every other frame in the batch.
         frames (array of ints): An optional list of frames to process. This
-            should be a list of integers or a 1D numpy array of integers. If set
-            to something other than None, the freq input is ignored.
+            should be a list of integers or a 1D numpy array of integers. If
+            set to something other than None, the freq input is ignored.
     """
 
     name = "clutter"
@@ -102,8 +102,6 @@ def _get_clutter(img, wlevels=3, wght_chrom=0.0625):
 
     for i in range(1, 3):
         chrom = img[:, :, i]
-        if (np.max(chrom) - np.min(chrom)) < 0.008:
-            chrom = np.zeros(chrom.shape)
         en_band = _band_entropy(chrom, wlevels, wor)
         clutter_se += wght_chrom * np.mean(en_band)
 

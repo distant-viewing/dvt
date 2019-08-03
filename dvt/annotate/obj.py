@@ -16,13 +16,11 @@ Example:
     >>> fp = FrameProcessor()
     >>> fp.load_annotator(ObjectAnnotator(freq=128, detector=detector))
     >>> fp.process(FrameInput("input.mp4"), max_batch=2)
-    INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: 'object'
-    INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: 'object'
 
     Then, collect the output from the annotator and display as a pandas data
     frame.
 
-    >>> fp.collect("object").todf()
+    >>> fp.collect("obj").todf()
         frame     score      video  left  right  bottom  top   class
     0     128  0.984119  input.mp4   181    466     474   75  person
     1     256  0.934686  input.mp4     0    304     480  136  person
@@ -63,11 +61,11 @@ class ObjectAnnotator(FrameAnnotator):
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will embed every other frame in the batch.
         frames (array of ints): An optional list of frames to process. This
-            should be a list of integers or a 1D numpy array of integers. If set
-            to something other than None, the freq input is ignored.
+            should be a list of integers or a 1D numpy array of integers. If
+            set set to something other than None, the freq input is ignored.
     """
 
-    name = "object"
+    name = "obj"
 
     def __init__(self, detector, freq=1, frames=None):
         self.freq = freq

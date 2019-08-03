@@ -12,8 +12,6 @@ Example:
     >>> fp = FrameProcessor()
     >>> fp.load_annotator(PngAnnotator(output_dir="my-frames"))
     >>> fp.process(FrameInput("input.mp4"), max_batch=2)
-    INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: 'png'
-    INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: 'png'
 
     There will now be 512 (256 * 2) frames stored in the directory "my-frames".
     They images named according following the format "frame-000255.png".
@@ -22,7 +20,6 @@ Example:
 import os
 
 import cv2
-import numpy as np
 
 from .core import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames
@@ -39,12 +36,12 @@ class PngAnnotator(FrameAnnotator):
             created if the location does not yet exist.
         freq (int): How often to save the image. For example, setting
             the frequency to 2 will save every other frame in the batch.
-        size (tuple): What should the size of the output images be? Set to None,
-            the default, to preserve the size as given in the input file. Given
-            as a tuple of (width, height).
+        size (tuple): What should the size of the output images be? Set to
+            None, the default, to preserve the size as given in the input file.
+            Given as a tuple of (width, height).
         frames (array of ints): An optional list of frames to process. This
-            should be a list of integers or a 1D numpy array of integers. If set
-            to something other than None, the freq input is ignored.
+            should be a list of integers or a 1D numpy array of integers. If
+            set to something other than None, the freq input is ignored.
     """
 
     name = "png"

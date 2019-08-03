@@ -20,21 +20,11 @@
   <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../',
-              VERSION:'0.0.1',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -192,15 +182,13 @@ the a sample usage of the PngAnnotator over two batches of the input.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">PngAnnotator</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;my-frames&quot;</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="go">INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;png&#39;</span>
-<span class="go">INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;png&#39;</span>
 </pre></div>
 </div>
 <p>There will now be 512 (256 * 2) frames stored in the directory “my-frames”.
 They images named according following the format “frame-000255.png”.</p>
 <dl class="class">
 <dt id="dvt.annotate.png.PngAnnotator">
-<em class="property">class </em><code class="descclassname">dvt.annotate.png.</code><code class="descname">PngAnnotator</code><span class="sig-paren">(</span><em>output_dir</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.png.PngAnnotator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.png.</code><code class="descname">PngAnnotator</code><span class="sig-paren">(</span><em>output_dir</em>, <em>freq=1</em>, <em>size=None</em>, <em>frames=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/png.html#PngAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.png.PngAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
 <p>Annotator for saving PNG still images from an input.</p>
 <p>The annotate method of this annotator does not return any data. It is
@@ -208,20 +196,68 @@ useful only for its side effects.</p>
 <dl class="attribute">
 <dt id="dvt.annotate.png.PngAnnotator.output_dir">
 <code class="descname">output_dir</code><a class="headerlink" href="#dvt.annotate.png.PngAnnotator.output_dir" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>str</em> – location where output frames should be saved. Will be
+<dd><p>location where output frames should be saved. Will be
 created if the location does not yet exist.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="dvt.annotate.png.PngAnnotator.freq">
 <code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.png.PngAnnotator.freq" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> – How often to save the image. For example, setting
+<dd><p>How often to save the image. For example, setting
 the frequency to 2 will save every other frame in the batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.png.PngAnnotator.size">
+<code class="descname">size</code><a class="headerlink" href="#dvt.annotate.png.PngAnnotator.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>What should the size of the output images be? Set to
+None, the default, to preserve the size as given in the input file.
+Given as a tuple of (width, height).</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.png.PngAnnotator.frames">
+<code class="descname">frames</code><a class="headerlink" href="#dvt.annotate.png.PngAnnotator.frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>An optional list of frames to process. This
+should be a list of integers or a 1D numpy array of integers. If
+set to something other than None, the freq input is ignored.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">array of ints</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dvt.annotate.png.PngAnnotator.annotate">
-<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.png.PngAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/png.html#PngAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.png.PngAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Annotate the batch of frames with the PNG annotator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

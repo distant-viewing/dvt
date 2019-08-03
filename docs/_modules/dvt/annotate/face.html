@@ -1,0 +1,552 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dvt.annotate.face &mdash; dvt 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo.html"> Minimal Quickstart Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dvt.html"> API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dvt.annotate.face</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dvt.annotate.face</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Annotators to detect and identify faces.</span>
+
+<span class="sd">Identifying individuals in an image generally requires two distinct steps. The</span>
+<span class="sd">first is detecting bounding boxes for faces in the image and the second is</span>
+<span class="sd">identifying the faces themselves. Currently the most common method for doing</span>
+<span class="sd">the second step is to project a detected face into a high-dimensional space</span>
+<span class="sd">designed such that different images of the same person will be close together</span>
+<span class="sd">and images of different people will be farther apart. This module is built</span>
+<span class="sd">around this paradigm, allowing for the specification of custom detectors and</span>
+<span class="sd">embeddings into the model.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
+<span class="sd">    the sample usage of FaceAnnotator over two batches of the input. A CNN</span>
+<span class="sd">    model from dlib is used to detect the faces and the VGGFace2 algorithm is</span>
+<span class="sd">    used to embed the faces into a 2048-dimensional space. The algorithm is</span>
+<span class="sd">    applied to every 128 frames.</span>
+
+<span class="sd">    &gt;&gt;&gt; detector = FaceDetectDlib()</span>
+<span class="sd">    &gt;&gt;&gt; embedding = FaceEmbedVgg2()</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
+<span class="sd">    &gt;&gt;&gt; fp.load_annotator(FaceAnnotator(freq=128, detector=detector,</span>
+<span class="sd">    ...                   embedding=embedding))</span>
+<span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
+
+<span class="sd">    Then, collect the output from the annotator and display as a pandas data</span>
+<span class="sd">    frame.</span>
+
+<span class="sd">    &gt;&gt;&gt; fp.collect(&quot;face&quot;).todf()</span>
+<span class="sd">       frame  bottom      video     ...      embed-2045  embed-2046  embed-2047</span>
+<span class="sd">    0    128     171  input.mp4     ...        7.355998    0.000000    0.000000</span>
+<span class="sd">    1    384     209  input.mp4     ...        0.128695    0.640979    0.207890</span>
+<span class="sd">    2    384     220  input.mp4     ...        0.187535    0.754207    0.705644</span>
+
+<span class="sd">    [3 rows x 2055 columns]</span>
+
+<span class="sd">    The detector was run on four frames (0, 128, 256, and 384). It found one</span>
+<span class="sd">    face at frame 128 and two faces at frame 384.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">importlib</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">keras.utils</span> <span class="k">import</span> <span class="n">get_file</span>
+<span class="kn">from</span> <span class="nn">keras</span> <span class="k">import</span> <span class="n">backend</span> <span class="k">as</span> <span class="n">K</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">stack_dict_frames</span><span class="p">,</span> <span class="n">sub_image</span><span class="p">,</span> <span class="n">_trim_bbox</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span>
+
+
+<div class="viewcode-block" id="FaceAnnotator"><a class="viewcode-back" href="../../../annotate/face.html#dvt.annotate.face.FaceAnnotator">[docs]</a><span class="k">class</span> <span class="nc">FaceAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Annotator for detecting faces and embedding them as a face vector.</span>
+
+<span class="sd">    The annotator will return a list with one DictList item for every frame</span>
+<span class="sd">    with a detected face. If an embedding is supplied, the DictList items</span>
+<span class="sd">    will contain a numpy array with the face embeddings.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        detector: An object with a method called detect that takes an image</span>
+<span class="sd">            and returns a set of detect faces. Can be set to None (default) as</span>
+<span class="sd">            a pass-through option for testing.</span>
+<span class="sd">        embedding: An object with a method embed that takes an image along with</span>
+<span class="sd">            a set of bounding boxed and returns embeddings of the faces as a</span>
+<span class="sd">            numpy array. Set to None (default) to only run the face detector.</span>
+<span class="sd">        freq (int): How often to perform the embedding. For example, setting</span>
+<span class="sd">            the frequency to 2 will embed every other frame in the batch.</span>
+<span class="sd">        frames (array of ints): An optional list of frames to process. This</span>
+<span class="sd">            should be a list of integers or a 1D numpy array of integers. If</span>
+<span class="sd">            set to something other than None, the freq input is ignored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;face&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detector</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detector</span> <span class="o">=</span> <span class="n">detector</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">embedding</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FaceAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/face.html#dvt.annotate.face.FaceAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the face annotator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            batch (FrameBatch): A batch of images to annotate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dictionaries containing the video name, frame, bounding</span>
+<span class="sd">            box coordinates (top, bottom, left, and right). If an embedding is</span>
+<span class="sd">            included, the result will also contain a numpy array of the</span>
+<span class="sd">            embedding for each face.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">f_faces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fnum</span> <span class="ow">in</span> <span class="n">_which_frames</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">):</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">fnum</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+            <span class="n">t_faces</span> <span class="o">=</span> <span class="n">stack_dict_frames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
+            <span class="k">if</span> <span class="n">t_faces</span><span class="p">:</span>
+                <span class="n">frame</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">()[</span><span class="n">fnum</span><span class="p">]</span>
+                <span class="n">t_faces</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">vname</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_faces</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])</span>
+                <span class="n">t_faces</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_faces</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">t_faces</span><span class="p">[</span><span class="s2">&quot;embed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="o">.</span><span class="n">embed</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">t_faces</span><span class="p">)</span>
+                <span class="n">f_faces</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t_faces</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">f_faces</span></div></div>
+
+
+<div class="viewcode-block" id="FaceDetectDlib"><a class="viewcode-back" href="../../../annotate/face.html#dvt.annotate.face.FaceDetectDlib">[docs]</a><span class="k">class</span> <span class="nc">FaceDetectDlib</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Detect faces using the dlib CNN model.</span>
+
+<span class="sd">    A face detector that balances speed and accuracy.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        cutoff (float): A cutoff value for which faces to include in the final</span>
+<span class="sd">            output. Set to zero (default) to include all faces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="n">mloc</span> <span class="o">=</span> <span class="n">get_file</span><span class="p">(</span>
+            <span class="s2">&quot;mmod_human_face_detector.dat&quot;</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;https://github.com/distant-viewing/dvt/&quot;</span>
+            <span class="s2">&quot;releases/download/0.0.1/&quot;</span>
+            <span class="s2">&quot;mmod_human_face_detector.dat&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dlib</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;dlib&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cfd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dlib</span><span class="o">.</span><span class="n">cnn_face_detection_model_v1</span><span class="p">(</span><span class="n">mloc</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FaceDetectDlib.detect"><a class="viewcode-back" href="../../../annotate/face.html#dvt.annotate.face.FaceDetectDlib.detect">[docs]</a>    <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detect faces in an image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (numpy array): A single image stored as a three-dimensional</span>
+<span class="sd">                numpy array.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dictionaries where each dictionary represents a detected</span>
+<span class="sd">            face. Keys include the bounding box (top, left, bottom, right) as</span>
+<span class="sd">            well as a confidence score.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cfd</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">faces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">det</span> <span class="ow">in</span> <span class="n">dets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">det</span><span class="o">.</span><span class="n">confidence</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">:</span>
+                <span class="n">bbox</span> <span class="o">=</span> <span class="n">_trim_bbox</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">det</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">top</span><span class="p">(),</span>
+                        <span class="n">det</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">right</span><span class="p">(),</span>
+                        <span class="n">det</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">bottom</span><span class="p">(),</span>
+                        <span class="n">det</span><span class="o">.</span><span class="n">rect</span><span class="o">.</span><span class="n">left</span><span class="p">(),</span>
+                    <span class="p">),</span>
+                    <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">faces</span> <span class="o">+=</span> <span class="p">[</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                        <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                        <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">det</span><span class="o">.</span><span class="n">confidence</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">faces</span></div></div>
+
+
+<div class="viewcode-block" id="FaceDetectMtcnn"><a class="viewcode-back" href="../../../annotate/face.html#dvt.annotate.face.FaceDetectMtcnn">[docs]</a><span class="k">class</span> <span class="nc">FaceDetectMtcnn</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Detect faces using the Multi-task Cascaded CNN model.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        cutoff (float): A cutoff value for which faces to include in the final</span>
+<span class="sd">            output. Set to zero (default) to include all faces.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cutoff</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mtcnn</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;mtcnn.mtcnn&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span> <span class="o">=</span> <span class="n">cutoff</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_mt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mtcnn</span><span class="o">.</span><span class="n">MTCNN</span><span class="p">(</span><span class="n">min_face_size</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FaceDetectMtcnn.detect"><a class="viewcode-back" href="../../../annotate/face.html#dvt.annotate.face.FaceDetectMtcnn.detect">[docs]</a>    <span class="k">def</span> <span class="nf">detect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Detect faces in an image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (numpy array): A single image stored as a three-dimensional</span>
+<span class="sd">                numpy array.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dictionaries where each dictionary represents a detected</span>
+<span class="sd">            face. Keys include the bounding box (top, left, bottom, right) as</span>
+<span class="sd">            well as a confidence score.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dets</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_mt</span><span class="o">.</span><span class="n">detect_faces</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+
+        <span class="n">faces</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">det</span> <span class="ow">in</span> <span class="n">dets</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">det</span><span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cutoff</span><span class="p">:</span>
+                <span class="n">bbox</span> <span class="o">=</span> <span class="n">_trim_bbox</span><span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">det</span><span class="p">[</span><span class="s2">&quot;box&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="n">det</span><span class="p">[</span><span class="s2">&quot;box&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="n">det</span><span class="p">[</span><span class="s2">&quot;box&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">],</span>
+                        <span class="n">det</span><span class="p">[</span><span class="s2">&quot;box&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">det</span><span class="p">[</span><span class="s2">&quot;box&quot;</span><span class="p">][</span><span class="mi">3</span><span class="p">],</span>
+                        <span class="n">det</span><span class="p">[</span><span class="s2">&quot;box&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+                    <span class="p">),</span>
+                    <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">faces</span> <span class="o">+=</span> <span class="p">[</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;top&quot;</span><span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                        <span class="s2">&quot;right&quot;</span><span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+                        <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span>
+                        <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="n">bbox</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span>
+                        <span class="s2">&quot;confidence&quot;</span><span class="p">:</span> <span class="n">det</span><span class="p">[</span><span class="s2">&quot;confidence&quot;</span><span class="p">],</span>
+                    <span class="p">}</span>
+                <span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">faces</span></div></div>
+
+
+<div class="viewcode-block" id="FaceEmbedDlib"><a class="viewcode-back" href="../../../annotate/face.html#dvt.annotate.face.FaceEmbedDlib">[docs]</a><span class="k">class</span> <span class="nc">FaceEmbedDlib</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Embed faces using the dlib CNN model.</span>
+
+<span class="sd">    A face embedding that balances ease of use with accuracy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">mloc</span> <span class="o">=</span> <span class="n">get_file</span><span class="p">(</span>
+            <span class="s2">&quot;dlib_face_recognition_resnet_model_v1.dat&quot;</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;https://github.com/distant-viewing/dvt/&quot;</span>
+            <span class="s2">&quot;releases/download/0.0.1/&quot;</span>
+            <span class="s2">&quot;dlib_face_recognition_resnet_model_v1.dat&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dlib</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;dlib&quot;</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">encode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dlib</span><span class="o">.</span><span class="n">face_recognition_model_v1</span><span class="p">(</span><span class="n">mloc</span><span class="p">)</span>
+
+        <span class="n">mloc</span> <span class="o">=</span> <span class="n">get_file</span><span class="p">(</span>
+            <span class="s2">&quot;shape_predictor_5_face_landmarks.dat&quot;</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;https://github.com/distant-viewing/dvt/&quot;</span>
+            <span class="s2">&quot;releases/download/0.0.1/&quot;</span>
+            <span class="s2">&quot;shape_predictor_5_face_landmarks.dat&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pose</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dlib</span><span class="o">.</span><span class="n">shape_predictor</span><span class="p">(</span><span class="n">mloc</span><span class="p">)</span>
+
+<div class="viewcode-block" id="FaceEmbedDlib.embed"><a class="viewcode-back" href="../../../annotate/face.html#dvt.annotate.face.FaceEmbedDlib.embed">[docs]</a>    <span class="k">def</span> <span class="nf">embed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">faces</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Embed detected faces in an image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (numpy array): A single image stored as a three-dimensional</span>
+<span class="sd">                numpy array.</span>
+<span class="sd">            faces (DictList): A DictList giving the location of detected faces</span>
+<span class="sd">                in the image.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A numpy array with one row for each input face and 128 columns.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">embed_mat</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">faces</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])):</span>
+            <span class="c1"># detect pose</span>
+            <span class="n">rec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dlib</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span>
+                <span class="n">left</span><span class="o">=</span><span class="n">faces</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">],</span>
+                <span class="n">top</span><span class="o">=</span><span class="n">faces</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">],</span>
+                <span class="n">right</span><span class="o">=</span><span class="n">faces</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">],</span>
+                <span class="n">bottom</span><span class="o">=</span><span class="n">faces</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">],</span>
+            <span class="p">)</span>
+            <span class="n">rls</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">pose</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">rec</span><span class="p">)</span>
+
+            <span class="c1"># compute the embedding and add to our list of output</span>
+            <span class="n">emat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">encode</span><span class="o">.</span><span class="n">compute_face_descriptor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">rls</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">embed_mat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">emat</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">embed_mat</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="FaceEmbedVgg2"><a class="viewcode-back" href="../../../annotate/face.html#dvt.annotate.face.FaceEmbedVgg2">[docs]</a><span class="k">class</span> <span class="nc">FaceEmbedVgg2</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;Embed faces using the VGGFace2 model.</span>
+
+<span class="sd">    A face embedding with state-of-the-art results, particularly suitable when</span>
+<span class="sd">    there are small or non-forward-facing examples in the dataset.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span> <span class="nn">keras.models</span> <span class="k">import</span> <span class="n">load_model</span>
+
+        <span class="n">mloc</span> <span class="o">=</span> <span class="n">get_file</span><span class="p">(</span>
+            <span class="s2">&quot;vggface2-resnet50.h5&quot;</span><span class="p">,</span>
+            <span class="n">origin</span><span class="o">=</span><span class="s2">&quot;https://github.com/distant-viewing/dvt/&quot;</span>
+            <span class="s2">&quot;releases/download/0.0.1/&quot;</span>
+            <span class="s2">&quot;vggface2-resnet50.h5&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_model</span> <span class="o">=</span> <span class="n">load_model</span><span class="p">(</span><span class="n">mloc</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_iformat</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">image_data_format</span><span class="p">()</span>
+
+<div class="viewcode-block" id="FaceEmbedVgg2.embed"><a class="viewcode-back" href="../../../annotate/face.html#dvt.annotate.face.FaceEmbedVgg2.embed">[docs]</a>    <span class="k">def</span> <span class="nf">embed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">img</span><span class="p">,</span> <span class="n">faces</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Embed detected faces in an image.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            img (numpy array): A single image stored as a three-dimensional</span>
+<span class="sd">                numpy array.</span>
+<span class="sd">            faces (DictList): A DictList giving the location of detected faces</span>
+<span class="sd">                in the image.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A numpy array with one row for each input face and 2048 columns.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">embed_mat</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">faces</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])):</span>
+            <span class="n">iscale</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_proc_image</span><span class="p">(</span>
+                <span class="n">sub_image</span><span class="p">(</span>
+                    <span class="n">img</span><span class="o">=</span><span class="n">img</span><span class="p">,</span>
+                    <span class="n">top</span><span class="o">=</span><span class="n">faces</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">],</span>
+                    <span class="n">right</span><span class="o">=</span><span class="n">faces</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">],</span>
+                    <span class="n">bottom</span><span class="o">=</span><span class="n">faces</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">],</span>
+                    <span class="n">left</span><span class="o">=</span><span class="n">faces</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">],</span>
+                    <span class="n">fct</span><span class="o">=</span><span class="mf">1.3</span><span class="p">,</span>
+                    <span class="n">output_shape</span><span class="o">=</span><span class="p">(</span><span class="mi">224</span><span class="p">,</span> <span class="mi">224</span><span class="p">),</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="n">embed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">iscale</span><span class="p">)</span>
+            <span class="n">embed_mat</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">embed</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:])</span>
+
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">embed_mat</span><span class="p">)</span></div>
+
+    <span class="k">def</span> <span class="nf">_proc_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iscale</span><span class="p">):</span>
+        <span class="n">iscale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">(</span><span class="n">iscale</span><span class="p">)</span>
+        <span class="n">iscale</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">expand_dims</span><span class="p">(</span><span class="n">iscale</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_iformat</span> <span class="o">==</span> <span class="s2">&quot;channels_first&quot;</span><span class="p">:</span>
+            <span class="n">iscale</span> <span class="o">=</span> <span class="n">iscale</span><span class="p">[:,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+            <span class="n">iscale</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-=</span> <span class="mf">91.4953</span>
+            <span class="n">iscale</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-=</span> <span class="mf">103.8827</span>
+            <span class="n">iscale</span><span class="p">[:,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">-=</span> <span class="mf">131.0912</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">iscale</span> <span class="o">=</span> <span class="n">iscale</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="p">::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">iscale</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">91.4953</span>
+            <span class="n">iscale</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">103.8827</span>
+            <span class="n">iscale</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">-=</span> <span class="mf">131.0912</span>
+
+        <span class="k">return</span> <span class="n">iscale</span></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Taylor Arnold
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+
+    
+   
+
+</body>
+</html>

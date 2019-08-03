@@ -31,8 +31,6 @@ Example:
     combined row-wise between mutiple runs of a pipeline.
 """
 
-import numpy as np
-
 from .core import FrameAnnotator
 
 

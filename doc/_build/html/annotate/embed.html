@@ -20,21 +20,11 @@
   <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../',
-              VERSION:'0.0.1',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -201,11 +191,11 @@ input. The embedding is applied to every 128 frames.</p>
 <p>Then, collect the output from the annotator and display as a pandas data
 frame.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;embed&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
-<span class="go">       video  frame   embed-0     ...      embed-2045  embed-2046  embed-2047</span>
-<span class="go">0  input.mp4      0  0.000000     ...        0.000000    0.004976    0.000000</span>
-<span class="go">1  input.mp4    128  0.534926     ...        0.100585    0.379687    0.016144</span>
-<span class="go">2  input.mp4    256  0.259463     ...        0.663053    0.002361    0.168496</span>
-<span class="go">3  input.mp4    384  0.079264     ...        0.351160    0.025871    0.189005</span>
+<span class="go">       video  frame   embed-0     ...      embed-2046  embed-2047</span>
+<span class="go">0  input.mp4      0  0.000000     ...        0.004976    0.000000</span>
+<span class="go">1  input.mp4    128  0.534926     ...        0.379687    0.016144</span>
+<span class="go">2  input.mp4    256  0.259463     ...        0.002361    0.168496</span>
+<span class="go">3  input.mp4    384  0.079264     ...        0.025871    0.189005</span>
 </pre></div>
 </div>
 <p>[4 rows x 2050 columns]</p>
@@ -213,7 +203,7 @@ frame.</p>
 ran two batches, each with 256 frames.</p>
 <dl class="class">
 <dt id="dvt.annotate.embed.EmbedAnnotator">
-<em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedAnnotator</code><span class="sig-paren">(</span><em>embedding</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedAnnotator</code><span class="sig-paren">(</span><em>embedding</em>, <em>freq=1</em>, <em>frames=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/embed.html#EmbedAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
 <p>Annotator for embedding frames into an ambient space.</p>
 <p>The annotator will return a numpy array, with one row per processed frame.
@@ -223,19 +213,51 @@ divide the batch size.</p>
 <dl class="attribute">
 <dt id="dvt.annotate.embed.EmbedAnnotator.embedding">
 <code class="descname">embedding</code><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.embedding" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>EmbedFrameKeras</em> – Object to perform the embedding.</p>
+<dd><p>Object to perform the embedding.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body"><a class="reference internal" href="#dvt.annotate.embed.EmbedFrameKeras" title="dvt.annotate.embed.EmbedFrameKeras">EmbedFrameKeras</a></td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="dvt.annotate.embed.EmbedAnnotator.freq">
 <code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.freq" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> – How often to perform the embedding. For example, setting
+<dd><p>How often to perform the embedding. For example, setting
 the frequency to 2 will embed every other frame in the batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.embed.EmbedAnnotator.frames">
+<code class="descname">frames</code><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>An optional list of frames to process. This
+should be a list of integers or a 1D numpy array of integers. If
+set to something other than None, the freq input is ignored.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">array of ints</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dvt.annotate.embed.EmbedAnnotator.annotate">
-<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/embed.html#EmbedAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Annotate the batch of frames with the embedding annotator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -259,7 +281,7 @@ numpy array of the embedding.</td>
 
 <dl class="class">
 <dt id="dvt.annotate.embed.EmbedFrameKeras">
-<em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedFrameKeras</code><span class="sig-paren">(</span><em>model</em>, <em>preprocess_input=None</em>, <em>outlayer=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedFrameKeras</code><span class="sig-paren">(</span><em>model</em>, <em>preprocess_input=None</em>, <em>outlayer=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/embed.html#EmbedFrameKeras"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>A generic class for applying an embedding to frames.</p>
 <p>Applies a keras model to a batch of frames. The input of the model is
@@ -287,7 +309,7 @@ the final layer predictions as the embedding.</p>
 
 <dl class="method">
 <dt id="dvt.annotate.embed.EmbedFrameKeras.embed">
-<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras.embed" title="Permalink to this definition">¶</a></dt>
+<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/embed.html#EmbedFrameKeras.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKeras.embed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Embed a batch of images.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -306,7 +328,7 @@ of the input image.</td>
 
 <dl class="class">
 <dt id="dvt.annotate.embed.EmbedFrameKerasResNet50">
-<em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedFrameKerasResNet50</code><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKerasResNet50" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedFrameKerasResNet50</code><a class="reference internal" href="../_modules/dvt/annotate/embed.html#EmbedFrameKerasResNet50"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedFrameKerasResNet50" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#dvt.annotate.embed.EmbedFrameKeras" title="dvt.annotate.embed.EmbedFrameKeras"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.embed.EmbedFrameKeras</span></code></a></p>
 <p>Example embedding using ResNet50.</p>
 <p>Provides an example of how to use an embedding annotator and provides

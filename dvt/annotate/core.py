@@ -281,14 +281,14 @@ class FrameInput:
         assert self.continue_read, "No more input to read."
 
         # shift window over by one bandwidth
-        self._img[: self.bsize, :, :, :] = self._img[self.bsize :, :, :, :]
+        self._img[:self.bsize, :, :, :] = self._img[self.bsize:, :, :, :]
 
         # fill up the bandwidth; with zeros as and of video input
         if self._continue:
             self._fill_bandwidth()
         else:
             self.continue_read = self._continue
-            self._img[self.bsize :, :, :, :] = 0
+            self._img[self.bsize:, :, :, :] = 0
 
         # update counters
         frame_start = self.fcount

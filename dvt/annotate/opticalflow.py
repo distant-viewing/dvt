@@ -25,8 +25,8 @@ class OpticalFlowAnnotator(FrameAnnotator):
         raw (bool): Return optical flow as color image by default, raw returns
             the raw output as produced by the opencv algorithm.
         frames (array of ints): An optional list of frames to process. This
-            should be a list of integers or a 1D numpy array of integers. If set
-            to something other than None, the freq input is ignored.
+            should be a list of integers or a 1D numpy array of integers. If
+            set to something other than None, the freq input is ignored.
         output_dir (string): optional location to store the computed images.
             Only used if raw is set to False.
     """
@@ -114,8 +114,8 @@ def _get_optical_flow(current_frame, next_frame):
 def _make_colorwheel():
     """
     Generates a color wheel for optical flow visualization as presented in:
-        Baker et al. "A Database and Evaluation Methodology for Optical Flow" (ICCV, 2007)
-        URL: http://vision.middlebury.edu/flow/flowEval-iccv07.pdf
+        Baker et al. "A Database and Evaluation Methodology for Optical Flow"
+        (ICCV, 2007) URL: http://vision.middlebury.edu/flow/flowEval-iccv07.pdf
     According to the C++ source code of Daniel Scharstein
     According to the Matlab source code of Deqing Sun
     """
@@ -136,24 +136,24 @@ def _make_colorwheel():
     colorwheel[0:RY, 1] = np.floor(255 * np.arange(0, RY) / RY)
     col = col + RY
     # YG
-    colorwheel[col : col + YG, 0] = 255 - np.floor(255 * np.arange(0, YG) / YG)
-    colorwheel[col : col + YG, 1] = 255
+    colorwheel[col:col + YG, 0] = 255 - np.floor(255 * np.arange(0, YG) / YG)
+    colorwheel[col:col + YG, 1] = 255
     col = col + YG
     # GC
-    colorwheel[col : col + GC, 1] = 255
-    colorwheel[col : col + GC, 2] = np.floor(255 * np.arange(0, GC) / GC)
+    colorwheel[col:col + GC, 1] = 255
+    colorwheel[col:col + GC, 2] = np.floor(255 * np.arange(0, GC) / GC)
     col = col + GC
     # CB
-    colorwheel[col : col + CB, 1] = 255 - np.floor(255 * np.arange(CB) / CB)
-    colorwheel[col : col + CB, 2] = 255
+    colorwheel[col:col + CB, 1] = 255 - np.floor(255 * np.arange(CB) / CB)
+    colorwheel[col:col + CB, 2] = 255
     col = col + CB
     # BM
-    colorwheel[col : col + BM, 2] = 255
-    colorwheel[col : col + BM, 0] = np.floor(255 * np.arange(0, BM) / BM)
+    colorwheel[col:col + BM, 2] = 255
+    colorwheel[col:col + BM, 0] = np.floor(255 * np.arange(0, BM) / BM)
     col = col + BM
     # MR
-    colorwheel[col : col + MR, 2] = 255 - np.floor(255 * np.arange(MR) / MR)
-    colorwheel[col : col + MR, 0] = 255
+    colorwheel[col:col + MR, 2] = 255 - np.floor(255 * np.arange(MR) / MR)
+    colorwheel[col:col + MR, 0] = 255
     return colorwheel
 
 

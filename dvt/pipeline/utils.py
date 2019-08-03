@@ -2,12 +2,9 @@
 """Utility functions for working with data pipelines.
 """
 
-import os
-
-import cv2
 import numpy as np
 
-from ..annotate.core import FrameProcessor, FrameInput, ImageInput
+from ..annotate.core import FrameProcessor, FrameInput
 from ..annotate.diff import DiffAnnotator
 from ..annotate.meta import MetaAnnotator
 from ..aggregate.cut import CutAggregator

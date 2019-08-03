@@ -13,14 +13,14 @@ from ..annotate.diff import DiffAnnotator
 from ..annotate.core import FrameProcessor, FrameInput, ImageInput
 from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceDetectDlib
 from ..annotate.meta import MetaAnnotator
-from ..annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
+from ..annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from ..annotate.opticalflow import OpticalFlowAnnotator
 from ..annotate.png import PngAnnotator
 from ..aggregate.cut import CutAggregator
 from ..aggregate.display import DisplayAggregator
 from ..aggregate.length import ShotLengthAggregator
 from ..utils import setup_tensorflow, _format_time, DictFrame
-from .utils import _get_cuts
+from .utils import _get_cuts, _get_meta
 from .data import INDEX_MAIN, INDEX_PAGE, DVT_CSS, DVT_JS, DVT_MAIN_JS
 
 
@@ -39,6 +39,7 @@ class VideoPipeline:
 
         self.finput = finput
         self.fname = fname
+        self.nframes = _get_meta(self.finput)["frames"][0]
         self.doutput = os.path.join(doutput, fname)
         self.diff_co = diff_co
         self.cut_min_length = cut_min_length
@@ -51,12 +52,15 @@ class VideoPipeline:
                 self.finput, self.diff_co, self.cut_min_length
             )
         else:
-            nframes = _get_meta(self.finput)["frames"]
             cuts = DictFrame(
-                {"frame_start": list(range(0, nframes - 1, freq))}
+                {"frame_start": list(range(0, self.nframes - 1, freq))}
             )
-            cuts["frame_end"] = [x + 1 for x in cuts["frame_start"][-1]]
-            cuts["frame_end"].extend([nframes - 1])
+            cuts["frame_end"] = [x + 1 for x in cuts["frame_start"][1:]]
+            cuts["frame_end"].extend([self.nframes - 1])
+
+            cuts["frame_start"] = np.array(cuts["frame_start"])
+            cuts["frame_end"] = np.array(cuts["frame_end"])
+
             cuts["mpoint"] = (
                 cuts["frame_start"]
                 + (cuts["frame_end"] - cuts["frame_start"]) // 2
@@ -135,11 +139,9 @@ class VideoPipeline:
                     "frame_end": int(self.cuts["frame_end"][iter]),
                     "time_start": _format_time(
                         float(self.cuts["frame_start"][iter]) / fps * 1000,
-                        include_msec=False,
                     ),
                     "time_end": _format_time(
                         float(self.cuts["frame_end"][iter]) / fps * 1000,
-                        include_msec=False,
                     ),
                     "img_path": os.path.join(
                         "img",

@@ -24,8 +24,6 @@ Example:
     >>> fp.load_annotator(FaceAnnotator(freq=128, detector=detector,
     ...                   embedding=embedding))
     >>> fp.process(FrameInput("input.mp4"), max_batch=2)
-    INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: 'face'
-    INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: 'face'
 
     Then, collect the output from the annotator and display as a pandas data
     frame.
@@ -70,8 +68,8 @@ class FaceAnnotator(FrameAnnotator):
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will embed every other frame in the batch.
         frames (array of ints): An optional list of frames to process. This
-            should be a list of integers or a 1D numpy array of integers. If set
-            to something other than None, the freq input is ignored.
+            should be a list of integers or a 1D numpy array of integers. If
+            set to something other than None, the freq input is ignored.
     """
 
     name = "face"

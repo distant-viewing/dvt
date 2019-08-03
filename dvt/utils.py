@@ -232,7 +232,7 @@ def sub_image(img, top, right, bottom, left, fct=1, output_shape=None):
     box[2] = max(0, box[2])
     box[1] = min(img.shape[1], box[1])
     box[3] = min(img.shape[0], box[3])
-    crop_img = img[box[0] : box[1], box[2] : box[3], :]
+    crop_img = img[box[0]:box[1], box[2]:box[3], :]
 
     if output_shape:
         img_scaled = cv2.resize(crop_img, output_shape)
@@ -284,12 +284,11 @@ def _process_df_input(data):
     return collections.OrderedDict(data)
 
 
-def _format_time(msec, include_msec=False):
+def _format_time(msec):
     """Takes a millisecond and produces a ISO-8601 formatted string.
 
     Args:
         msec (int): Time in milliseconds.
-        include_msec (bool): Should millisecods be included in the output?
 
     Returns:
         String of the data in ISO-8601 format.
@@ -300,14 +299,9 @@ def _format_time(msec, include_msec=False):
     second = (msec % (1000 * 60)) // (1000)
     remainder = msec % 1000
 
-    if include_msec:
-        output = "{0:02d}:{1:02d}:{2:02d},{3:03d}".format(
-            hour, minute, second, int(remainder)
-        )
-    else:
-        output = "{0:02d}:{1:02d}:{2:02d}".format(
-            hour, minute, second, int(remainder)
-        )
+    output = "{0:02d}:{1:02d}:{2:02d},{3:03d}".format(
+        hour, minute, second, int(remainder)
+    )
 
     return output
 
@@ -345,5 +339,5 @@ def _which_frames(batch, freq, frames):
     """
     if frames is None:
         return list(range(0, batch.bsize, freq))
-    else:
-        return np.flatnonzero(np.isin(batch.fnames, frames)).tolist()
+
+    return np.flatnonzero(np.isin(batch.fnames, frames)).tolist()

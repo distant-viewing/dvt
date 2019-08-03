@@ -105,7 +105,7 @@ class ShotLengthAggregator(Aggregator):
         Args:
             ldframe (dict): A dictionary of DictFrames from a FrameAnnotator.
                 Must contain an entry with the keys 'meta', 'face' and
-                'object', which are used in the annotation.
+                'obj', which are used in the annotation.
             frames (list): An optional list of frames. Otherwise, will
                 annotate any frame with a detected face or object.
 
@@ -116,7 +116,7 @@ class ShotLengthAggregator(Aggregator):
 
         # grab the data sets
         face = ldframe["face"]
-        objs = ldframe["object"]
+        objs = ldframe["obj"]
         meta_height = ldframe["meta"]["height"]
 
         # compute data using vectorized numpy arrays, where possible

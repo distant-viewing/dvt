@@ -20,21 +20,11 @@
   <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../',
-              VERSION:'0.0.1',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -192,8 +182,6 @@ the a sample usage of the DiffAnnotator over two batches of the input.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">DiffAnnotator</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">]))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="go">INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;embed&#39;</span>
-<span class="go">INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;embed&#39;</span>
 </pre></div>
 </div>
 <p>Then, collect the output from the annotator and display as a pandas data
@@ -211,7 +199,7 @@ frame. Here, just the head of the data is shown for brevity.</p>
 detect shot breaks.</p>
 <dl class="class">
 <dt id="dvt.annotate.diff.DiffAnnotator">
-<em class="property">class </em><code class="descclassname">dvt.annotate.diff.</code><code class="descname">DiffAnnotator</code><span class="sig-paren">(</span><em>quantiles=None</em>, <em>size=32</em>, <em>bins=16</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.diff.</code><code class="descname">DiffAnnotator</code><span class="sig-paren">(</span><em>quantiles=None</em>, <em>size=32</em>, <em>bins=16</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/diff.html#DiffAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
 <p>Annotator for detecting differences between frames.</p>
 <p>The annotator will return data for each frame in a given batch by showing
@@ -227,28 +215,52 @@ assist with putting the differences in context.</p>
 <dl class="attribute">
 <dt id="dvt.annotate.diff.DiffAnnotator.quantiles">
 <code class="descname">quantiles</code><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.quantiles" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>list</em> – A list of integers or floats giving the quantiles to
+<dd><p>A list of integers or floats giving the quantiles to
 return. Set to None to only return the average value of each frame.
 Inputs are given as percentiles, so [50] will return the median.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="dvt.annotate.diff.DiffAnnotator.size">
 <code class="descname">size</code><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.size" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> – Size of one side of the square used for down sampling the
+<dd><p>Size of one side of the square used for down sampling the
 image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="dvt.annotate.diff.DiffAnnotator.bins">
 <code class="descname">bins</code><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.bins" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> – How many bins to include in the histogram differences. Will
+<dd><p>How many bins to include in the histogram differences. Will
 make this many bins for each of hue, saturation, and value.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dvt.annotate.diff.DiffAnnotator.annotate">
-<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/diff.html#DiffAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.diff.DiffAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Annotate the batch of frames with the difference annotator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

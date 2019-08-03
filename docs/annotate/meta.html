@@ -20,21 +20,11 @@
   <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../',
-              VERSION:'0.0.1',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -212,25 +202,41 @@ frame.</p>
 combined row-wise between mutiple runs of a pipeline.</p>
 <dl class="class">
 <dt id="dvt.annotate.meta.MetaAnnotator">
-<em class="property">class </em><code class="descclassname">dvt.annotate.meta.</code><code class="descname">MetaAnnotator</code><a class="headerlink" href="#dvt.annotate.meta.MetaAnnotator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.meta.</code><code class="descname">MetaAnnotator</code><a class="reference internal" href="../_modules/dvt/annotate/meta.html#MetaAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.meta.MetaAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
 <p>Return table of metadata about a input object.</p>
 <dl class="attribute">
 <dt id="dvt.annotate.meta.MetaAnnotator.meta">
 <code class="descname">meta</code><a class="headerlink" href="#dvt.annotate.meta.MetaAnnotator.meta" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>dict</em> – A dictionary containing the metadata.</p>
+<dd><p>A dictionary containing the metadata.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="dvt.annotate.meta.MetaAnnotator.pass_flag">
 <code class="descname">pass_flag</code><a class="headerlink" href="#dvt.annotate.meta.MetaAnnotator.pass_flag" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>bool</em> – Indicates whether metadata has already been passed to
+<dd><p>Indicates whether metadata has already been passed to
 the FrameAnnotator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dvt.annotate.meta.MetaAnnotator.annotate">
-<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.meta.MetaAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/meta.html#MetaAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.meta.MetaAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return metadata.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -253,7 +259,7 @@ to this function and None otherwise.</td>
 
 <dl class="method">
 <dt id="dvt.annotate.meta.MetaAnnotator.start">
-<code class="descname">start</code><span class="sig-paren">(</span><em>ival</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.meta.MetaAnnotator.start" title="Permalink to this definition">¶</a></dt>
+<code class="descname">start</code><span class="sig-paren">(</span><em>ival</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/meta.html#MetaAnnotator.start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.meta.MetaAnnotator.start" title="Permalink to this definition">¶</a></dt>
 <dd><p>Grab metadata from the input.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

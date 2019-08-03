@@ -20,21 +20,11 @@
   <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../',
-              VERSION:'0.0.1',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -204,8 +194,6 @@ applied to every 128 frames.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">FaceAnnotator</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">detector</span><span class="o">=</span><span class="n">detector</span><span class="p">,</span>
 <span class="gp">... </span>                  <span class="n">embedding</span><span class="o">=</span><span class="n">embedding</span><span class="p">))</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="go">INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: &#39;face&#39;</span>
-<span class="go">INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: &#39;face&#39;</span>
 </pre></div>
 </div>
 <p>Then, collect the output from the annotator and display as a pandas data
@@ -222,7 +210,7 @@ frame.</p>
 face at frame 128 and two faces at frame 384.</p>
 <dl class="class">
 <dt id="dvt.annotate.face.FaceAnnotator">
-<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceAnnotator</code><span class="sig-paren">(</span><em>detector</em>, <em>embedding=None</em>, <em>freq=1</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceAnnotator</code><span class="sig-paren">(</span><em>detector</em>, <em>embedding=None</em>, <em>freq=1</em>, <em>frames=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
 <p>Annotator for detecting faces and embedding them as a face vector.</p>
 <p>The annotator will return a list with one DictList item for every frame
@@ -247,13 +235,37 @@ numpy array. Set to None (default) to only run the face detector.</p>
 <dl class="attribute">
 <dt id="dvt.annotate.face.FaceAnnotator.freq">
 <code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.freq" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> – How often to perform the embedding. For example, setting
+<dd><p>How often to perform the embedding. For example, setting
 the frequency to 2 will embed every other frame in the batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceAnnotator.frames">
+<code class="descname">frames</code><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>An optional list of frames to process. This
+should be a list of integers or a 1D numpy array of integers. If
+set to something other than None, the freq input is ignored.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">array of ints</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dvt.annotate.face.FaceAnnotator.annotate">
-<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Annotate the batch of frames with the face annotator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -279,20 +291,69 @@ embedding for each face.</td>
 
 <dl class="class">
 <dt id="dvt.annotate.face.FaceDetectDlib">
-<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceDetectDlib</code><span class="sig-paren">(</span><em>cutoff=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceDetectDlib</code><span class="sig-paren">(</span><em>cutoff=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceDetectDlib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Detect faces using the dlib CNN model.</p>
 <p>A face detector that balances speed and accuracy.</p>
 <dl class="attribute">
 <dt id="dvt.annotate.face.FaceDetectDlib.cutoff">
 <code class="descname">cutoff</code><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib.cutoff" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>float</em> – A cutoff value for which faces to include in the final
+<dd><p>A cutoff value for which faces to include in the final
 output. Set to zero (default) to include all faces.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dvt.annotate.face.FaceDetectDlib.detect">
-<code class="descname">detect</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib.detect" title="Permalink to this definition">¶</a></dt>
+<code class="descname">detect</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceDetectDlib.detect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceDetectDlib.detect" title="Permalink to this definition">¶</a></dt>
+<dd><p>Detect faces in an image.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>img</strong> (<em>numpy array</em>) – A single image stored as a three-dimensional
+numpy array.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries where each dictionary represents a detected
+face. Keys include the bounding box (top, left, bottom, right) as
+well as a confidence score.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.face.FaceDetectMtcnn">
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceDetectMtcnn</code><span class="sig-paren">(</span><em>cutoff=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceDetectMtcnn"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceDetectMtcnn" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Detect faces using the Multi-task Cascaded CNN model.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.face.FaceDetectMtcnn.cutoff">
+<code class="descname">cutoff</code><a class="headerlink" href="#dvt.annotate.face.FaceDetectMtcnn.cutoff" title="Permalink to this definition">¶</a></dt>
+<dd><p>A cutoff value for which faces to include in the final
+output. Set to zero (default) to include all faces.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.face.FaceDetectMtcnn.detect">
+<code class="descname">detect</code><span class="sig-paren">(</span><em>img</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceDetectMtcnn.detect"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceDetectMtcnn.detect" title="Permalink to this definition">¶</a></dt>
 <dd><p>Detect faces in an image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -313,13 +374,13 @@ well as a confidence score.</td>
 
 <dl class="class">
 <dt id="dvt.annotate.face.FaceEmbedDlib">
-<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceEmbedDlib</code><a class="headerlink" href="#dvt.annotate.face.FaceEmbedDlib" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceEmbedDlib</code><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceEmbedDlib"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedDlib" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Embed faces using the dlib CNN model.</p>
 <p>A face embedding that balances ease of use with accuracy.</p>
 <dl class="method">
 <dt id="dvt.annotate.face.FaceEmbedDlib.embed">
-<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em>, <em>faces</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceEmbedDlib.embed" title="Permalink to this definition">¶</a></dt>
+<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em>, <em>faces</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceEmbedDlib.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedDlib.embed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Embed detected faces in an image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -344,14 +405,14 @@ in the image.</li>
 
 <dl class="class">
 <dt id="dvt.annotate.face.FaceEmbedVgg2">
-<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceEmbedVgg2</code><a class="headerlink" href="#dvt.annotate.face.FaceEmbedVgg2" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceEmbedVgg2</code><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceEmbedVgg2"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedVgg2" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Embed faces using the VGGFace2 model.</p>
 <p>A face embedding with state-of-the-art results, particularly suitable when
 there are small or non-forward-facing examples in the dataset.</p>
 <dl class="method">
 <dt id="dvt.annotate.face.FaceEmbedVgg2.embed">
-<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em>, <em>faces</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.annotate.face.FaceEmbedVgg2.embed" title="Permalink to this definition">¶</a></dt>
+<code class="descname">embed</code><span class="sig-paren">(</span><em>img</em>, <em>faces</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceEmbedVgg2.embed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceEmbedVgg2.embed" title="Permalink to this definition">¶</a></dt>
 <dd><p>Embed detected faces in an image.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

@@ -9,11 +9,9 @@ Requires that the PNG annotator was run and the original images are saved.
 import os
 
 import cv2
-
-from ..utils import DictFrame
-from .core import Aggregator
-
 import numpy as np
+
+from .core import Aggregator
 
 
 class DisplayAggregator(Aggregator):
@@ -55,8 +53,8 @@ class DisplayAggregator(Aggregator):
             frames = set()
             if "face" in ldframe:
                 frames = frames.union(ldframe["face"]["frame"])
-            if "object" in ldframe:
-                frames = frames.union(ldframe["object"]["frame"])
+            if "obj" in ldframe:
+                frames = frames.union(ldframe["obj"]["frame"])
         frames = sorted(frames)
 
         for frame in frames:
@@ -77,12 +75,12 @@ def _add_annotations_to_image(input_dir, output_dir, frame, pipeline_data):
 
     img = cv2.imread(input_file)
 
-    if pipeline_data["object"] is not None:
-        img = _add_bbox(img, frame, pipeline_data["object"], box_color, 2)
+    if pipeline_data["obj"] is not None:
+        img = _add_bbox(img, frame, pipeline_data["obj"], box_color, 2)
         img = _add_box_text(
             img,
             frame,
-            pipeline_data["object"],
+            pipeline_data["obj"],
             "class",
             color=white_color,
             bgc=box_color,

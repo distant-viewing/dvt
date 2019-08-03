@@ -20,21 +20,11 @@
   <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'0.0.1',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -178,7 +168,7 @@
 <p>Utility functions used across the Distant Viewing Toolkit.</p>
 <dl class="class">
 <dt id="dvt.utils.DictFrame">
-<em class="property">class </em><code class="descclassname">dvt.utils.</code><code class="descname">DictFrame</code><span class="sig-paren">(</span><em>data=None</em>, <em>check=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.utils.DictFrame" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.utils.</code><code class="descname">DictFrame</code><span class="sig-paren">(</span><em>data=None</em>, <em>check=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#DictFrame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.DictFrame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">collections.OrderedDict</span></code></p>
 <p>Object for storing information from annotations.</p>
 <p>A dictionary frame (DictFrame) is an extension of an ordered dictionary.
@@ -205,19 +195,35 @@ stripped down version of a pandas data frame.</p>
 <dl class="attribute">
 <dt id="dvt.utils.DictFrame.data">
 <code class="descname">data</code><a class="headerlink" href="#dvt.utils.DictFrame.data" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>dict</em> – A dictionary containing elements that are either lists or
+<dd><p>A dictionary containing elements that are either lists or
 numpy arrays. All have the same length / first dimension.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="dvt.utils.DictFrame.shape">
 <code class="descname">shape</code><a class="headerlink" href="#dvt.utils.DictFrame.shape" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>tuple</em> – The number of rows and columns in the dataset.</p>
+<dd><p>The number of rows and columns in the dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">tuple</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dvt.utils.DictFrame.todf">
-<code class="descname">todf</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dvt.utils.DictFrame.todf" title="Permalink to this definition">¶</a></dt>
+<code class="descname">todf</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#DictFrame.todf"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.DictFrame.todf" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert to pandas data frame.</p>
 <p>Numpy arrays are expanded to conform with the structure of a pandas
 data frame. Useful for saving as a CSV file and creating simple plots.</p>
@@ -233,7 +239,7 @@ data frame. Useful for saving as a CSV file and creating simple plots.</p>
 
 <dl class="method">
 <dt id="dvt.utils.DictFrame.verify">
-<code class="descname">verify</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dvt.utils.DictFrame.verify" title="Permalink to this definition">¶</a></dt>
+<code class="descname">verify</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#DictFrame.verify"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.DictFrame.verify" title="Permalink to this definition">¶</a></dt>
 <dd><p>Verify that the shapes and types of the objects.</p>
 <p>Checks that all of the values in the dictionary are either a list or
 a numpy array. Also verifies the length (list) or first dimension
@@ -245,7 +251,7 @@ Throws and assertion error if any of these are untrue.</p>
 
 <dl class="function">
 <dt id="dvt.utils.get_batch">
-<code class="descclassname">dvt.utils.</code><code class="descname">get_batch</code><span class="sig-paren">(</span><em>input_obj</em>, <em>batch_num=0</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.utils.get_batch" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dvt.utils.</code><code class="descname">get_batch</code><span class="sig-paren">(</span><em>input_obj</em>, <em>batch_num=0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#get_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.get_batch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Manually extract a batch object from an input.</p>
 <p>This function is mostly useful for testing new annotators. Generally,
 batches should be sent to annotators by using the FrameProcesser.</p>
@@ -269,7 +275,7 @@ first batch.</li>
 
 <dl class="function">
 <dt id="dvt.utils.pd_to_dict_frame">
-<code class="descclassname">dvt.utils.</code><code class="descname">pd_to_dict_frame</code><span class="sig-paren">(</span><em>pdf</em>, <em>use_array=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.utils.pd_to_dict_frame" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dvt.utils.</code><code class="descname">pd_to_dict_frame</code><span class="sig-paren">(</span><em>pdf</em>, <em>use_array=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#pd_to_dict_frame"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.pd_to_dict_frame" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a pandas data frame into a dictionary frame.</p>
 <p>Useful for reading a csv file and reconverting into a dictionary frame.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -284,8 +290,16 @@ structure. Default to True. Currently unimplemented.</td>
 </dd></dl>
 
 <dl class="function">
+<dt id="dvt.utils.setup_tensorflow">
+<code class="descclassname">dvt.utils.</code><code class="descname">setup_tensorflow</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#setup_tensorflow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.setup_tensorflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup options for TensorFlow.</p>
+<p>These options should allow most users to run TensorFlow with either a
+GPU or CPU.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="dvt.utils.stack_dict_frames">
-<code class="descclassname">dvt.utils.</code><code class="descname">stack_dict_frames</code><span class="sig-paren">(</span><em>ilist</em>, <em>check=True</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.utils.stack_dict_frames" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dvt.utils.</code><code class="descname">stack_dict_frames</code><span class="sig-paren">(</span><em>ilist</em>, <em>check=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#stack_dict_frames"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.stack_dict_frames" title="Permalink to this definition">¶</a></dt>
 <dd><p>Combine a list of objects into a dictionary frame.</p>
 <p>The input list must consist of dictionary frames (or items that can
 converted to dictionary frames) all containing the same set of keys and
@@ -311,7 +325,7 @@ default.</li>
 
 <dl class="function">
 <dt id="dvt.utils.sub_image">
-<code class="descclassname">dvt.utils.</code><code class="descname">sub_image</code><span class="sig-paren">(</span><em>img</em>, <em>top</em>, <em>right</em>, <em>bottom</em>, <em>left</em>, <em>fct=1</em>, <em>output_shape=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.utils.sub_image" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dvt.utils.</code><code class="descname">sub_image</code><span class="sig-paren">(</span><em>img</em>, <em>top</em>, <em>right</em>, <em>bottom</em>, <em>left</em>, <em>fct=1</em>, <em>output_shape=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#sub_image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.sub_image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Take a subset of an input image and return a (resized) subimage.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

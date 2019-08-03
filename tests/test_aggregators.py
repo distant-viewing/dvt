@@ -8,7 +8,7 @@ from dvt.annotate.core import FrameProcessor, FrameInput
 from dvt.annotate.diff import DiffAnnotator
 from dvt.annotate.face import FaceAnnotator, FaceDetectDlib, FaceEmbedVgg2
 from dvt.annotate.meta import MetaAnnotator
-from dvt.annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
+from dvt.annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from dvt.annotate.png import PngAnnotator
 
 from dvt.aggregate.core import Aggregator
@@ -134,8 +134,8 @@ class TestShotLengthAggregator:
 
 class TestDisplayAggregator:
     def test_lengths(self):
-        dname_png = tempfile.mkdtemp()
-        dname_dis = tempfile.mkdtemp()
+        dname_png = os.path.join(tempfile.mkdtemp(), "png")
+        dname_dis = os.path.join(tempfile.mkdtemp(), "dis")
 
         fp = FrameProcessor()
         fp.load_annotator(PngAnnotator(output_dir=dname_png, freq=128))

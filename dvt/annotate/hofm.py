@@ -33,20 +33,25 @@ class HOFMAnnotator(FrameAnnotator):
         ang_buckets (list of ints): List of bounds for angle
             buckets. Default is [0, 45, 90, 135, 180, 225, 270, 315, 360].
         frames (array of ints): An optional list of frames to process. This
-            should be a list of integers or a 1D numpy array of integers. If set
-            to something other than None, the freq input is ignored.
+            should be a list of integers or a 1D numpy array of integers. If
+            set to something other than None, the freq input is ignored.
     """
 
     name = "hofm"
 
     def __init__(
-        self,
-        freq=1,
+        self, freq=1,
         blocks=3,
-        mag_buckets=[0, 20, 40, 60, 80, 100],
-        ang_buckets=[0, 45, 90, 135, 180, 225, 270, 315, 360],
+        mag_buckets=None,
+        ang_buckets=None,
         frames=None,
     ):
+
+        if mag_buckets is None:
+            mag_buckets = [0, 20, 40, 60, 80, 100]
+
+        if ang_buckets is None:
+            ang_buckets = [0, 45, 90, 135, 180, 225, 270, 315, 360]
 
         self.skutil = importlib.import_module("skimage.util")
         self.freq = freq

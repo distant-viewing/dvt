@@ -12,8 +12,6 @@ Example:
     >>> fp = FrameProcessor()
     >>> fp.load_annotator(DiffAnnotator(quantiles=[40]))
     >>> fp.process(FrameInput("input.mp4"), max_batch=2)
-    INFO:root:processed batch 00:00:00,000 to 00:00:17,083 with annotator: 'embed'
-    INFO:root:processed batch 00:00:17,083 to 00:00:25,625 with annotator: 'embed'
 
     Then, collect the output from the annotator and display as a pandas data
     frame. Here, just the head of the data is shown for brevity.

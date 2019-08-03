@@ -8,7 +8,7 @@ media files.
 import argparse
 import glob
 import logging
-from os.path import abspath, isfile, join, splitext, basename
+from os.path import abspath, splitext, basename
 
 from .pipeline.video import VideoPipeline
 
@@ -114,7 +114,7 @@ def _expand_path_and_check(fnames):
             "Processing input files with duplicate basenames is not supported."
         )
 
-    if not len(video_files):
+    if not video_files:
         raise FileNotFoundError("No valid input files found.")
 
     return video_files

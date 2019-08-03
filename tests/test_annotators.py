@@ -20,7 +20,7 @@ from dvt.annotate.face import (
 )
 from dvt.annotate.hofm import HOFMAnnotator
 from dvt.annotate.meta import MetaAnnotator
-from dvt.annotate.object import ObjectAnnotator, ObjectDetectRetinaNet
+from dvt.annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from dvt.annotate.opticalflow import OpticalFlowAnnotator
 from dvt.annotate.png import PngAnnotator
 
@@ -62,16 +62,16 @@ class TestCIElabAnno:
 class TestClutterAnno:
     def test_clutter(self):
         fpobj = FrameProcessor()
-        fpobj.load_annotator(ClutterAnnotator())
+        fpobj.load_annotator(ClutterAnnotator(freq=128))
 
-        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
-        fpobj.process(finput, max_batch=2)
+        finput = FrameInput("test-data/video-clip.mp4", bsize=256)
+        fpobj.process(finput)
         obj_out = fpobj.collect("clutter")
         keys = list(obj_out.keys())
 
         assert set(obj_out.keys()) == set(["video", "frame", "clutter"])
         assert issubclass(type(obj_out["clutter"]), np.ndarray)
-        assert obj_out["clutter"].shape == (16, 1)
+        assert obj_out["clutter"].shape == (4, 1)
 
 
 class TestDiffAnno:
@@ -305,7 +305,7 @@ class TestObject:
 
         finput = FrameInput("test-data/video-clip.mp4", bsize=8)
         fpobj.process(finput, max_batch=2)
-        obj_out = fpobj.collect("object")
+        obj_out = fpobj.collect("obj")
 
         expected_keys = [
             "video",
@@ -329,7 +329,7 @@ class TestObject:
 
         finput = FrameInput("test-data/video-clip.mp4", bsize=8)
         fpobj.process(finput, max_batch=2)
-        obj_out = fpobj.collect("object")
+        obj_out = fpobj.collect("obj")
 
         assert obj_out.shape == (12, 8)
 
@@ -519,7 +519,7 @@ class TestFixedFrames:
         assert fpobj.collect("cielab")["frame"].tolist() == frames
         assert fpobj.collect("embed")["frame"].tolist() == frames
         assert set(fpobj.collect("face")["frame"]) == set(frames)
-        assert set(fpobj.collect("object")["frame"]) == set(frames)
+        assert set(fpobj.collect("obj")["frame"]) == set(frames)
         assert set(fpobj.collect("hofm")["frame"]) == set(frames)
         assert set(fpobj.collect("opticalflow")["frame"]) == set(frames)
 

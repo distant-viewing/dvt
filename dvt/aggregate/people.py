@@ -36,10 +36,10 @@ Example:
     sitting next to one another.
 """
 
+import numpy as np
+
 from ..utils import DictFrame
 from .core import Aggregator
-
-import numpy as np
 
 
 class PeopleAggregator(Aggregator):
@@ -50,8 +50,8 @@ class PeopleAggregator(Aggregator):
     to each face.
 
     Attributes:
-        face_names (list): List of names associated with each face in the set of
-            predefined faces
+        face_names (list): List of names associated with each face in the set
+            of predefined faces
         fprint (np.array): A numpy array giving the embedding vectors for the
             predefined faces. Each row should correspond with one face id and
             the number of columns should match the number of columns in your

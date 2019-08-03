@@ -20,21 +20,11 @@
   <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'../',
-              VERSION:'0.0.1',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
         <script type="text/javascript" src="../_static/jquery.js"></script>
         <script type="text/javascript" src="../_static/underscore.js"></script>
         <script type="text/javascript" src="../_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -208,7 +198,7 @@ we need to collect differences between successive frames:</p>
 that is too close to another, or include additional cut-off values.</p>
 <dl class="class">
 <dt id="dvt.aggregate.cut.CutAggregator">
-<em class="property">class </em><code class="descclassname">dvt.aggregate.cut.</code><code class="descname">CutAggregator</code><span class="sig-paren">(</span><em>min_len=1</em>, <em>ignore_vals=None</em>, <em>cut_vals=None</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.aggregate.cut.CutAggregator" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.aggregate.cut.</code><code class="descname">CutAggregator</code><span class="sig-paren">(</span><em>min_len=1</em>, <em>ignore_vals=None</em>, <em>cut_vals=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/cut.html#CutAggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.cut.CutAggregator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="core.html#dvt.aggregate.core.Aggregator" title="dvt.aggregate.core.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.aggregate.core.Aggregator</span></code></a></p>
 <p>Uses difference between successive frames to detect cuts.</p>
 <p>This aggregator uses information from the difference annotator to detect
@@ -216,32 +206,56 @@ the cuts.</p>
 <dl class="attribute">
 <dt id="dvt.aggregate.cut.CutAggregator.min_len">
 <code class="descname">min_len</code><a class="headerlink" href="#dvt.aggregate.cut.CutAggregator.min_len" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>int</em> – minimum allowed length of a cut.</p>
+<dd><p>minimum allowed length of a cut.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="dvt.aggregate.cut.CutAggregator.ignore_vals">
 <code class="descname">ignore_vals</code><a class="headerlink" href="#dvt.aggregate.cut.CutAggregator.ignore_vals" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>dict</em> – Dictionary of cutoffs that cause a frame to be
+<dd><p>Dictionary of cutoffs that cause a frame to be
 ignored for the purpose of detecting cuts. Keys indicate the
 variables in the differences output and values show the minimum
 value allowed for a frame to be considered for a cut. Typically
 used to ignore frames that are too dark (i.e., during fades). Set
 to None (default) if no ignored values are needed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="dvt.aggregate.cut.CutAggregator.cut_vals">
 <code class="descname">cut_vals</code><a class="headerlink" href="#dvt.aggregate.cut.CutAggregator.cut_vals" title="Permalink to this definition">¶</a></dt>
-<dd><p><em>dict</em> – Dictionary of cutoffs that cause a frame to be
+<dd><p>Dictionary of cutoffs that cause a frame to be
 considered a cut. Keys indicate the variables in the differences
 output and values are the cutoffs. Setting to None (default) will
 return no cuts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="dvt.aggregate.cut.CutAggregator.aggregate">
-<code class="descname">aggregate</code><span class="sig-paren">(</span><em>ldframe</em><span class="sig-paren">)</span><a class="headerlink" href="#dvt.aggregate.cut.CutAggregator.aggregate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">aggregate</code><span class="sig-paren">(</span><em>ldframe</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/cut.html#CutAggregator.aggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.cut.CutAggregator.aggregate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Aggregate difference annotator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />

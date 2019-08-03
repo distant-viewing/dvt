@@ -21,11 +21,11 @@ Example:
     frame.
 
     >>> fp.collect("embed").todf()
-           video  frame   embed-0     ...      embed-2045  embed-2046  embed-2047
-    0  input.mp4      0  0.000000     ...        0.000000    0.004976    0.000000
-    1  input.mp4    128  0.534926     ...        0.100585    0.379687    0.016144
-    2  input.mp4    256  0.259463     ...        0.663053    0.002361    0.168496
-    3  input.mp4    384  0.079264     ...        0.351160    0.025871    0.189005
+           video  frame   embed-0     ...      embed-2046  embed-2047
+    0  input.mp4      0  0.000000     ...        0.004976    0.000000
+    1  input.mp4    128  0.534926     ...        0.379687    0.016144
+    2  input.mp4    256  0.259463     ...        0.002361    0.168496
+    3  input.mp4    384  0.079264     ...        0.025871    0.189005
 
     [4 rows x 2050 columns]
 
@@ -53,8 +53,8 @@ class EmbedAnnotator(FrameAnnotator):
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will embed every other frame in the batch.
         frames (array of ints): An optional list of frames to process. This
-            should be a list of integers or a 1D numpy array of integers. If set
-            to something other than None, the freq input is ignored.
+            should be a list of integers or a 1D numpy array of integers. If
+            set to something other than None, the freq input is ignored.
     """
 
     name = "embed"

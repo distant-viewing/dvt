@@ -9,8 +9,6 @@ from . import embed
 from . import face
 from . import hofm
 from . import png
-from . import object
+from . import obj
 from . import opticalflow
 from . import meta
-
-__version__ = "0.1.0"

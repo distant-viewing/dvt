@@ -21,21 +21,11 @@
   <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
   
     
-      <script type="text/javascript">
-          var DOCUMENTATION_OPTIONS = {
-              URL_ROOT:'./',
-              VERSION:'0.0.1',
-              LANGUAGE:'None',
-              COLLAPSE_INDEX:false,
-              FILE_SUFFIX:'.html',
-              HAS_SOURCE:  true,
-              SOURCELINK_SUFFIX: '.txt'
-          };
-      </script>
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
         <script type="text/javascript" src="_static/jquery.js"></script>
         <script type="text/javascript" src="_static/underscore.js"></script>
         <script type="text/javascript" src="_static/doctools.js"></script>
-        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -266,6 +256,8 @@
       <li><a href="annotate/face.html#dvt.annotate.face.FaceDetectDlib.cutoff">cutoff (dvt.annotate.face.FaceDetectDlib attribute)</a>
 
       <ul>
+        <li><a href="annotate/face.html#dvt.annotate.face.FaceDetectMtcnn.cutoff">(dvt.annotate.face.FaceDetectMtcnn attribute)</a>
+</li>
         <li><a href="annotate/object.html#dvt.annotate.object.ObjectDetectRetinaNet.cutoff">(dvt.annotate.object.ObjectDetectRetinaNet attribute)</a>
 </li>
       </ul></li>
@@ -280,6 +272,8 @@
       <li><a href="annotate/face.html#dvt.annotate.face.FaceDetectDlib.detect">detect() (dvt.annotate.face.FaceDetectDlib method)</a>
 
       <ul>
+        <li><a href="annotate/face.html#dvt.annotate.face.FaceDetectMtcnn.detect">(dvt.annotate.face.FaceDetectMtcnn method)</a>
+</li>
         <li><a href="annotate/object.html#dvt.annotate.object.ObjectDetectRetinaNet.detect">(dvt.annotate.object.ObjectDetectRetinaNet method)</a>
 </li>
       </ul></li>
@@ -359,6 +353,8 @@
 </li>
       <li><a href="annotate/face.html#dvt.annotate.face.FaceDetectDlib">FaceDetectDlib (class in dvt.annotate.face)</a>
 </li>
+      <li><a href="annotate/face.html#dvt.annotate.face.FaceDetectMtcnn">FaceDetectMtcnn (class in dvt.annotate.face)</a>
+</li>
       <li><a href="annotate/face.html#dvt.annotate.face.FaceEmbedDlib">FaceEmbedDlib (class in dvt.annotate.face)</a>
 </li>
       <li><a href="annotate/face.html#dvt.annotate.face.FaceEmbedVgg2">FaceEmbedVgg2 (class in dvt.annotate.face)</a>
@@ -371,16 +367,26 @@
       </ul></li>
       <li><a href="annotate/core.html#dvt.annotate.core.FrameBatch.fnames">fnames (dvt.annotate.core.FrameBatch attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="annotate/core.html#dvt.annotate.core.FrameAnnotator">FrameAnnotator (class in dvt.annotate.core)</a>
 </li>
       <li><a href="annotate/core.html#dvt.annotate.core.FrameBatch">FrameBatch (class in dvt.annotate.core)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="annotate/core.html#dvt.annotate.core.FrameInput">FrameInput (class in dvt.annotate.core)</a>
 </li>
       <li><a href="annotate/core.html#dvt.annotate.core.FrameProcessor">FrameProcessor (class in dvt.annotate.core)</a>
 </li>
+      <li><a href="annotate/embed.html#dvt.annotate.embed.EmbedAnnotator.frames">frames (dvt.annotate.embed.EmbedAnnotator attribute)</a>
+
+      <ul>
+        <li><a href="annotate/face.html#dvt.annotate.face.FaceAnnotator.frames">(dvt.annotate.face.FaceAnnotator attribute)</a>
+</li>
+        <li><a href="annotate/object.html#dvt.annotate.object.ObjectAnnotator.frames">(dvt.annotate.object.ObjectAnnotator attribute)</a>
+</li>
+        <li><a href="annotate/png.html#dvt.annotate.png.PngAnnotator.frames">(dvt.annotate.png.PngAnnotator attribute)</a>
+</li>
+      </ul></li>
       <li><a href="annotate/embed.html#dvt.annotate.embed.EmbedAnnotator.freq">freq (dvt.annotate.embed.EmbedAnnotator attribute)</a>
 
       <ul>
@@ -545,20 +551,26 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="utils.html#dvt.utils.setup_tensorflow">setup_tensorflow() (in module dvt.utils)</a>
+</li>
       <li><a href="utils.html#dvt.utils.DictFrame.shape">shape (dvt.utils.DictFrame attribute)</a>
 </li>
       <li><a href="annotate/diff.html#dvt.annotate.diff.DiffAnnotator.size">size (dvt.annotate.diff.DiffAnnotator attribute)</a>
+
+      <ul>
+        <li><a href="annotate/png.html#dvt.annotate.png.PngAnnotator.size">(dvt.annotate.png.PngAnnotator attribute)</a>
 </li>
+      </ul></li>
       <li><a href="utils.html#dvt.utils.stack_dict_frames">stack_dict_frames() (in module dvt.utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="annotate/core.html#dvt.annotate.core.FrameBatch.start">start (dvt.annotate.core.FrameBatch attribute)</a>
 
       <ul>
         <li><a href="annotate/core.html#dvt.annotate.core.FrameInput.start">(dvt.annotate.core.FrameInput attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="annotate/core.html#dvt.annotate.core.FrameAnnotator.start">start() (dvt.annotate.core.FrameAnnotator method)</a>
 
       <ul>

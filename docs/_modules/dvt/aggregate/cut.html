@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dvt.aggregate.cut &mdash; dvt 0.0.1 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo.html"> Minimal Quickstart Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dvt.html"> API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dvt.aggregate.cut</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dvt.aggregate.cut</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Aggregate frame level information to detect cuts.</span>
+
+<span class="sd">The aggregator functions here take local information about frames and estimates</span>
+<span class="sd">where cuts in the video occur.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
+<span class="sd">    the a sample usage of a CutAggregator over two batches of the input. First</span>
+<span class="sd">    we need to collect differences between successive frames:</span>
+
+<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
+<span class="sd">    &gt;&gt;&gt; fp.load_annotator(DiffAnnotator(quantiles=[40]))</span>
+<span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
+<span class="sd">    &gt;&gt;&gt; obj = fp.collect_all()</span>
+
+<span class="sd">    Then, construct a cut aggregator with a cut-off score for both histograms</span>
+<span class="sd">    (0.2) and pixels ()</span>
+
+<span class="sd">    &gt;&gt;&gt; ca = CutAggregator(cut_vals={&#39;h40&#39;: 0.2, &#39;q40&#39;: 3})</span>
+<span class="sd">    &gt;&gt;&gt; ca.aggregate(obj).todf()</span>
+<span class="sd">           video  frame_start  frame_end</span>
+<span class="sd">    0  input.mp4            0         92</span>
+<span class="sd">    1  input.mp4           93        176</span>
+<span class="sd">    2  input.mp4          177        212</span>
+<span class="sd">    3  input.mp4          213        247</span>
+<span class="sd">    4  input.mp4          248        293</span>
+<span class="sd">    5  input.mp4          294        402</span>
+<span class="sd">    6  input.mp4          403        511</span>
+
+<span class="sd">    Additional options allow for ignoring frames that are too dark, have a cut</span>
+<span class="sd">    that is too close to another, or include additional cut-off values.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">stack_dict_frames</span>
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">Aggregator</span>
+
+
+<div class="viewcode-block" id="CutAggregator"><a class="viewcode-back" href="../../../aggregate/cut.html#dvt.aggregate.cut.CutAggregator">[docs]</a><span class="k">class</span> <span class="nc">CutAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Uses difference between successive frames to detect cuts.</span>
+
+<span class="sd">    This aggregator uses information from the difference annotator to detect</span>
+<span class="sd">    the cuts.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        min_len (int): minimum allowed length of a cut.</span>
+<span class="sd">        ignore_vals (dict): Dictionary of cutoffs that cause a frame to be</span>
+<span class="sd">            ignored for the purpose of detecting cuts. Keys indicate the</span>
+<span class="sd">            variables in the differences output and values show the minimum</span>
+<span class="sd">            value allowed for a frame to be considered for a cut. Typically</span>
+<span class="sd">            used to ignore frames that are too dark (i.e., during fades). Set</span>
+<span class="sd">            to None (default) if no ignored values are needed.</span>
+<span class="sd">        cut_vals (dict): Dictionary of cutoffs that cause a frame to be</span>
+<span class="sd">            considered a cut. Keys indicate the variables in the differences</span>
+<span class="sd">            output and values are the cutoffs. Setting to None (default) will</span>
+<span class="sd">            return no cuts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_len</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ignore_vals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_vals</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">ignore_vals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ignore_vals</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">if</span> <span class="n">cut_vals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">cut_vals</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_len</span> <span class="o">=</span> <span class="n">min_len</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_vals</span> <span class="o">=</span> <span class="n">ignore_vals</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cut_vals</span> <span class="o">=</span> <span class="n">cut_vals</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CutAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/cut.html#dvt.aggregate.cut.CutAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Aggregate difference annotator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            ldframe (dict): A dictionary of DictFrames from a FrameAnnotator.</span>
+<span class="sd">                Must contain an entry with the key &#39;diff&#39;, which is used in the</span>
+<span class="sd">                annotation.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A dictionary frame giving the detected cuts.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># grab the data, initialize counters, and create output `cuts`</span>
+        <span class="n">ops</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;diff&quot;</span><span class="p">]</span>
+        <span class="n">this_video</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">ignore_this_frame</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">current_cut_start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">cuts</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># cycle through frames and collection shots; assumes that the data is</span>
+        <span class="c1"># grouped by video and ordered by frame</span>
+        <span class="n">mlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mlen</span><span class="p">):</span>
+            <span class="n">this_frame</span> <span class="o">=</span> <span class="n">ops</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
+
+            <span class="c1"># if this a new video, restart the frame numbering</span>
+            <span class="k">if</span> <span class="n">this_video</span> <span class="o">!=</span> <span class="n">ops</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]:</span>
+                <span class="n">this_video</span> <span class="o">=</span> <span class="n">ops</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
+                <span class="n">current_cut_start</span> <span class="o">=</span> <span class="n">this_frame</span>
+
+            <span class="c1"># check to see if we should ignore the next frame; by default we</span>
+            <span class="c1"># ignore the phantom frame at the end of the video at time T+1.</span>
+            <span class="n">ignore_next_frame</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">mlen</span><span class="p">:</span>
+                <span class="n">ignore_next_frame</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">coff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_vals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">ops</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">coff</span><span class="p">:</span>
+                        <span class="n">ignore_next_frame</span> <span class="o">=</span> <span class="kc">True</span>
+                        <span class="k">break</span>
+
+            <span class="c1"># check if there should be a cut; note: this is defined such that</span>
+            <span class="c1"># the this_frame is the *last* frame in the current cut, not the</span>
+            <span class="c1"># first in the next cut</span>
+            <span class="n">long_flag</span> <span class="o">=</span> <span class="p">(</span><span class="n">this_frame</span> <span class="o">-</span> <span class="n">current_cut_start</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_len</span>
+            <span class="k">if</span> <span class="n">long_flag</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ignore_next_frame</span><span class="p">:</span>
+                <span class="n">cut_detect</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">coff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_vals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                    <span class="k">if</span> <span class="n">ops</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">coff</span><span class="p">:</span>
+                        <span class="n">cut_detect</span> <span class="o">=</span> <span class="kc">False</span>
+                        <span class="k">break</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">cut_detect</span> <span class="o">=</span> <span class="kc">False</span>
+
+            <span class="k">if</span> <span class="n">ignore_next_frame</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">ignore_this_frame</span><span class="p">:</span>
+                <span class="n">cut_detect</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># if `cut_detect` at this point, then we want to finish the active</span>
+            <span class="c1"># cut with the current frame</span>
+            <span class="k">if</span> <span class="n">cut_detect</span><span class="p">:</span>
+                <span class="n">cuts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="n">this_video</span><span class="p">,</span>
+                        <span class="s2">&quot;frame_start&quot;</span><span class="p">:</span> <span class="n">current_cut_start</span><span class="p">,</span>
+                        <span class="s2">&quot;frame_end&quot;</span><span class="p">:</span> <span class="n">this_frame</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">cut_detect</span> <span class="ow">or</span> <span class="n">ignore_next_frame</span><span class="p">:</span>
+                <span class="n">current_cut_start</span> <span class="o">=</span> <span class="n">this_frame</span> <span class="o">+</span> <span class="mi">1</span>
+
+            <span class="c1"># push forward the ignore flag</span>
+            <span class="n">ignore_this_frame</span> <span class="o">=</span> <span class="n">ignore_next_frame</span>
+
+        <span class="k">return</span> <span class="n">stack_dict_frames</span><span class="p">(</span><span class="n">cuts</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2019, Taylor Arnold
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+    <!-- Theme Analytics -->
+    <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-XXXXXXX-1', 'auto');
+    ga('send', 'pageview');
+    </script>
+
+    
+   
+
+</body>
+</html>

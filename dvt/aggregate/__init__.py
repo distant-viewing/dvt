@@ -9,5 +9,3 @@ from . import cut
 from . import display
 from . import length
 from . import people
-
-__version__ = "0.1.0"
