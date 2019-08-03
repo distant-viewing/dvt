@@ -21,6 +21,7 @@ from ..aggregate.display import DisplayAggregator
 from ..aggregate.length import ShotLengthAggregator
 from ..utils import setup_tensorflow, _format_time, DictFrame
 from .utils import _get_cuts
+from .data import INDEX_MAIN, INDEX_PAGE, DVT_CSS, DVT_JS, DVT_MAIN_JS
 
 
 class VideoPipeline:
@@ -32,11 +33,13 @@ class VideoPipeline:
 
         # find absolute path to the input and determine the output location
         finput = os.path.abspath(finput)
+        fname = os.path.splitext(os.path.basename(finput))[0]
         if doutput is None:
             doutput = os.path.join(os.getcwd(), "dvt-output")
 
         self.finput = finput
-        self.doutput = doutput
+        self.fname = fname
+        self.doutput = os.path.join(doutput, fname)
         self.diff_co = diff_co
         self.cut_min_length = cut_min_length
         self.cuts = None
@@ -71,7 +74,8 @@ class VideoPipeline:
             self._annotate_images()
 
         if level >= 2:
-            _copy_web()
+            self._json_toc()
+            self._copy_web()
 
     def _run_pipeline(self):
         frames = self.cuts["mpoint"]
@@ -164,6 +168,53 @@ class VideoPipeline:
         with open(os.path.join(self.doutput, "data.json"), "w") as fout:
             json.dump(output, fout, sort_keys=True, indent=4)
 
+    def _json_toc(self):
+        toc_path = os.path.join(os.path.dirname(self.doutput), "toc.json")
 
-def _copy_web():
-    pass
+        data = []
+        if os.path.exists(toc_path):
+            with open(toc_path, "r") as finput:
+                data = json.load(finput)
+
+            data = [x for x in data if x["video_name"] != self.fname]
+
+        miter = len(self.cuts["mpoint"]) // 2
+        data.extend(
+            [
+                {
+                    "thumb_path": os.path.join(
+                        self.fname,
+                        "img",
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"][miter]),
+                    ),
+                    "video_name": self.fname,
+                }
+            ]
+        )
+
+        with open(toc_path, "w") as finput:
+            json.dump(data, finput, indent=4)
+
+    def _copy_web(self):
+        toc_level = os.path.dirname(self.doutput)
+
+        if not os.path.isdir(os.path.join(toc_level, "js")):
+            os.makedirs(os.path.join(toc_level, "js"))
+
+        if not os.path.isdir(os.path.join(toc_level, "css")):
+            os.makedirs(os.path.join(toc_level, "css"))
+
+        with open(os.path.join(self.doutput, "index.html"), "w") as fout:
+            fout.write(INDEX_PAGE)
+
+        with open(os.path.join(toc_level, "index.html"), "w") as fout:
+            fout.write(INDEX_MAIN)
+
+        with open(os.path.join(toc_level, "css", "dvt.css"), "w") as fout:
+            fout.write(DVT_CSS)
+
+        with open(os.path.join(toc_level, "js", "dvt.js"), "w") as fout:
+            fout.write(DVT_JS)
+
+        with open(os.path.join(toc_level, "js", "dvt-main.js"), "w") as fout:
+            fout.write(DVT_MAIN_JS)

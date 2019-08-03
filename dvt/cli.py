@@ -25,13 +25,11 @@ def run_cli():
     if not args.quiet:
         logging.basicConfig(level="INFO")
 
-    video_files, base_names = _expand_path_and_check(args.inputs)
-
-    for vin, bin in zip(video_files, base_names):
+    for vin in _expand_path_and_check(args.inputs):
 
         wp = VideoPipeline(
             vin,
-            doutput=join(args.dirout, "", bin),
+            doutput=args.dirout,
             diff_co=args.diff_cutoff,
             cut_min_length=args.cut_min_length,
         )
@@ -119,5 +117,4 @@ def _expand_path_and_check(fnames):
     if not len(video_files):
         raise FileNotFoundError("No valid input files found.")
 
-    print(video_files)
-    return video_files, base_names
+    return video_files

@@ -159,9 +159,7 @@ class ShotLengthAggregator(Aggregator):
                 & (objs_object == "person")
                 & (objs_scores > self.min_obj_score)
             )[0]
-            aobj_ids = np.nonzero(
-                (objs_frames == frame) & (objs_scores > self.min_obj_score)
-            )[0]
+            aobj_ids = np.nonzero(objs_frames == frame)[0]
 
             output["num_faces"][fnum] = len(face_ids)
             output["num_people"][fnum] = len(objs_ids)
