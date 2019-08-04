@@ -109,7 +109,7 @@ describing the tool and its application to the study of visual culture:
 }
 ```
 
-# Contributing
+## Contributing
 
 Contributions, including bug fixes and new features, to the toolkit are
 welcome. When contributing to this repository, please first discuss the change
