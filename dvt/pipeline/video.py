@@ -1,5 +1,23 @@
 # -*- coding: utf-8 -*-
 """A pipeline for building an interactive website from a video file.
+
+Example:
+    Assuming we have an input named "input.mp4", the following example shows
+    the a sample usage of the VideoPipeline.
+
+    >>> wp = VideoPipeline("video-clip.mp4", dname)
+    >>> wp.make_breaks()
+    >>> wp.run()
+
+    After running there will be a new directory names "dvt-output-data" in the
+    working directory. It contains a JSON file with extracted metadata, the
+    extracted frames, annotated frames, and visualizations of the dense optical
+    annotator. If you start a web browser on your machine:
+
+    python3 -m http.server --directory dvt-output-data
+
+    An interactive visualization of the output will be available by navigating
+    to http://0.0.0.0:8000/ in your browser.
 """
 
 import json
@@ -9,14 +27,12 @@ import os.path
 import numpy as np
 
 from ..annotate.cielab import CIElabAnnotator
-from ..annotate.diff import DiffAnnotator
-from ..annotate.core import FrameProcessor, FrameInput, ImageInput
-from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceDetectDlib
+from ..annotate.core import FrameProcessor, FrameInput
+from ..annotate.face import FaceAnnotator, FaceDetectMtcnn
 from ..annotate.meta import MetaAnnotator
 from ..annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from ..annotate.opticalflow import OpticalFlowAnnotator
 from ..annotate.png import PngAnnotator
-from ..aggregate.cut import CutAggregator
 from ..aggregate.display import DisplayAggregator
 from ..aggregate.length import ShotLengthAggregator
 from ..utils import setup_tensorflow, _format_time, DictFrame
@@ -26,6 +42,16 @@ from .data import INDEX_MAIN, INDEX_PAGE, DVT_CSS, DVT_JS, DVT_MAIN_JS
 
 class VideoPipeline:
     """Contains a predefined annotators to process an input video file.
+
+    Attributes:
+        finput (str): path to the input video file
+        doutput (str): output directory. If set to None (default), will be
+            a directory named "dvt-output-data" in the current working
+            directory
+        diff_co (int): difference cutoff value; integer from 0-256; higher
+            values produce fewer cuts.
+        cut_min_length (int): minimum length of a detected cut in frames;
+            higher values produce few cuts.
     """
 
     def __init__(self, finput, doutput=None, diff_co=10, cut_min_length=30):
@@ -35,7 +61,7 @@ class VideoPipeline:
         finput = os.path.abspath(finput)
         fname = os.path.splitext(os.path.basename(finput))[0]
         if doutput is None:
-            doutput = os.path.join(os.getcwd(), "dvt-output")
+            doutput = os.path.join(os.getcwd(), "dvt-output-data")
 
         self.finput = finput
         self.fname = fname
@@ -47,6 +73,13 @@ class VideoPipeline:
         self.pipeline_data = None
 
     def make_breaks(self, freq=0):
+        """Determine what frames to include in the output.
+
+        Args:
+            freq (int): set to a positive integer to select images based on
+                frequency rather than detecting cuts; integer gives frequency
+                of the sampling
+        """
         if freq <= 0:
             self.cuts = _get_cuts(
                 self.finput, self.diff_co, self.cut_min_length
@@ -68,6 +101,13 @@ class VideoPipeline:
             self.cuts = cuts
 
     def run(self, level=2):
+        """Run the pipeline over the input video file.
+
+        Args:
+            level (int): interger code (0, 1, or 2) describing how much data
+            to parse. 0 creates just metadata, 1 creates just images and
+            metadata, 2 or more creates the interactive website
+        """
         if not os.path.exists(self.doutput):
             os.makedirs(self.doutput)
 
@@ -130,40 +170,39 @@ class VideoPipeline:
         ldata = self.pipeline_data["length"]
 
         output = []
-        for iter in range(nframes):
-            frame = self.cuts["mpoint"][iter]
+        for fnum in range(nframes):
 
             output += [
                 {
-                    "frame_start": int(self.cuts["frame_start"][iter]),
-                    "frame_end": int(self.cuts["frame_end"][iter]),
+                    "frame_start": int(self.cuts["frame_start"][fnum]),
+                    "frame_end": int(self.cuts["frame_end"][fnum]),
                     "time_start": _format_time(
-                        float(self.cuts["frame_start"][iter]) / fps * 1000,
+                        float(self.cuts["frame_start"][fnum]) / fps * 1000,
                     ),
                     "time_end": _format_time(
-                        float(self.cuts["frame_end"][iter]) / fps * 1000,
+                        float(self.cuts["frame_end"][fnum]) / fps * 1000,
                     ),
                     "img_path": os.path.join(
                         "img",
-                        "frame-{0:06d}.png".format(self.cuts["mpoint"][iter]),
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"][fnum]),
                     ),
                     "anno_path": os.path.join(
                         "img-anno",
-                        "frame-{0:06d}.png".format(self.cuts["mpoint"][iter]),
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"][fnum]),
                     ),
                     "flow_path": os.path.join(
                         "img-flow",
-                        "frame-{0:06d}.png".format(self.cuts["mpoint"][iter]),
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"][fnum]),
                     ),
                     "dominant_colors": self.pipeline_data["cielab"][
                         "dominant_colors"
-                    ][iter].tolist(),
-                    "num_faces": int(ldata["num_faces"][iter]),
-                    "num_people": int(ldata["num_people"][iter]),
-                    "largest_face": int(ldata["largest_face"][iter]),
-                    "largest_body": int(ldata["largest_body"][iter]),
-                    "obj_list": ldata["objects"][iter],
-                    "shot_length": ldata["shot_length"][iter],
+                    ][fnum].tolist(),
+                    "num_faces": int(ldata["num_faces"][fnum]),
+                    "num_people": int(ldata["num_people"][fnum]),
+                    "largest_face": int(ldata["largest_face"][fnum]),
+                    "largest_body": int(ldata["largest_body"][fnum]),
+                    "obj_list": ldata["objects"][fnum],
+                    "shot_length": ldata["shot_length"][fnum],
                 }
             ]
 

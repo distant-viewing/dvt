@@ -1,0 +1,425 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dvt.annotate.opticalflow &mdash; dvt 0.0.7 documentation</title>
+  
+
+  
+  
+  
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo.html"> Minimal Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dvt.html"> API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dvt.annotate.opticalflow</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dvt.annotate.opticalflow</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Annotator to extract dense Optical Flow using the opencv</span>
+<span class="sd">Gunnar Farneback’s algorithm.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span>
+
+
+<div class="viewcode-block" id="OpticalFlowAnnotator"><a class="viewcode-back" href="../../../annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator">[docs]</a><span class="k">class</span> <span class="nc">OpticalFlowAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Annotator to extract dense Optical Flow using the opencv Gunnar</span>
+<span class="sd">    Farneback’s algorithm.</span>
+
+<span class="sd">    The annotator will return an image or flow field describing the motion in</span>
+<span class="sd">    two subsequent frames.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        freq (int): How often to perform the embedding. For example, setting</span>
+<span class="sd">            the frequency to 2 will computer every other frame in the batch.</span>
+<span class="sd">        raw (bool): Return optical flow as color image by default, raw returns</span>
+<span class="sd">            the raw output as produced by the opencv algorithm.</span>
+<span class="sd">        frames (array of ints): An optional list of frames to process. This</span>
+<span class="sd">            should be a list of integers or a 1D numpy array of integers. If</span>
+<span class="sd">            set to something other than None, the freq input is ignored.</span>
+<span class="sd">        output_dir (string): optional location to store the computed images.</span>
+<span class="sd">            Only used if raw is set to False.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;opticalflow&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">raw</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isdir</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+                <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">raw</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">output_dir</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="OpticalFlowAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the optical flow annotator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            batch (FrameBatch): A batch of images to annotate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dictionaries containing the video name, frame, and the</span>
+<span class="sd">            optical flow representation. The latter has the same spatial</span>
+<span class="sd">            dimensions as the input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># determine which frames to work on</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">_which_frames</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">)</span>
+        <span class="n">frame_names</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">())</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frames</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># run the optical flow analysis on each frame</span>
+        <span class="n">flow</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fnum</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
+            <span class="n">current_gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span>
+                <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">fnum</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2GRAY</span>
+            <span class="p">)</span>
+            <span class="n">next_gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span>
+                <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">fnum</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2GRAY</span>
+            <span class="p">)</span>
+
+            <span class="n">flow</span> <span class="o">+=</span> <span class="p">[</span><span class="n">_get_optical_flow</span><span class="p">(</span><span class="n">current_gray</span><span class="p">,</span> <span class="n">next_gray</span><span class="p">)]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">raw</span><span class="p">:</span>
+                <span class="n">flow</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">_flow_to_color</span><span class="p">(</span><span class="n">flow</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">opath</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
+                        <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame_names</span><span class="p">[</span><span class="n">fnum</span><span class="p">]),</span>
+                    <span class="p">)</span>
+                    <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">opath</span><span class="p">,</span> <span class="n">img</span><span class="o">=</span><span class="n">flow</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;opticalflow&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">flow</span><span class="p">)}</span>
+
+        <span class="c1"># Add video and frame metadata</span>
+        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">vname</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">frame_names</span><span class="p">[</span><span class="nb">list</span><span class="p">(</span><span class="n">frames</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="p">]</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_get_optical_flow</span><span class="p">(</span><span class="n">current_frame</span><span class="p">,</span> <span class="n">next_frame</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">calcOpticalFlowFarneback</span><span class="p">(</span>
+        <span class="n">current_frame</span><span class="p">,</span>
+        <span class="n">next_frame</span><span class="p">,</span>
+        <span class="n">flow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pyr_scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">levels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">winsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+        <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">poly_n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">poly_sigma</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span>
+        <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="c1"># Optical flow to color image conversion code adapted from:</span>
+<span class="c1"># https://github.com/tomrunia/OpticalFlow_Visualization</span>
+
+
+<span class="k">def</span> <span class="nf">_make_colorwheel</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a color wheel for optical flow visualization as presented in:</span>
+<span class="sd">        Baker et al. &quot;A Database and Evaluation Methodology for Optical Flow&quot;</span>
+<span class="sd">        (ICCV, 2007) URL: http://vision.middlebury.edu/flow/flowEval-iccv07.pdf</span>
+<span class="sd">    According to the C++ source code of Daniel Scharstein</span>
+<span class="sd">    According to the Matlab source code of Deqing Sun</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">RY</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="n">YG</span> <span class="o">=</span> <span class="mi">6</span>
+    <span class="n">GC</span> <span class="o">=</span> <span class="mi">4</span>
+    <span class="n">CB</span> <span class="o">=</span> <span class="mi">11</span>
+    <span class="n">BM</span> <span class="o">=</span> <span class="mi">13</span>
+    <span class="n">MR</span> <span class="o">=</span> <span class="mi">6</span>
+
+    <span class="n">ncols</span> <span class="o">=</span> <span class="n">RY</span> <span class="o">+</span> <span class="n">YG</span> <span class="o">+</span> <span class="n">GC</span> <span class="o">+</span> <span class="n">CB</span> <span class="o">+</span> <span class="n">BM</span> <span class="o">+</span> <span class="n">MR</span>
+    <span class="n">colorwheel</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">ncols</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># RY</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">RY</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">RY</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">RY</span><span class="p">)</span> <span class="o">/</span> <span class="n">RY</span><span class="p">)</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">col</span> <span class="o">+</span> <span class="n">RY</span>
+    <span class="c1"># YG</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="n">col</span><span class="p">:</span><span class="n">col</span> <span class="o">+</span> <span class="n">YG</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">YG</span><span class="p">)</span> <span class="o">/</span> <span class="n">YG</span><span class="p">)</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="n">col</span><span class="p">:</span><span class="n">col</span> <span class="o">+</span> <span class="n">YG</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">col</span> <span class="o">+</span> <span class="n">YG</span>
+    <span class="c1"># GC</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="n">col</span><span class="p">:</span><span class="n">col</span> <span class="o">+</span> <span class="n">GC</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="n">col</span><span class="p">:</span><span class="n">col</span> <span class="o">+</span> <span class="n">GC</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">GC</span><span class="p">)</span> <span class="o">/</span> <span class="n">GC</span><span class="p">)</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">col</span> <span class="o">+</span> <span class="n">GC</span>
+    <span class="c1"># CB</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="n">col</span><span class="p">:</span><span class="n">col</span> <span class="o">+</span> <span class="n">CB</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">CB</span><span class="p">)</span> <span class="o">/</span> <span class="n">CB</span><span class="p">)</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="n">col</span><span class="p">:</span><span class="n">col</span> <span class="o">+</span> <span class="n">CB</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">col</span> <span class="o">+</span> <span class="n">CB</span>
+    <span class="c1"># BM</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="n">col</span><span class="p">:</span><span class="n">col</span> <span class="o">+</span> <span class="n">BM</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="n">col</span><span class="p">:</span><span class="n">col</span> <span class="o">+</span> <span class="n">BM</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">BM</span><span class="p">)</span> <span class="o">/</span> <span class="n">BM</span><span class="p">)</span>
+    <span class="n">col</span> <span class="o">=</span> <span class="n">col</span> <span class="o">+</span> <span class="n">BM</span>
+    <span class="c1"># MR</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="n">col</span><span class="p">:</span><span class="n">col</span> <span class="o">+</span> <span class="n">MR</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">MR</span><span class="p">)</span> <span class="o">/</span> <span class="n">MR</span><span class="p">)</span>
+    <span class="n">colorwheel</span><span class="p">[</span><span class="n">col</span><span class="p">:</span><span class="n">col</span> <span class="o">+</span> <span class="n">MR</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">255</span>
+    <span class="k">return</span> <span class="n">colorwheel</span>
+
+
+<span class="k">def</span> <span class="nf">_flow_compute_color</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Applies the flow color wheel to (possibly clipped) flow components u and v.</span>
+<span class="sd">    According to the C++ source code of Daniel Scharstein</span>
+<span class="sd">    According to the Matlab source code of Deqing Sun</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        u (np.ndarray): horizontal flow.</span>
+<span class="sd">        v (np.ndarray): vertical flow.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">flow_image</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">u</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+
+    <span class="n">colorwheel</span> <span class="o">=</span> <span class="n">_make_colorwheel</span><span class="p">()</span>  <span class="c1"># shape [55x3]</span>
+    <span class="n">ncols</span> <span class="o">=</span> <span class="n">colorwheel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arctan2</span><span class="p">(</span><span class="o">-</span><span class="n">v</span><span class="p">,</span> <span class="o">-</span><span class="n">u</span><span class="p">)</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">pi</span>
+
+    <span class="n">fk</span> <span class="o">=</span> <span class="p">(</span><span class="n">a</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span> <span class="o">*</span> <span class="p">(</span><span class="n">ncols</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">k0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">fk</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">int32</span><span class="p">)</span>
+    <span class="n">k1</span> <span class="o">=</span> <span class="n">k0</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">k1</span><span class="p">[</span><span class="n">k1</span> <span class="o">==</span> <span class="n">ncols</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">fk</span> <span class="o">-</span> <span class="n">k0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">colorwheel</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">colorwheel</span><span class="p">[:,</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">col0</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="n">k0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">255.0</span>
+        <span class="n">col1</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[</span><span class="n">k1</span><span class="p">]</span> <span class="o">/</span> <span class="mf">255.0</span>
+        <span class="n">col</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">f</span><span class="p">)</span> <span class="o">*</span> <span class="n">col0</span> <span class="o">+</span> <span class="n">f</span> <span class="o">*</span> <span class="n">col1</span>
+
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">rad</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+        <span class="n">col</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">-</span> <span class="n">rad</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">col</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+        <span class="n">col</span><span class="p">[</span><span class="o">~</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">col</span><span class="p">[</span><span class="o">~</span><span class="n">idx</span><span class="p">]</span> <span class="o">*</span> <span class="mf">0.75</span>  <span class="c1"># out of range?</span>
+
+        <span class="n">flow_image</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="mi">255</span> <span class="o">*</span> <span class="n">col</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">flow_image</span>
+
+
+<span class="k">def</span> <span class="nf">_flow_to_color</span><span class="p">(</span><span class="n">flow_uv</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Expects a two dimensional flow image of shape [H,W,2]</span>
+<span class="sd">    According to the C++ source code of Daniel Scharstein</span>
+<span class="sd">    According to the Matlab source code of Deqing Sun</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        flow_uv (np.ndarray): np.ndarray of optical flow with shape [H,W,2]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">assert</span> <span class="n">flow_uv</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;input flow must have three dimensions&quot;</span>
+    <span class="k">assert</span> <span class="n">flow_uv</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;input flow must have shape [H,W,2]&quot;</span>
+
+    <span class="n">u</span> <span class="o">=</span> <span class="n">flow_uv</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">flow_uv</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">u</span><span class="p">)</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">v</span><span class="p">))</span>
+    <span class="n">rad_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
+
+    <span class="n">epsilon</span> <span class="o">=</span> <span class="mf">1e-5</span>
+    <span class="n">u</span> <span class="o">=</span> <span class="n">u</span> <span class="o">/</span> <span class="p">(</span><span class="n">rad_max</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">)</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">v</span> <span class="o">/</span> <span class="p">(</span><span class="n">rad_max</span> <span class="o">+</span> <span class="n">epsilon</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_flow_compute_color</span><span class="p">(</span><span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+
+    </p>
+  </div>
+    
+    
+      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Length Aggregators &mdash; dvt 0.0.7 documentation</title>
+  
+
+  
+  
+  
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="People Aggregators" href="people.html" />
+    <link rel="prev" title="Display Aggregators" href="display.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#annotations">Annotations</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cut.html">Cut Aggregators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="display.html">Display Aggregators</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Length Aggregators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="people.html">People Aggregators</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#pipelines">Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
+        
+      <li>Length Aggregators</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/aggregate/length.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dvt.aggregate.length">
+<span id="length-aggregators"></span><h1>Length Aggregators<a class="headerlink" href="#module-dvt.aggregate.length" title="Permalink to this headline">¶</a></h1>
+<p>Aggregate frame level information to estimate shot length.</p>
+<p>The aggregator functions here takes detected faces and objects to estimate the
+shot length. It also provides aggregated information about the detected faces
+and objects for each frame.</p>
+<p class="rubric">Example</p>
+<p>Assuming we have an input named “input.mp4”, the following example shows
+the a sample usage of a ShotLengthAggregator over two batches of the input.
+First we need to collect the face embeddings:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">MetaAnnotator</span><span class="p">())</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">FaceAnnotator</span><span class="p">(</span><span class="n">detector</span><span class="o">=</span><span class="n">FaceDetectDlib</span><span class="p">(),</span> <span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">ObjectAnnotator</span><span class="p">(</span><span class="n">detector</span><span class="o">=</span><span class="n">ObjectDetectRetinaNet</span><span class="p">(),</span> <span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
+<span class="gp">... </span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">collect_all</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Then, construct a ShotLengthAggregator:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sla</span> <span class="o">=</span> <span class="n">ShotLengthAggregator</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">sla</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
+<span class="go">   frame  num_faces  num_people  ...  shot_length  objects</span>
+<span class="go">0      0          2           2  ...        5-MCU  oven; person</span>
+<span class="go">1    128          4           5  ...        3-MLS        person</span>
+<span class="go">2    256          2           1  ...        5-MCU  oven; person</span>
+</pre></div>
+</div>
+<p>[3 rows x 7 columns]</p>
+<p>In this example, we see that the first and last frames contains two people
+in a  medium close-up (MCU) and the middle frame contains five people
+(there are actually 6, but one person is too obscured) in a medium long
+shot (MLS).</p>
+<dl class="class">
+<dt id="dvt.aggregate.length.ShotLengthAggregator">
+<em class="property">class </em><code class="descclassname">dvt.aggregate.length.</code><code class="descname">ShotLengthAggregator</code><span class="sig-paren">(</span><em>min_obj_score=0.7</em>, <em>min_face_score=0.7</em>, <em>shot_names=None</em>, <em>shot_sizes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/length.html#ShotLengthAggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="core.html#dvt.aggregate.core.Aggregator" title="dvt.aggregate.core.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.aggregate.core.Aggregator</span></code></a></p>
+<p>Uses detected faces and objects to estimate shot length.</p>
+<p>You can change the cut-offs and names of the face types.</p>
+<dl class="attribute">
+<dt id="dvt.aggregate.length.ShotLengthAggregator.min_obj_score">
+<code class="descname">min_obj_score</code><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator.min_obj_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>minimum confidence score to include a detected
+object in the computation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.aggregate.length.ShotLengthAggregator.min_face_score">
+<code class="descname">min_face_score</code><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator.min_face_score" title="Permalink to this definition">¶</a></dt>
+<dd><p>minimum confidence score to include a detected
+face in the computation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.aggregate.length.ShotLengthAggregator.shot_names">
+<code class="descname">shot_names</code><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator.shot_names" title="Permalink to this definition">¶</a></dt>
+<dd><p>a list of shot names, from the longest shot to the
+tightest. Set to None to use the default settings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.aggregate.length.ShotLengthAggregator.shot_sizes">
+<code class="descname">shot_sizes</code><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator.shot_sizes" title="Permalink to this definition">¶</a></dt>
+<dd><p>as list of shot size cut-offs given as a proportion
+(vertical) of face size to the entire shot. Should be an increasing
+list starting at zero and the same length as shot_names. Set to
+None to use the default settings.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.aggregate.length.ShotLengthAggregator.aggregate">
+<code class="descname">aggregate</code><span class="sig-paren">(</span><em>ldframe</em>, <em>frames=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/length.html#ShotLengthAggregator.aggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator.aggregate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine shot lengths using detected faces and objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ldframe</strong> (<em>dict</em>) – A dictionary of DictFrames from a FrameAnnotator.
+Must contain an entry with the keys ‘meta’, ‘face’ and
+‘obj’, which are used in the annotation.</li>
+<li><strong>frames</strong> (<em>list</em>) – An optional list of frames. Otherwise, will
+annotate any frame with a detected face or object.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A dictionary frame giving the detected people, with one row per
+frame in the original input.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="people.html" class="btn btn-neutral float-right" title="People Aggregators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="display.html" class="btn btn-neutral float-left" title="Display Aggregators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+
+    </p>
+  </div>
+    
+    
+      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

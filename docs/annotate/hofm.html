@@ -1,0 +1,352 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Histograms of Optical Flow &mdash; dvt 0.0.7 documentation</title>
+  
+
+  
+  
+  
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Metadata Annotations" href="meta.html" />
+    <link rel="prev" title="Face Annotations" href="face.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#annotations">Annotations</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cielab.html">CieLAB Annotators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clutter.html">Clutter Annotators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="diff.html">Frame Difference Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="embed.html">Embed Image Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="face.html">Face Annotations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Histograms of Optical Flow</a></li>
+<li class="toctree-l3"><a class="reference internal" href="meta.html">Metadata Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="obj.html">Object Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opticalflow.html">Dense Optical Flow Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="png.html">Png Annotations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#pipelines">Pipelines</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
+        
+      <li>Histograms of Optical Flow</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/annotate/hofm.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dvt.annotate.hofm">
+<span id="histograms-of-optical-flow"></span><h1>Histograms of Optical Flow<a class="headerlink" href="#module-dvt.annotate.hofm" title="Permalink to this headline">¶</a></h1>
+<p>Annotator to extract dense Optical Flow using the opencv
+Gunnar Farneback’s algorithm and represent it as a
+histogram of optical flow orientation and magnitude (HOFM),
+as described in <a class="reference external" href="https://doi.org/10.1109/SIBGRAPI.2015.21">https://doi.org/10.1109/SIBGRAPI.2015.21</a></p>
+<dl class="class">
+<dt id="dvt.annotate.hofm.HOFMAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.hofm.</code><code class="descname">HOFMAnnotator</code><span class="sig-paren">(</span><em>freq=1</em>, <em>blocks=3</em>, <em>mag_buckets=None</em>, <em>ang_buckets=None</em>, <em>frames=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/hofm.html#HOFMAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<p>Annotator to extract dense Optical Flow using the opencv
+Gunnar Farneback’s algorithm and represent it as a
+histogram of optical flow orientation and magnitude (HOFM),
+as described in <a class="reference external" href="https://doi.org/10.1109/SIBGRAPI.2015.21">https://doi.org/10.1109/SIBGRAPI.2015.21</a></p>
+<p>The annotator will return the optical flow describing the motion in
+two subsequent frames as a HOFM feature.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.hofm.HOFMAnnotator.freq">
+<code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator.freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>How often to perform the embedding. For example, setting
+the frequency to 2 will computer every other frame in the batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.hofm.HOFMAnnotator.blocks">
+<code class="descname">blocks</code><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator.blocks" title="Permalink to this definition">¶</a></dt>
+<dd><p>How many spatial blocks to divide the frame in, in each
+dimension. Default is 3, which results in 9 spatial blocks.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.hofm.HOFMAnnotator.mag_buckets">
+<code class="descname">mag_buckets</code><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator.mag_buckets" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of bounds for magnitude
+buckets. Default is [0, 20, 40, 60, 80, 100].</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list of ints</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.hofm.HOFMAnnotator.ang_buckets">
+<code class="descname">ang_buckets</code><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator.ang_buckets" title="Permalink to this definition">¶</a></dt>
+<dd><p>List of bounds for angle
+buckets. Default is [0, 45, 90, 135, 180, 225, 270, 315, 360].</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">list of ints</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.hofm.HOFMAnnotator.frames">
+<code class="descname">frames</code><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator.frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>An optional list of frames to process. This
+should be a list of integers or a 1D numpy array of integers. If
+set to something other than None, the freq input is ignored.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">array of ints</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.hofm.HOFMAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/hofm.html#HOFMAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the batch of frames with the optical flow annotator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="core.html#dvt.annotate.core.FrameBatch" title="dvt.annotate.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, and the
+HOFM optical flow representation of length (len(blocks) *
+len(blocks) * len(mag_buckets) * len(ang_buckets))</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.hofm.HOFMAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'hofm'</em><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="meta.html" class="btn btn-neutral float-right" title="Metadata Annotations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="face.html" class="btn btn-neutral float-left" title="Face Annotations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+
+    </p>
+  </div>
+    
+    
+      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

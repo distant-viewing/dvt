@@ -25,16 +25,10 @@ Example:
 
     >>> sla = ShotLengthAggregator()
     >>> sla.aggregate(obj).todf()
-
-       frame  num_faces  num_people  ...  largest_body  \
-    0      0          2           2  ...      0.870833
-    1    128          4           5  ...      0.668750
-    2    256          2           1  ...      0.814583
-
-       shot_length       objects
-    0        5-MCU  oven; person
-    1        3-MLS        person
-    2        5-MCU  oven; person
+       frame  num_faces  num_people  ...  shot_length  objects
+    0      0          2           2  ...        5-MCU  oven; person
+    1    128          4           5  ...        3-MLS        person
+    2    256          2           1  ...        5-MCU  oven; person
 
     [3 rows x 7 columns]
 

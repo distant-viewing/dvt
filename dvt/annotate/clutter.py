@@ -102,6 +102,8 @@ def _get_clutter(img, wlevels=3, wght_chrom=0.0625):
 
     for i in range(1, 3):
         chrom = img[:, :, i]
+        if (np.max(chrom) - np.min(chrom)) < 0.008:     # pragma: no cover
+            chrom = np.zeros(chrom.shape)
         en_band = _band_entropy(chrom, wlevels, wor)
         clutter_se += wght_chrom * np.mean(en_band)
 

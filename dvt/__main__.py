@@ -1,3 +1,3 @@
-from .cli import run_cli
+from .cli import run_cli   # pragma: no cover
 
-run_cli()
+run_cli()                  # pragma: no cover

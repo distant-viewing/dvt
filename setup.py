@@ -2,11 +2,27 @@ from setuptools import setup
 from setuptools import find_packages
 
 long_description= """
-The Distant TV Toolkit is a python module designed to automatically extract
-metadata features from a corpus of images. It was initially designed for moving
-images but also includes useful features for working with collections of still
-images. This file includes a quick tutorial for getting up and running. Further
-examples are given as IPython notebooks in the examples directory.
+The Distant TV Toolkit is a Python module designed to facilitate the
+computational analysis of visual culture. It contains low-level architecture
+for applying state-of-the-art computer vision algorithms to still and moving
+images. The higher-level functionality of the toolkit allows users to quickly
+extract semantic metadata from digitized collections. Extracted information
+can be visualized for search and discovery or aggregated and analyzed to find
+patterns across a corpus.
+
+More information about the toolkit and project is available on the following
+pages:
+
+- Search and discovery interface example: https://www.distantviewing.org/labs/
+- Example analysis using aggregated metadata: https://doi.org/10.22148/16.043
+- Theory of the project: https://www.distantviewing.org/pdf/distant-viewing.pdf
+- Project homepage: https://distantviewing.org
+- Documentation: https://distant-viewing.github.io/dvt/
+- Source code: https://github.com/distant-viewing/dvt
+
+The Distant Viewing Toolkit is supported by the National Endowment for the
+Humanities through a Digital Humanities Advancement Grant. It is released under
+the open-source GNU General Public License (GPLv2+).
 """
 
 required = [

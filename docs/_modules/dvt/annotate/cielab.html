@@ -1,0 +1,307 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dvt.annotate.cielab &mdash; dvt 0.0.7 documentation</title>
+  
+
+  
+  
+  
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo.html"> Minimal Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dvt.html"> API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dvt.annotate.cielab</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dvt.annotate.cielab</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Annotators to extract CIELAB color histograms.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">from</span> <span class="nn">scipy.cluster.vq</span> <span class="k">import</span> <span class="n">kmeans</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span>
+
+
+<div class="viewcode-block" id="CIElabAnnotator"><a class="viewcode-back" href="../../../annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator">[docs]</a><span class="k">class</span> <span class="nc">CIElabAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Annotator for constructing a color histogram and extracting the dominant</span>
+<span class="sd">    colours for an image in CIELAB colorspace.</span>
+
+<span class="sd">    The annotator will return a histogram describing the color distribution</span>
+<span class="sd">    of an image, and a list of the most dominant colors.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        freq (int): How often to perform the embedding. For example, setting</span>
+<span class="sd">            the frequency to 2 will computer every other frame in the batch.</span>
+<span class="sd">        num_buckets (tuple): A tuple of three numbers giving the maximum number</span>
+<span class="sd">            of buckets in each color channel, Lightness, A, B. These</span>
+<span class="sd">            should each be divisible by 256. Default is (16, 16, 16).</span>
+<span class="sd">        num_dominant (int): Number of dominant colors to extract. Default is 5.</span>
+<span class="sd">        frames (array of ints): An optional list of frames to process. This</span>
+<span class="sd">            should be a list of integers or a 1D numpy array of integers. If</span>
+<span class="sd">            set to something other than None, the freq input is ignored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;cielab&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_buckets</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">num_dominant</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_buckets</span> <span class="o">=</span> <span class="n">num_buckets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_dominant</span> <span class="o">=</span> <span class="n">num_dominant</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="CIElabAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the cielab annotator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            batch (FrameBatch): A batch of images to annotate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dictionaries containing the video name, frame, the</span>
+<span class="sd">            CIELAB histogram of length (num_buckets[0] * num_buckets[1] *</span>
+<span class="sd">            num_buckets[2]), and an array of dominant colors of shape</span>
+<span class="sd">            (num_dominant, 3).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># determine which frames to work on</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">_which_frames</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frames</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># run the color analysis on each frame</span>
+        <span class="n">hgrams</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">dominant</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fnum</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
+            <span class="n">img_lab</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">fnum</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2LAB</span><span class="p">)</span>
+
+            <span class="n">hgrams</span> <span class="o">+=</span> <span class="p">[</span><span class="n">_get_cielab_histogram</span><span class="p">(</span><span class="n">img_lab</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_buckets</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_dominant</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">dominant</span> <span class="o">+=</span> <span class="p">[</span><span class="n">_get_cielab_dominant</span><span class="p">(</span><span class="n">img_lab</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_dominant</span><span class="p">)]</span>
+
+        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;cielab&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">hgrams</span><span class="p">)}</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_dominant</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">obj_rgb</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">dominant</span><span class="p">),</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_LAB2RGB</span><span class="p">)</span>
+
+            <span class="n">shp</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj_rgb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_dominant</span><span class="p">)</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shp</span><span class="p">,</span> <span class="s2">&quot;#000000&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;&lt;U7&quot;</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj_frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj_rgb</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">oc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj_frame</span><span class="p">):</span>
+                    <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;#</span><span class="si">{0:02x}{1:02x}{2:02x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                        <span class="n">oc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">oc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">oc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                    <span class="p">)</span>
+
+            <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;dominant_colors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span>
+
+        <span class="c1"># Add video and frame metadata</span>
+        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">vname</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">())[</span><span class="nb">list</span><span class="p">(</span><span class="n">frames</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="p">]</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_get_cielab_histogram</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">calcHist</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">img</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">256</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">256</span><span class="p">]</span>
+    <span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_get_cielab_dominant</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">num_dominant</span><span class="p">):</span>
+    <span class="n">img_flat</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
+
+    <span class="c1"># increasing iter would give &#39;better&#39; clustering, at the cost of speed</span>
+    <span class="n">dominant_colors</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">kmeans</span><span class="p">(</span><span class="n">img_flat</span><span class="p">,</span> <span class="n">num_dominant</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">dominant_colors</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+
+    </p>
+  </div>
+    
+    
+      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

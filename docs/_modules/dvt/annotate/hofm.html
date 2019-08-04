@@ -1,0 +1,351 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dvt.annotate.hofm &mdash; dvt 0.0.7 documentation</title>
+  
+
+  
+  
+  
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo.html"> Minimal Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dvt.html"> API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dvt.annotate.hofm</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dvt.annotate.hofm</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Annotator to extract dense Optical Flow using the opencv</span>
+<span class="sd">Gunnar Farneback’s algorithm and represent it as a</span>
+<span class="sd">histogram of optical flow orientation and magnitude (HOFM),</span>
+<span class="sd">as described in https://doi.org/10.1109/SIBGRAPI.2015.21</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">importlib</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">cv2</span>
+
+<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span>
+
+
+<div class="viewcode-block" id="HOFMAnnotator"><a class="viewcode-back" href="../../../annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator">[docs]</a><span class="k">class</span> <span class="nc">HOFMAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Annotator to extract dense Optical Flow using the opencv</span>
+<span class="sd">    Gunnar Farneback’s algorithm and represent it as a</span>
+<span class="sd">    histogram of optical flow orientation and magnitude (HOFM),</span>
+<span class="sd">    as described in https://doi.org/10.1109/SIBGRAPI.2015.21</span>
+
+<span class="sd">    The annotator will return the optical flow describing the motion in</span>
+<span class="sd">    two subsequent frames as a HOFM feature.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        freq (int): How often to perform the embedding. For example, setting</span>
+<span class="sd">            the frequency to 2 will computer every other frame in the batch.</span>
+<span class="sd">        blocks (int): How many spatial blocks to divide the frame in, in each</span>
+<span class="sd">            dimension. Default is 3, which results in 9 spatial blocks.</span>
+<span class="sd">        mag_buckets (list of ints): List of bounds for magnitude</span>
+<span class="sd">            buckets. Default is [0, 20, 40, 60, 80, 100].</span>
+<span class="sd">        ang_buckets (list of ints): List of bounds for angle</span>
+<span class="sd">            buckets. Default is [0, 45, 90, 135, 180, 225, 270, 315, 360].</span>
+<span class="sd">        frames (array of ints): An optional list of frames to process. This</span>
+<span class="sd">            should be a list of integers or a 1D numpy array of integers. If</span>
+<span class="sd">            set to something other than None, the freq input is ignored.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;hofm&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">blocks</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">mag_buckets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">ang_buckets</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">frames</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="k">if</span> <span class="n">mag_buckets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">mag_buckets</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">100</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">ang_buckets</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">ang_buckets</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">135</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">225</span><span class="p">,</span> <span class="mi">270</span><span class="p">,</span> <span class="mi">315</span><span class="p">,</span> <span class="mi">360</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">skutil</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;skimage.util&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="n">blocks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">mag_buckets</span> <span class="o">=</span> <span class="n">mag_buckets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ang_buckets</span> <span class="o">=</span> <span class="n">ang_buckets</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="HOFMAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the optical flow annotator.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            batch (FrameBatch): A batch of images to annotate.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A list of dictionaries containing the video name, frame, and the</span>
+<span class="sd">            HOFM optical flow representation of length (len(blocks) *</span>
+<span class="sd">            len(blocks) * len(mag_buckets) * len(ang_buckets))</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># determine which frames to work on</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">_which_frames</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">frames</span><span class="p">:</span>
+            <span class="k">return</span>
+
+        <span class="c1"># run the optical flow analysis on each frame</span>
+        <span class="n">hofm</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">fnum</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
+            <span class="n">current_gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span>
+                <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">fnum</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2GRAY</span>
+            <span class="p">)</span>
+            <span class="n">next_gray</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span>
+                <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">fnum</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2GRAY</span>
+            <span class="p">)</span>
+
+            <span class="n">flow</span> <span class="o">=</span> <span class="n">_get_optical_flow</span><span class="p">(</span><span class="n">current_gray</span><span class="p">,</span> <span class="n">next_gray</span><span class="p">)</span>
+
+            <span class="n">hofm</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">_make_block_hofm</span><span class="p">(</span>
+                    <span class="n">flow</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">mag_buckets</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">ang_buckets</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">skutil</span><span class="p">,</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
+            <span class="p">)</span>
+
+        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;hofm&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">hofm</span><span class="p">)}</span>
+
+        <span class="c1"># Add video and frame metadata</span>
+        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">vname</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">())[</span><span class="nb">list</span><span class="p">(</span><span class="n">frames</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="p">]</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_get_optical_flow</span><span class="p">(</span><span class="n">current_frame</span><span class="p">,</span> <span class="n">next_frame</span><span class="p">):</span>
+
+    <span class="k">return</span> <span class="n">cv2</span><span class="o">.</span><span class="n">calcOpticalFlowFarneback</span><span class="p">(</span>
+        <span class="n">current_frame</span><span class="p">,</span>
+        <span class="n">next_frame</span><span class="p">,</span>
+        <span class="n">flow</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pyr_scale</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+        <span class="n">levels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">winsize</span><span class="o">=</span><span class="mi">15</span><span class="p">,</span>
+        <span class="n">iterations</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">poly_n</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">poly_sigma</span><span class="o">=</span><span class="mf">1.1</span><span class="p">,</span>
+        <span class="n">flags</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_make_block_hofm</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">blocks</span><span class="p">,</span> <span class="n">mag_buckets</span><span class="p">,</span> <span class="n">ang_buckets</span><span class="p">,</span> <span class="n">skutil</span><span class="p">):</span>
+    <span class="n">mag</span><span class="p">,</span> <span class="n">ang</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cartToPolar</span><span class="p">(</span><span class="n">flow</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">flow</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">angleInDegrees</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">mag_digit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">mag</span><span class="p">,</span> <span class="n">mag_buckets</span><span class="p">)</span>
+    <span class="c1"># mod so 360 falls into first bucket</span>
+    <span class="n">ang_digit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">ang</span> <span class="o">%</span> <span class="mi">360</span><span class="p">,</span> <span class="n">ang_buckets</span><span class="p">)</span>
+
+    <span class="n">mag_blocks</span> <span class="o">=</span> <span class="n">skutil</span><span class="o">.</span><span class="n">view_as_blocks</span><span class="p">(</span><span class="n">mag_digit</span><span class="p">,</span> <span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">blocks</span><span class="p">))</span>
+    <span class="n">ang_blocks</span> <span class="o">=</span> <span class="n">skutil</span><span class="o">.</span><span class="n">view_as_blocks</span><span class="p">(</span><span class="n">ang_digit</span><span class="p">,</span> <span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">blocks</span><span class="p">))</span>
+
+    <span class="n">histogram</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">blocks</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">mag_buckets</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">ang_buckets</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">blocks</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">blocks</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">m</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">mag_blocks</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+                <span class="n">ang_blocks</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+            <span class="p">):</span>
+                <span class="n">histogram</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">m</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">a</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># normalize by block size (h,w)</span>
+        <span class="n">histogram</span><span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">/=</span> <span class="n">mag_blocks</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span><span class="o">.</span><span class="n">size</span>
+    <span class="k">return</span> <span class="n">histogram</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+
+    </p>
+  </div>
+    
+    
+      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

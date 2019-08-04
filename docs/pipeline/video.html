@@ -1,0 +1,346 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Pipeline for Working with Video Inputs &mdash; dvt 0.0.7 documentation</title>
+  
+
+  
+  
+  
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script type="text/javascript" src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Command Line Interface" href="../cli.html" />
+    <link rel="prev" title="Utility Pipeline Functions" href="utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.7
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#annotations">Annotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#pipelines">Pipelines</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utility Pipeline Functions</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Pipeline for Working with Video Inputs</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#utility-functions">Utility Functions</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
+        
+      <li>Pipeline for Working with Video Inputs</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/pipeline/video.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dvt.pipeline.video">
+<span id="pipeline-for-working-with-video-inputs"></span><h1>Pipeline for Working with Video Inputs<a class="headerlink" href="#module-dvt.pipeline.video" title="Permalink to this headline">¶</a></h1>
+<p>A pipeline for building an interactive website from a video file.</p>
+<p class="rubric">Example</p>
+<p>Assuming we have an input named “input.mp4”, the following example shows
+the a sample usage of the VideoPipeline.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">wp</span> <span class="o">=</span> <span class="n">VideoPipeline</span><span class="p">(</span><span class="s2">&quot;video-clip.mp4&quot;</span><span class="p">,</span> <span class="n">dname</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wp</span><span class="o">.</span><span class="n">make_breaks</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">wp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>After running there will be a new directory names “dvt-output-data” in the
+working directory. It contains a JSON file with extracted metadata, the
+extracted frames, annotated frames, and visualizations of the dense optical
+annotator. If you start a web browser on your machine:</p>
+<p>python3 -m http.server –directory dvt-output-data</p>
+<p>An interactive visualization of the output will be available by navigating
+to <a class="reference external" href="http://0.0.0.0:8000/">http://0.0.0.0:8000/</a> in your browser.</p>
+<dl class="class">
+<dt id="dvt.pipeline.video.VideoPipeline">
+<em class="property">class </em><code class="descclassname">dvt.pipeline.video.</code><code class="descname">VideoPipeline</code><span class="sig-paren">(</span><em>finput</em>, <em>doutput=None</em>, <em>diff_co=10</em>, <em>cut_min_length=30</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/video.html#VideoPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.video.VideoPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Contains a predefined annotators to process an input video file.</p>
+<dl class="attribute">
+<dt id="dvt.pipeline.video.VideoPipeline.finput">
+<code class="descname">finput</code><a class="headerlink" href="#dvt.pipeline.video.VideoPipeline.finput" title="Permalink to this definition">¶</a></dt>
+<dd><p>path to the input video file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.pipeline.video.VideoPipeline.doutput">
+<code class="descname">doutput</code><a class="headerlink" href="#dvt.pipeline.video.VideoPipeline.doutput" title="Permalink to this definition">¶</a></dt>
+<dd><p>output directory. If set to None (default), will be
+a directory named “dvt-output-data” in the current working
+directory</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.pipeline.video.VideoPipeline.diff_co">
+<code class="descname">diff_co</code><a class="headerlink" href="#dvt.pipeline.video.VideoPipeline.diff_co" title="Permalink to this definition">¶</a></dt>
+<dd><p>difference cutoff value; integer from 0-256; higher
+values produce fewer cuts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.pipeline.video.VideoPipeline.cut_min_length">
+<code class="descname">cut_min_length</code><a class="headerlink" href="#dvt.pipeline.video.VideoPipeline.cut_min_length" title="Permalink to this definition">¶</a></dt>
+<dd><p>minimum length of a detected cut in frames;
+higher values produce few cuts.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.pipeline.video.VideoPipeline.make_breaks">
+<code class="descname">make_breaks</code><span class="sig-paren">(</span><em>freq=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/video.html#VideoPipeline.make_breaks"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.video.VideoPipeline.make_breaks" title="Permalink to this definition">¶</a></dt>
+<dd><p>Determine what frames to include in the output.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>freq</strong> (<em>int</em>) – set to a positive integer to select images based on
+frequency rather than detecting cuts; integer gives frequency
+of the sampling</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.pipeline.video.VideoPipeline.run">
+<code class="descname">run</code><span class="sig-paren">(</span><em>level=2</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/video.html#VideoPipeline.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.video.VideoPipeline.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the pipeline over the input video file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>level</strong> (<em>int</em>) – interger code (0, 1, or 2) describing how much data</li>
+<li><strong>parse. 0 creates just metadata</strong><strong>, </strong><strong>1 creates just images and</strong> (<em>to</em>) – </li>
+<li><strong>2</strong><strong> or </strong><strong>more creates the interactive website</strong> (<em>metadata</em><em>,</em>) – </li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../cli.html" class="btn btn-neutral float-right" title="Command Line Interface" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="utils.html" class="btn btn-neutral float-left" title="Utility Pipeline Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+
+    </p>
+  </div>
+    
+    
+      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
