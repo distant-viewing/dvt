@@ -3,7 +3,7 @@
 
 [![Build Status](https://travis-ci.org/distant-viewing/dvt.svg?branch=master)](https://travis-ci.org/distant-viewing/dvt)  [![codecov](https://codecov.io/gh/distant-viewing/dvt/branch/master/graph/badge.svg)](https://codecov.io/gh/distant-viewing/dvt)  [![License: GPL v2](https://img.shields.io/badge/License-GPL%20v2-blue.svg)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/dvt.svg)](https://pypi.python.org/pypi/dvt/) [![PyPI version shields.io](https://img.shields.io/pypi/v/dvt.svg)](https://pypi.python.org/pypi/dvt/) [![PyPI status shields.io](https://img.shields.io/pypi/status/dvt)](https://pypi.python.org/pypi/dvt/)
 
-The Distant TV Toolkit is a Python module designed to facilitate the
+The Distant TV Toolkit is a Python package designed to facilitate the
 computational analysis of visual culture. It contains low-level architecture
 for applying state-of-the-art computer vision algorithms to still and moving
 images. The higher-level functionality of the toolkit allows users to quickly
@@ -40,7 +40,7 @@ us at tarnold2@richmond.edu and ltilton@richmond.edu.
 
 The distant viewing toolkit has been built and tested using Python 3.7. We suggest
 installing the [Anaconda Distribution](https://www.anaconda.com/distribution/#download-section).
-The module can then be installed through PyPI:
+The package can then be installed through PyPI:
 
 ```
 pip install dvt

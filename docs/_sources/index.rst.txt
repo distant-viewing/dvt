@@ -11,7 +11,7 @@
 The Distant Viewing Toolkit (DVT)
 =====================================================================
 
-The Distant TV Toolkit is a Python module designed to facilitate the
+The Distant TV Toolkit is a Python package designed to facilitate the
 computational analysis of visual culture. It contains low-level architecture
 for applying state-of-the-art computer vision algorithms to still and moving
 images. The higher-level functionality of the toolkit allows users to quickly
