@@ -30,7 +30,7 @@ us at tarnold2@richmond.edu and ltilton@richmond.edu.
 
 <br>
 
-<a href="https://www.neh.gov/" title="National Endowment for the Humanities"><img align="left" src="images/neh_logo_horizlarge.jpg" alt="NEH" class="rpad" width="300px"></a> The Distant Viewing Toolkit is supported by the National Endowment for the Humanities through a Digital Humanities Advancement Grant.
+<a href="https://www.neh.gov/" title="National Endowment for the Humanities"><img align="left" src="docs-source/images/neh_logo_horizlarge.jpg" alt="NEH" class="rpad" width="300px"></a> The Distant Viewing Toolkit is supported by the National Endowment for the Humanities through a Digital Humanities Advancement Grant.
 
 <br>
 
