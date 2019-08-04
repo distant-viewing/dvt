@@ -44,7 +44,7 @@ extras = {
 
 setup(
     name="dvt",
-    version="0.0.8",
+    version="0.0.9",
     description="Cultural Analysis of Moving Images",
     long_description=long_description,
     author="Taylor Anold, Lauren Tilton",

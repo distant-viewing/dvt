@@ -58,6 +58,8 @@ class CIElabAnnotator(FrameAnnotator):
         if not frames:
             return
 
+        print(np.array(batch.get_frame_names())[list(frames)])
+
         # run the color analysis on each frame
         hgrams = []
         dominant = []
@@ -102,5 +104,12 @@ def _get_cielab_dominant(img, num_dominant):
 
     # increasing iter would give 'better' clustering, at the cost of speed
     dominant_colors, _ = kmeans(img_flat, num_dominant, iter=5)
+
+    if dominant_colors.shape[0] != num_dominant:              # pragma nocov
+        diff = num_dominant - dominant_colors.shape[0]
+        dominant_colors = np.vstack([
+            dominant_colors,
+            np.zeros((diff, dominant_colors.shape[1]))
+        ])
 
     return dominant_colors.astype(np.uint8)
