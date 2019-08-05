@@ -134,7 +134,7 @@ def make_fprint_from_images(dinput):
 
     fpobj.process(ImageInput(input_paths=join(dinput, "", "*")))
 
-    ss = fpobj.collect('face')
+    faces = fpobj.collect('face')
     names = [splitext(basename(x))[0] for x in faces['frame']]
 
     return faces['embed'], names
