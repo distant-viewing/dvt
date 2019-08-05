@@ -34,4 +34,4 @@ class Aggregator(ABC):    # pragma nocov
             While not strictly enforced, subclasses should return a DictFrame
             or dictionary of DictFrames from the aggregate method.
         """
-        return
+        return # pragma nocov

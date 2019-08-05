@@ -36,11 +36,14 @@ Example:
     sitting next to one another.
 """
 
+from os.path import join, basename, splitext
+
 import numpy as np
 
+from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
 from ..utils import DictFrame
 from .core import Aggregator
-
+from ..annotate.core import ImageInput, FrameProcessor
 
 class PeopleAggregator(Aggregator):
     """Uses face embeddings to identify the identity of people in the frame.
@@ -105,3 +108,33 @@ class PeopleAggregator(Aggregator):
             output["person-dist"][fid] = np.min(dists)
 
         return DictFrame(output)
+
+
+def make_fprint_from_images(dinput):
+    """Create face fingerprints from a directory of faces.
+
+    This function takes as an input a directory containing image files, with
+    each image given the name of a person or character. The function returns
+    the 'fingerprints' (sterotypical embedding) of the faces in a format that
+    can be passed to the PeopleAggregator.
+
+    Args:
+        face_names (list): List of names associated with each face in the set
+            of predefined faces
+
+    Returns:
+        A tuple giving the number array of embedding vectors and a list of the
+        names of the people in the images.
+    """
+    fpobj = FrameProcessor()
+    fpobj.load_annotator(FaceAnnotator(
+        detector=FaceDetectMtcnn(),
+        embedding=FaceEmbedVgg2()
+    ))
+
+    fpobj.process(ImageInput(input_paths=join(dinput, "", "*")))
+
+    faces = fpobj.collect('face')
+    names = [splitext(basename(x))[0] for x in faces['frame']]
+
+    return faces['embed'], names

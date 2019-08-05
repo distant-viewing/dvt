@@ -15,7 +15,7 @@ from dvt.aggregate.core import Aggregator
 from dvt.aggregate.cut import CutAggregator
 from dvt.aggregate.display import DisplayAggregator
 from dvt.aggregate.length import ShotLengthAggregator
-from dvt.aggregate.people import PeopleAggregator
+from dvt.aggregate.people import PeopleAggregator, make_fprint_from_images
 
 from dvt.utils import DictFrame
 
@@ -53,6 +53,13 @@ class TestPeopleAggregator:
             ]
         )
 
+
+class TestFaceFingerprints:
+    def test_make_fprint(self, run_setup_tensorflow):
+        embed, fnames = make_fprint_from_images("test-data/faces")
+
+        assert embed.shape == (2, 2048)
+        assert set(fnames) == set(['joey', 'ross'])
 
 class TestCutAggregator:
     def test_cutoff(self):
