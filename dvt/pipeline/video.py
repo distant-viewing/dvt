@@ -164,7 +164,7 @@ class VideoPipeline:
             fpobj.load_annotator(
                 FaceAnnotator(
                     detector=FaceDetectMtcnn(),
-                    embedding=FaceEmbedVgg2()
+                    embedding=FaceEmbedVgg2(),
                     frames=frames
                 )
             )
