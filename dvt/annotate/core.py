@@ -227,7 +227,7 @@ class FrameAnnotator(ABC):   # pragma nocov
             (or first shape value, in the case of numpy array). Can also return
             None, in which case nothing is added to the current output.
         """
-        return   # pragma nocov
+        return   # pragma: no cover
 
 
 class FrameInput:

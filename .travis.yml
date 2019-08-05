@@ -7,10 +7,8 @@ python:
 install:
   - pip install --upgrade pip
   - pip install -U pytest
-  - pip install -U pylint
   - pip install .[tests,optional]
 
 script:
   - cd tests; pytest --disable-warnings --cov=dvt --cov-report term-missing .
   - cd tests; codecov
-  - pylint dvt

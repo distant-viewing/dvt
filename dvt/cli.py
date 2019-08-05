@@ -32,6 +32,7 @@ def run_cli():
             doutput=args.dirout,
             diff_co=args.diff_cutoff,
             cut_min_length=args.cut_min_length,
+            path_to_faces=args.path_to_faces
         )
         vpipe.make_breaks(freq=args.frequency)
         vpipe.run(level=args.pipeline_level)
@@ -94,6 +95,13 @@ def _get_arg_parse():
         "-q",
         action="store_true",
         help="flag to indicate that the pipeline should run quietly",
+    )
+    parser.add_argument(
+        "--path-to-faces",
+        type=str,
+        default=None,
+        help="Path to directory containing protype faces (optional). See "
+        "tutorial on the commandline interface for more details.",
     )
 
     return parser

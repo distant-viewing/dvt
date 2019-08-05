@@ -28,12 +28,13 @@ import numpy as np
 
 from ..annotate.cielab import CIElabAnnotator
 from ..annotate.core import FrameProcessor, FrameInput
-from ..annotate.face import FaceAnnotator, FaceDetectMtcnn
+from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
 from ..annotate.meta import MetaAnnotator
 from ..annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from ..annotate.opticalflow import OpticalFlowAnnotator
 from ..annotate.png import PngAnnotator
 from ..aggregate.display import DisplayAggregator
+from ..aggregate.people import PeopleAggregator, make_fprint_from_images
 from ..aggregate.length import ShotLengthAggregator
 from ..utils import setup_tensorflow, _format_time, DictFrame
 from .utils import _get_cuts, _get_meta
@@ -52,9 +53,20 @@ class VideoPipeline:
             values produce fewer cuts.
         cut_min_length (int): minimum length of a detected cut in frames;
             higher values produce few cuts.
+        path_to_faces (str): Path to directory containing protype faces
+            (optional). See tutorial on the commandline interface for more
+            details.
     """
 
-    def __init__(self, finput, doutput=None, diff_co=10, cut_min_length=30):
+    def __init__(
+        self,
+        finput,
+        doutput=None,
+        diff_co=10,
+        cut_min_length=30,
+        path_to_faces=None
+    ):
+
         setup_tensorflow()
 
         # find absolute path to the input and determine the output location
@@ -69,6 +81,8 @@ class VideoPipeline:
         self.doutput = os.path.join(doutput, fname)
         self.diff_co = diff_co
         self.cut_min_length = cut_min_length
+        self.path_to_faces = path_to_faces
+
         self.cuts = None
         self.pipeline_data = None
 
@@ -145,6 +159,20 @@ class VideoPipeline:
             ObjectAnnotator(detector=ObjectDetectRetinaNet(), frames=frames)
         )
 
+        if self.path_to_faces is not None:
+            fembed, fnames = make_fprint_from_images(self.path_to_faces)
+            fpobj.load_annotator(
+                FaceAnnotator(
+                    detector=FaceDetectMtcnn(),
+                    embedding=FaceEmbedVgg2()
+                    frames=frames
+                )
+            )
+        else:
+            fpobj.load_annotator(
+                FaceAnnotator(detector=FaceDetectMtcnn(), frames=frames)
+            )
+
         fri = FrameInput(self.finput, bsize=128)
         fpobj.process(fri)
         self.pipeline_data = fpobj.collect_all()
@@ -168,6 +196,9 @@ class VideoPipeline:
         nframes = len(self.cuts["mpoint"])
         fps = self.pipeline_data["meta"]["fps"][0]
         ldata = self.pipeline_data["length"]
+
+        if self.path_to_faces is not None:
+            people = PeopleAggregator(self.pipeline_data)
 
         output = []
         for fnum in range(nframes):
