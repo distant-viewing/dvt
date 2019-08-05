@@ -5,8 +5,9 @@ The objects here can be further extended with logic for specific aggregation
 tasks. See the implemented tasks in this model for examples.
 """
 
+from abc import ABC, abstractmethod
 
-class Aggregator:
+class Aggregator(ABC):    # pragma nocov
     """Base class for aggregating the output from a pipeline of processors.
 
     Attributes:
@@ -15,12 +16,14 @@ class Aggregator:
 
     name = "base"
 
+    @abstractmethod
     def __init__(self):
         """Create a new empty Aggregator.
         """
-        pass
+        return
 
-    def aggregate(self, ldframe):
+    @abstractmethod
+    def aggregate(self, ldframe, **kwargs):
         """Aggregate annotations.
 
         Args:
@@ -30,4 +33,4 @@ class Aggregator:
             While not strictly enforced, subclasses should return a DictFrame
             or dictionary of DictFrames from the aggregate method.
         """
-        pass
+        return

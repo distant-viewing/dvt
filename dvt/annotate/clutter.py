@@ -91,7 +91,6 @@ def _band_entropy(img, wlevels, wor):
 
 
 def _get_clutter(img, wlevels=3, wght_chrom=0.0625):
-    ht, wth, dchrom = img.shape
     img = cv2.cvtColor(img, cv2.COLOR_RGB2LAB)
 
     wor = 4

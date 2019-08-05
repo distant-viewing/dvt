@@ -8,6 +8,7 @@ from dvt.annotate.core import (
     FrameAnnotator,
 )
 from dvt.annotate.diff import DiffAnnotator
+from dvt.annotate.meta import MetaAnnotator
 from dvt.utils import DictFrame
 
 
@@ -140,68 +141,43 @@ class TestFrameBatch:
         assert frames.shape[0] == 8
 
 
-class TestFrameAnnotator:
-    def test_clear_cache(self):
-
-        fanno = FrameAnnotator()
-        fanno.cache = {"key": "value"}
-        fanno.clear()
-
-        assert fanno.cache == {}
-
-    def test_default_return(self):
-
-        fanno = FrameAnnotator()
-
-        assert fanno.annotate(None) is None
-
-
 class TestFrameProcessor:
     def test_input_pipeline_empty(self):
         fpobj = FrameProcessor()
         assert fpobj.pipeline == {}
 
     def test_input_pipeline(self):
-        fanno = FrameAnnotator()
-        fpobj = FrameProcessor({"base": fanno})
+        fanno = DiffAnnotator()
+        fpobj = FrameProcessor({"diff": fanno})
 
         pline = fpobj.pipeline
-        assert list(pline.keys()) == ["base"]
+        assert list(pline.keys()) == ["diff"]
         assert issubclass(type(list(pline.values())[0]), FrameAnnotator)
 
     def test_load_annotators(self):
         fpobj = FrameProcessor()
 
-        fpobj.load_annotator(FrameAnnotator())
+        fpobj.load_annotator(DiffAnnotator())
         pline = fpobj.pipeline
         assert len(pline) == 1
-        assert list(pline.keys()) == ["base"]
+        assert list(pline.keys()) == ["diff"]
         assert issubclass(type(list(pline.values())[0]), FrameAnnotator)
 
-        fobj = FrameAnnotator()
+        fobj = DiffAnnotator()
         fobj.name = "other"
         fpobj.load_annotator(fobj)
 
         pline = fpobj.pipeline
         assert len(pline) == 2
-        assert list(pline.keys()) == ["base", "other"]
+        assert list(pline.keys()) == ["diff", "other"]
 
     def test_clear(self):
         fpobj = FrameProcessor()
 
-        fpobj.load_annotator(FrameAnnotator())
+        fpobj.load_annotator(DiffAnnotator())
         fpobj.clear()
 
         assert fpobj.pipeline == {}
-
-    def test_process_empty_output(self):
-        fpobj = FrameProcessor()
-        fpobj.load_annotator(FrameAnnotator())
-
-        finput = FrameInput("test-data/video-clip.mp4", bsize=4)
-        fpobj.process(finput)
-
-        assert fpobj.collect("base") == DictFrame()
 
     def test_process_full_output(self):
         fpobj = FrameProcessor()
@@ -225,7 +201,7 @@ class TestFrameProcessor:
 
     def test_collect_all(self):
         fpobj = FrameProcessor()
-        fpobj.load_annotator(FrameAnnotator())
+        fpobj.load_annotator(MetaAnnotator())
         fpobj.load_annotator(DiffAnnotator())
 
         finput = FrameInput("test-data/video-clip.mp4", bsize=8)
@@ -233,7 +209,6 @@ class TestFrameProcessor:
 
         output = fpobj.collect_all()
 
-        assert output["base"] == DictFrame()
         assert output["diff"].shape[0] == (2 * 8)
 
 

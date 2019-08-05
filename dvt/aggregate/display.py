@@ -39,7 +39,7 @@ class DisplayAggregator(Aggregator):
         self.output_dir = os.path.abspath(os.path.expanduser(output_dir))
         super().__init__()
 
-    def aggregate(self, ldframe, frames=None):
+    def aggregate(self, ldframe, **kwargs):
         """Create output png files showing the annotated data.
 
         Args:
@@ -47,6 +47,8 @@ class DisplayAggregator(Aggregator):
             frames (list): An optional list of frames. Otherwise, will annotate
                 any frame with a detected face or object.
         """
+
+        frames = kwargs.get('frames', None)
 
         # what frames to include?
         if frames is None:

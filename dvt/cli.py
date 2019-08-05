@@ -106,7 +106,7 @@ def _expand_path_and_check(fnames):
     for this_name in fnames:
         video_files.extend(glob.glob(this_name, recursive=True))
 
-    video_files = sorted(set([abspath(x) for x in video_files]))
+    video_files = sorted((abspath(x) for x in video_files))
     base_names = [splitext(basename(x))[0] for x in video_files]
 
     if len(set(base_names)) != len(base_names):

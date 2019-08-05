@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""Annotators produce metadata from a batch of images.
+"""
+
 from __future__ import absolute_import
 
 from . import cielab

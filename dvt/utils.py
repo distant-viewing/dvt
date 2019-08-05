@@ -159,14 +159,13 @@ def stack_dict_frames(ilist, check=True):
     return DictFrame(out)
 
 
-def pd_to_dict_frame(pdf, use_array=True):
+def pd_to_dict_frame(pdf):
     """Convert a pandas data frame into a dictionary frame.
 
     Useful for reading a csv file and reconverting into a dictionary frame.
 
     Args:
-        use_array (bool): Should the function attempt to recreate the array
-            structure. Default to True. Currently unimplemented.
+        pdf (DataFrame): object to convert back into a DataFrame
     """
     out = DictFrame(pdf.to_dict(orient="list"))
 

@@ -38,10 +38,10 @@ Example:
     shot (MLS).
 """
 
+import numpy as np
+
 from ..utils import DictFrame
 from .core import Aggregator
-
-import numpy as np
 
 
 class ShotLengthAggregator(Aggregator):
@@ -93,7 +93,7 @@ class ShotLengthAggregator(Aggregator):
 
         super().__init__()
 
-    def aggregate(self, ldframe, frames=None):
+    def aggregate(self, ldframe, **kwargs):
         """Determine shot lengths using detected faces and objects.
 
         Args:
@@ -107,6 +107,8 @@ class ShotLengthAggregator(Aggregator):
             A dictionary frame giving the detected people, with one row per
             frame in the original input.
         """
+
+        frames = kwargs.get('frames', None)
 
         # grab the data sets
         face = ldframe["face"]

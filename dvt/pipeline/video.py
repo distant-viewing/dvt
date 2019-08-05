@@ -150,7 +150,7 @@ class VideoPipeline:
         self.pipeline_data = fpobj.collect_all()
 
         self.pipeline_data["length"] = ShotLengthAggregator().aggregate(
-            self.pipeline_data, frames
+            self.pipeline_data, frames=frames
         )
 
     def _annotate_images(self):
@@ -162,7 +162,7 @@ class VideoPipeline:
             input_dir=os.path.join(self.doutput, "img"),
             output_dir=img_output_dir,
         )
-        da.aggregate(self.pipeline_data, self.cuts["mpoint"])
+        da.aggregate(self.pipeline_data, frames=self.cuts["mpoint"])
 
     def _make_json(self):
         nframes = len(self.cuts["mpoint"])

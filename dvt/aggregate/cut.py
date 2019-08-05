@@ -68,7 +68,7 @@ class CutAggregator(Aggregator):
         self.cut_vals = cut_vals
         super().__init__()
 
-    def aggregate(self, ldframe):
+    def aggregate(self, ldframe, **kwargs):
         """Aggregate difference annotator.
 
         Args:

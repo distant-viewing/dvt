@@ -58,8 +58,6 @@ class CIElabAnnotator(FrameAnnotator):
         if not frames:
             return
 
-        print(np.array(batch.get_frame_names())[list(frames)])
-
         # run the color analysis on each frame
         hgrams = []
         dominant = []

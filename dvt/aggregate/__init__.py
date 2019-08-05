@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""Aggregators summarize the output for an annotation pipeline.
+"""
+
 from __future__ import absolute_import
 
 import warnings

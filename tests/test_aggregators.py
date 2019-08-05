@@ -20,11 +20,6 @@ from dvt.aggregate.people import PeopleAggregator
 from dvt.utils import DictFrame
 
 
-class TestBase:
-    def test_base(self):
-        assert Aggregator().aggregate(None) is None
-
-
 class TestPeopleAggregator:
     def test_fprint(self):
         face_anno = FaceAnnotator(

@@ -67,7 +67,7 @@ class PeopleAggregator(Aggregator):
 
         super().__init__()
 
-    def aggregate(self, ldframe):
+    def aggregate(self, ldframe, **kwargs):
         """Aggregate faces.
 
         Args:

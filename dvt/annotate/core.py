@@ -39,6 +39,7 @@ Example:
     results from the source.
 """
 
+from abc import ABC, abstractmethod
 import collections
 import glob
 import itertools
@@ -51,7 +52,7 @@ import numpy as np
 from ..utils import _format_time, stack_dict_frames
 
 
-class FrameProcessor:
+class FrameProcessor():
     """Run a pipeline of annotators over batches of frames.
 
     Attributes:
@@ -168,7 +169,7 @@ class FrameProcessor:
         return ocollect
 
 
-class FrameAnnotator:
+class FrameAnnotator(ABC):   # pragma nocov
     """Base class for annotating a batch of frames.
 
     Attributes:
@@ -180,9 +181,11 @@ class FrameAnnotator:
 
     name = "base"
 
+    @abstractmethod
     def __init__(self):
         """Create a new empty FrameAnnotator.
         """
+        self.ival = None
         self.cache = {}
 
     def clear(self):
@@ -197,13 +200,15 @@ class FrameAnnotator:
         algorithms before processing data. Often the set up requires knowledge
         about the input data. It is useful to do this just once, which can be
         accomplished by putting the code in this method. It gets called once
-        when calling the process method of a FrameProcessor.
+        when calling the process method of a FrameProcessor. The input object,
+        by default, will be copied as an attribute of the class.
 
         Args:
             ival: A FrameInput object.
         """
-        pass
+        self.ival = ival
 
+    @abstractmethod
     def annotate(self, batch):
         """Annotate a batch of frames and return the resulting annotations.
 
@@ -222,7 +227,7 @@ class FrameAnnotator:
             (or first shape value, in the case of numpy array). Can also return
             None, in which case nothing is added to the current output.
         """
-        return None
+        return
 
 
 class FrameInput:
