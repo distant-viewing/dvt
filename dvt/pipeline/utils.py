@@ -17,8 +17,8 @@ def _get_cuts(finput, diff_co=10, cut_min_length=30):
     fpobj.process(fri)
     obj_out = fpobj.collect_all()
 
-    ca = CutAggregator(cut_vals={"q40": diff_co}, min_len=cut_min_length)
-    agg = ca.aggregate(obj_out)
+    cagg = CutAggregator(cut_vals={"q40": diff_co}, min_len=cut_min_length)
+    agg = cagg.aggregate(obj_out)
     agg["frame_start"] = np.array(agg["frame_start"])
     agg["frame_end"] = np.array(agg["frame_end"])
     agg["mpoint"] = (

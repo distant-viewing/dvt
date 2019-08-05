@@ -49,7 +49,7 @@ class ClutterAnnotator(FrameAnnotator):
         # determine which frames to work on
         frames = _which_frames(batch, self.freq, self.frames)
         if not frames:
-            return
+            return None
 
         # run the clutter analysis on each frame
         clutter_val = []
@@ -70,22 +70,22 @@ def _entropy(samples):
     nbins = int(np.ceil(np.sqrt(nsamples)))
 
     bincount, _ = np.histogram(samples, nbins)
-    H = bincount[np.where(bincount > 0)]
-    H = H / float(sum(H))
+    hists = bincount[np.where(bincount > 0)]
+    hists = hists / float(sum(hists))
 
-    return -sum(H * np.log2(H))
+    return -sum(hists * np.log2(hists))
 
 
 def _band_entropy(img, wlevels, wor):
-    pt = importlib.import_module("pyrtools")
-    sfpyr = pt.pyramids.SteerablePyramidFreq(img, wlevels, wor - 1)
+    ptools = importlib.import_module("pyrtools")
+    sfpyr = ptools.pyramids.SteerablePyramidFreq(img, wlevels, wor - 1)
 
     en_band = np.zeros((sfpyr.num_scales, sfpyr.num_orientations))
 
     for i in range(sfpyr.num_scales):
-        for b in range(sfpyr.num_orientations):
-            band = sfpyr.pyr_coeffs[(i, b)]
-            en_band[i, b] = _entropy(np.ravel(band))
+        for j in range(sfpyr.num_orientations):
+            band = sfpyr.pyr_coeffs[(i, j)]
+            en_band[i, j] = _entropy(np.ravel(band))
 
     return en_band
 
@@ -94,9 +94,9 @@ def _get_clutter(img, wlevels=3, wght_chrom=0.0625):
     img = cv2.cvtColor(img, cv2.COLOR_RGB2LAB)
 
     wor = 4
-    L = img[:, :, 0]
+    lchan = img[:, :, 0]
 
-    en_band = _band_entropy(L, wlevels, wor)
+    en_band = _band_entropy(lchan, wlevels, wor)
     clutter_se = np.mean(en_band)
 
     for i in range(1, 3):

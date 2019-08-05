@@ -1,3 +1,17 @@
+[MASTER]
+
+ignore=__main__.py
+
+
+[DESIGN]
+
+max-args=8
+max-attributes=10
+max-branches=14
+min-public-methods=1
+max-locals=22
+
+
 [MESSAGES CONTROL]
 
-disable=C0330, E1101, C0103, R1710, R0902, R0903, R0912, R0913, R0914, R0801
+disable=C0330, E1101

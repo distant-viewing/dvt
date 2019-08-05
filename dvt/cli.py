@@ -27,14 +27,14 @@ def run_cli():
 
     for vin in _expand_path_and_check(args.inputs):
 
-        wp = VideoPipeline(
+        vpipe = VideoPipeline(
             vin,
             doutput=args.dirout,
             diff_co=args.diff_cutoff,
             cut_min_length=args.cut_min_length,
         )
-        wp.make_breaks(freq=args.frequency)
-        wp.run(level=args.pipeline_level)
+        vpipe.make_breaks(freq=args.frequency)
+        vpipe.run(level=args.pipeline_level)
 
 
 def _get_arg_parse():

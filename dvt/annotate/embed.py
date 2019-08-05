@@ -79,7 +79,7 @@ class EmbedAnnotator(FrameAnnotator):
         # what frames do we annotate?
         fnum = _which_frames(batch, self.freq, self.frames)
         if not fnum:
-            return
+            return None
 
         # run the embedding and add video and frame metadata
         obj = self.embedding.embed(batch.img[fnum, :, :, :])

@@ -11,6 +11,7 @@ import numpy as np
 import cv2
 
 from .core import FrameAnnotator
+from .opticalflow import _get_optical_flow
 from ..utils import _proc_frame_list, _which_frames
 
 
@@ -75,19 +76,12 @@ class HOFMAnnotator(FrameAnnotator):
         # determine which frames to work on
         frames = _which_frames(batch, self.freq, self.frames)
         if not frames:
-            return
+            return None
 
         # run the optical flow analysis on each frame
         hofm = []
         for fnum in frames:
-            current_gray = cv2.cvtColor(
-                batch.img[fnum, :, :, :], cv2.COLOR_RGB2GRAY
-            )
-            next_gray = cv2.cvtColor(
-                batch.img[fnum + 1, :, :, :], cv2.COLOR_RGB2GRAY
-            )
-
-            flow = _get_optical_flow(current_gray, next_gray)
+            flow = _get_optical_flow(batch, fnum)
 
             hofm.append(
                 _make_block_hofm(
@@ -108,22 +102,6 @@ class HOFMAnnotator(FrameAnnotator):
         return [obj]
 
 
-def _get_optical_flow(current_frame, next_frame):
-
-    return cv2.calcOpticalFlowFarneback(
-        current_frame,
-        next_frame,
-        flow=None,
-        pyr_scale=0.5,
-        levels=1,
-        winsize=15,
-        iterations=2,
-        poly_n=5,
-        poly_sigma=1.1,
-        flags=0,
-    )
-
-
 def _make_block_hofm(flow, blocks, mag_buckets, ang_buckets, skutil):
     mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1], angleInDegrees=True)
 
@@ -138,13 +116,13 @@ def _make_block_hofm(flow, blocks, mag_buckets, ang_buckets, skutil):
         (blocks, blocks, len(mag_buckets), len(ang_buckets) - 1)
     )
 
-    for x in range(blocks):
-        for y in range(blocks):
-            for m, a in zip(
-                mag_blocks[:, :, x, y].flatten(),
-                ang_blocks[:, :, x, y].flatten(),
+    for i in range(blocks):
+        for j in range(blocks):
+            for mblock, ablock in zip(
+                mag_blocks[:, :, i, j].flatten(),
+                ang_blocks[:, :, i, j].flatten(),
             ):
-                histogram[x, y, m - 1, a - 1] += 1
+                histogram[i, j, mblock - 1, ablock - 1] += 1
         # normalize by block size (h,w)
-        histogram[x, y, :, :] /= mag_blocks[:, :, x, y].size
+        histogram[i, j, :, :] /= mag_blocks[:, :, i, j].size
     return histogram

@@ -56,7 +56,7 @@ class CIElabAnnotator(FrameAnnotator):
         # determine which frames to work on
         frames = _which_frames(batch, self.freq, self.frames)
         if not frames:
-            return
+            return None
 
         # run the color analysis on each frame
         hgrams = []
@@ -76,9 +76,9 @@ class CIElabAnnotator(FrameAnnotator):
             shp = (obj_rgb.shape[0], self.num_dominant)
             out = np.full(shp, "#000000", dtype=np.dtype("<U7"))
             for i, obj_frame in enumerate(obj_rgb):
-                for j, oc in enumerate(obj_frame):
+                for j, occ in enumerate(obj_frame):
                     out[i, j] = "#{0:02x}{1:02x}{2:02x}".format(
-                        oc[0], oc[1], oc[2]
+                        occ[0], occ[1], occ[2]
                     )
 
             obj["dominant_colors"] = out

@@ -7,6 +7,7 @@ tasks. See the implemented tasks in this model for examples.
 
 from abc import ABC, abstractmethod
 
+
 class Aggregator(ABC):    # pragma nocov
     """Base class for aggregating the output from a pipeline of processors.
 

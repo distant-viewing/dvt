@@ -59,19 +59,12 @@ class OpticalFlowAnnotator(FrameAnnotator):
         frames = _which_frames(batch, self.freq, self.frames)
         frame_names = np.array(batch.get_frame_names())
         if not frames:
-            return
+            return None
 
         # run the optical flow analysis on each frame
         flow = []
         for fnum in frames:
-            current_gray = cv2.cvtColor(
-                batch.img[fnum, :, :, :], cv2.COLOR_RGB2GRAY
-            )
-            next_gray = cv2.cvtColor(
-                batch.img[fnum + 1, :, :, :], cv2.COLOR_RGB2GRAY
-            )
-
-            flow += [_get_optical_flow(current_gray, next_gray)]
+            flow += [_get_optical_flow(batch, fnum)]
 
             if not self.raw:
                 flow[-1] = _flow_to_color(flow[-1])
@@ -91,11 +84,18 @@ class OpticalFlowAnnotator(FrameAnnotator):
         return [obj]
 
 
-def _get_optical_flow(current_frame, next_frame):
+def _get_optical_flow(batch, fnum):
+
+    current_gray = cv2.cvtColor(
+        batch.img[fnum, :, :, :], cv2.COLOR_RGB2GRAY
+    )
+    next_gray = cv2.cvtColor(
+        batch.img[fnum + 1, :, :, :], cv2.COLOR_RGB2GRAY
+    )
 
     return cv2.calcOpticalFlowFarneback(
-        current_frame,
-        next_frame,
+        current_gray,
+        next_gray,
         flow=None,
         pyr_scale=0.5,
         levels=1,
@@ -115,49 +115,49 @@ def _make_colorwheel():
     """
     Generates a color wheel for optical flow visualization as presented in:
         Baker et al. "A Database and Evaluation Methodology for Optical Flow"
-        (ICCV, 2007) URL: http://vision.middlebury.edu/flow/flowEval-iccv07.pdf
+        (ICCV, 2007) URL: http://vision.middlebury_col.edu/flow/flowEval-iccv07.pdf
     According to the C++ source code of Daniel Scharstein
     According to the Matlab source code of Deqing Sun
     """
 
-    RY = 15
-    YG = 6
-    GC = 4
-    CB = 11
-    BM = 13
-    MR = 6
+    ry_col = 15
+    yg_col = 6
+    gc_col = 4
+    cb_col = 11
+    bm_col = 13
+    mr_col = 6
 
-    ncols = RY + YG + GC + CB + BM + MR
+    ncols = ry_col + yg_col + gc_col + cb_col + bm_col + mr_col
     colorwheel = np.zeros((ncols, 3))
     col = 0
 
-    # RY
-    colorwheel[0:RY, 0] = 255
-    colorwheel[0:RY, 1] = np.floor(255 * np.arange(0, RY) / RY)
-    col = col + RY
-    # YG
-    colorwheel[col:col + YG, 0] = 255 - np.floor(255 * np.arange(0, YG) / YG)
-    colorwheel[col:col + YG, 1] = 255
-    col = col + YG
-    # GC
-    colorwheel[col:col + GC, 1] = 255
-    colorwheel[col:col + GC, 2] = np.floor(255 * np.arange(0, GC) / GC)
-    col = col + GC
-    # CB
-    colorwheel[col:col + CB, 1] = 255 - np.floor(255 * np.arange(CB) / CB)
-    colorwheel[col:col + CB, 2] = 255
-    col = col + CB
-    # BM
-    colorwheel[col:col + BM, 2] = 255
-    colorwheel[col:col + BM, 0] = np.floor(255 * np.arange(0, BM) / BM)
-    col = col + BM
-    # MR
-    colorwheel[col:col + MR, 2] = 255 - np.floor(255 * np.arange(MR) / MR)
-    colorwheel[col:col + MR, 0] = 255
+    # ry_col
+    colorwheel[0:ry_col, 0] = 255
+    colorwheel[0:ry_col, 1] = np.floor(255 * np.arange(0, ry_col) / ry_col)
+    col = col + ry_col
+    # yg_col
+    colorwheel[col:col + yg_col, 0] = 255 - np.floor(255 * np.arange(0, yg_col) / yg_col)
+    colorwheel[col:col + yg_col, 1] = 255
+    col = col + yg_col
+    # gc_col
+    colorwheel[col:col + gc_col, 1] = 255
+    colorwheel[col:col + gc_col, 2] = np.floor(255 * np.arange(0, gc_col) / gc_col)
+    col = col + gc_col
+    # cb_col
+    colorwheel[col:col + cb_col, 1] = 255 - np.floor(255 * np.arange(cb_col) / cb_col)
+    colorwheel[col:col + cb_col, 2] = 255
+    col = col + cb_col
+    # bm_col
+    colorwheel[col:col + bm_col, 2] = 255
+    colorwheel[col:col + bm_col, 0] = np.floor(255 * np.arange(0, bm_col) / bm_col)
+    col = col + bm_col
+    # mr_col
+    colorwheel[col:col + mr_col, 2] = 255 - np.floor(255 * np.arange(mr_col) / mr_col)
+    colorwheel[col:col + mr_col, 0] = 255
     return colorwheel
 
 
-def _flow_compute_color(u, v):
+def _flow_compute_color(hflow, vflow):
     """
     Applies the flow color wheel to (possibly clipped) flow components u and v.
     According to the C++ source code of Daniel Scharstein
@@ -168,26 +168,26 @@ def _flow_compute_color(u, v):
         v (np.ndarray): vertical flow.
     """
 
-    flow_image = np.zeros((u.shape[0], u.shape[1], 3), np.uint8)
+    flow_image = np.zeros((hflow.shape[0], hflow.shape[1], 3), np.uint8)
 
     colorwheel = _make_colorwheel()  # shape [55x3]
     ncols = colorwheel.shape[0]
 
-    rad = np.sqrt(np.square(u) + np.square(v))
-    a = np.arctan2(-v, -u) / np.pi
+    rad = np.sqrt(np.square(hflow) + np.square(vflow))
+    atan = np.arctan2(-vflow, -hflow) / np.pi
 
-    fk = (a + 1) / 2 * (ncols - 1)
-    k0 = np.floor(fk).astype(np.int32)
-    k1 = k0 + 1
-    k1[k1 == ncols] = 0
-    f = fk - k0
+    fka = (atan + 1) / 2 * (ncols - 1)
+    k0a = np.floor(fka).astype(np.int32)
+    k1a = k0a + 1
+    k1a[k1a == ncols] = 0
+    faa = fka - k0a
 
     for i in range(colorwheel.shape[1]):
 
         tmp = colorwheel[:, i]
-        col0 = tmp[k0] / 255.0
-        col1 = tmp[k1] / 255.0
-        col = (1 - f) * col0 + f * col1
+        col0 = tmp[k0a] / 255.0
+        col1 = tmp[k1a] / 255.0
+        col = (1 - faa) * col0 + faa * col1
 
         idx = rad <= 1
         col[idx] = 1 - rad[idx] * (1 - col[idx])
@@ -211,14 +211,14 @@ def _flow_to_color(flow_uv):
     assert flow_uv.ndim == 3, "input flow must have three dimensions"
     assert flow_uv.shape[2] == 2, "input flow must have shape [H,W,2]"
 
-    u = flow_uv[:, :, 0]
-    v = flow_uv[:, :, 1]
+    flow_u = flow_uv[:, :, 0]
+    flow_v = flow_uv[:, :, 1]
 
-    rad = np.sqrt(np.square(u) + np.square(v))
+    rad = np.sqrt(np.square(flow_u) + np.square(flow_v))
     rad_max = np.max(rad)
 
     epsilon = 1e-5
-    u = u / (rad_max + epsilon)
-    v = v / (rad_max + epsilon)
+    flow_u = flow_u / (rad_max + epsilon)
+    flow_v = flow_v / (rad_max + epsilon)
 
-    return _flow_compute_color(u, v)
+    return _flow_compute_color(flow_u, flow_v)

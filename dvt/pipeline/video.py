@@ -158,11 +158,11 @@ class VideoPipeline:
         if not os.path.exists(img_output_dir):
             os.makedirs(img_output_dir)
 
-        da = DisplayAggregator(
+        dagg = DisplayAggregator(
             input_dir=os.path.join(self.doutput, "img"),
             output_dir=img_output_dir,
         )
-        da.aggregate(self.pipeline_data, frames=self.cuts["mpoint"])
+        dagg.aggregate(self.pipeline_data, frames=self.cuts["mpoint"])
 
     def _make_json(self):
         nframes = len(self.cuts["mpoint"])
