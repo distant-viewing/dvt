@@ -200,9 +200,8 @@
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">keras.utils</span> <span class="k">import</span> <span class="n">get_file</span>
 
-<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">stack_dict_frames</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span><span class="p">,</span> <span class="n">process_output_values</span>
 
 
 <div class="viewcode-block" id="ObjectAnnotator"><a class="viewcode-back" href="../../../annotate/obj.html#dvt.annotate.obj.ObjectAnnotator">[docs]</a><span class="k">class</span> <span class="nc">ObjectAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
@@ -223,12 +222,10 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;obj&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">detector</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">detector</span> <span class="o">=</span> <span class="n">detector</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">detector</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;detector&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frames&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 
 <div class="viewcode-block" id="ObjectAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/obj.html#dvt.annotate.obj.ObjectAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the object detector.</span>
@@ -245,12 +242,10 @@
         <span class="n">f_obj</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">fnum</span> <span class="ow">in</span> <span class="n">_which_frames</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">):</span>
             <span class="n">img</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">fnum</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
-            <span class="n">t_obj</span> <span class="o">=</span> <span class="n">stack_dict_frames</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">img</span><span class="p">))</span>
-            <span class="k">if</span> <span class="n">t_obj</span><span class="p">:</span>
-                <span class="n">frame</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">()[</span><span class="n">fnum</span><span class="p">]</span>
-                <span class="n">t_obj</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">vname</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_obj</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])</span>
-                <span class="n">t_obj</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">frame</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_obj</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">])</span>
-                <span class="n">f_obj</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">t_obj</span><span class="p">)</span>
+            <span class="n">t_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">detector</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span><span class="n">img</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">t_obj</span><span class="p">:</span>
+                <span class="n">obj</span><span class="p">[</span><span class="s1">&#39;frame&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">()[</span><span class="n">fnum</span><span class="p">]</span>
+                <span class="n">f_obj</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">process_output_values</span><span class="p">(</span><span class="n">obj</span><span class="p">))</span>
 
         <span class="k">return</span> <span class="n">f_obj</span></div></div>
 
@@ -401,7 +396,7 @@
                         <span class="s2">&quot;bottom&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]),</span>
                         <span class="s2">&quot;left&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
                         <span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">,</span>
-                        <span class="s2">&quot;class&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcodes</span><span class="p">[</span><span class="n">label</span><span class="p">],</span>
+                        <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lcodes</span><span class="p">[</span><span class="n">label</span><span class="p">],</span>
                     <span class="p">}</span>
                 <span class="p">]</span>
 

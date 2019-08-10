@@ -46,9 +46,14 @@ import numpy as np
 from keras.utils import get_file
 from keras import backend as K
 
-from .core import FrameAnnotator
-from ..utils import stack_dict_frames, sub_image, _trim_bbox
-from ..utils import _proc_frame_list, _which_frames
+from ..core import FrameAnnotator
+from ..utils import (
+    process_output_values,
+    sub_image,
+    _proc_frame_list,
+    _which_frames,
+    _trim_bbox
+)
 
 
 class FaceAnnotator(FrameAnnotator):
@@ -74,12 +79,11 @@ class FaceAnnotator(FrameAnnotator):
 
     name = "face"
 
-    def __init__(self, detector, embedding=None, freq=1, frames=None):
-        self.freq = freq
-        self.detector = detector
-        self.embedding = embedding
-        self.frames = _proc_frame_list(frames)
-        super().__init__()
+    def __init__(self, **kwargs):
+        self.freq = kwargs.get("freq", 1)
+        self.detector = kwargs.get("detector")
+        self.embedding = kwargs.get("embedding", None)
+        self.frames = _proc_frame_list(kwargs.get("frames", None))
 
     def annotate(self, batch):
         """Annotate the batch of frames with the face annotator.
@@ -97,76 +101,14 @@ class FaceAnnotator(FrameAnnotator):
         f_faces = []
         for fnum in _which_frames(batch, self.freq, self.frames):
             img = batch.img[fnum, :, :, :]
-            t_faces = stack_dict_frames(self.detector.detect(img))
-            if t_faces:
-                frame = batch.get_frame_names()[fnum]
-                t_faces["video"] = [batch.vname] * len(t_faces["top"])
-                t_faces["frame"] = [frame] * len(t_faces["top"])
+            t_faces = self.detector.detect(img)
+            for face in t_faces:
+                face['frame'] = batch.get_frame_names()[fnum]
                 if self.embedding is not None:
-                    t_faces["embed"] = self.embedding.embed(img, t_faces)
-                f_faces.append(t_faces)
+                    face["embed"] = [self.embedding.embed(img, face)]
+                f_faces.extend(process_output_values(face))
 
         return f_faces
-
-
-class FaceDetectDlib:
-    """Detect faces using the dlib CNN model.
-
-    A face detector that balances speed and accuracy.
-
-    Attributes:
-        cutoff (float): A cutoff value for which faces to include in the final
-            output. Set to zero (default) to include all faces.
-    """
-
-    def __init__(self, cutoff=0):
-        mloc = get_file(
-            "mmod_human_face_detector.dat",
-            origin="https://github.com/distant-viewing/dvt/"
-            "releases/download/0.0.1/"
-            "mmod_human_face_detector.dat",
-        )
-        self.dlib = importlib.import_module("dlib")
-        self.cutoff = cutoff
-        self._cfd = self.dlib.cnn_face_detection_model_v1(mloc)
-
-    def detect(self, img):
-        """Detect faces in an image.
-
-        Args:
-            img (numpy array): A single image stored as a three-dimensional
-                numpy array.
-
-        Returns:
-            A list of dictionaries where each dictionary represents a detected
-            face. Keys include the bounding box (top, left, bottom, right) as
-            well as a confidence score.
-        """
-        dets = self._cfd(img, 1)
-
-        faces = []
-        for det in dets:
-            if det.confidence >= self.cutoff:
-                bbox = _trim_bbox(
-                    (
-                        det.rect.top(),
-                        det.rect.right(),
-                        det.rect.bottom(),
-                        det.rect.left(),
-                    ),
-                    img.shape,
-                )
-                faces += [
-                    {
-                        "top": bbox[0],
-                        "right": bbox[1],
-                        "bottom": bbox[2],
-                        "left": bbox[3],
-                        "confidence": det.confidence,
-                    }
-                ]
-
-        return faces
 
 
 class FaceDetectMtcnn:
@@ -214,66 +156,11 @@ class FaceDetectMtcnn:
                         "right": bbox[1],
                         "bottom": bbox[2],
                         "left": bbox[3],
-                        "confidence": det["confidence"],
+                        "confidence": [det["confidence"]],
                     }
                 ]
 
         return faces
-
-
-class FaceEmbedDlib:
-    """Embed faces using the dlib CNN model.
-
-    A face embedding that balances ease of use with accuracy.
-    """
-
-    def __init__(self):
-        mloc = get_file(
-            "dlib_face_recognition_resnet_model_v1.dat",
-            origin="https://github.com/distant-viewing/dvt/"
-            "releases/download/0.0.1/"
-            "dlib_face_recognition_resnet_model_v1.dat",
-        )
-        self.dlib = importlib.import_module("dlib")
-
-        self.encode = self.dlib.face_recognition_model_v1(mloc)
-
-        mloc = get_file(
-            "shape_predictor_5_face_landmarks.dat",
-            origin="https://github.com/distant-viewing/dvt/"
-            "releases/download/0.0.1/"
-            "shape_predictor_5_face_landmarks.dat",
-        )
-        self.pose = self.dlib.shape_predictor(mloc)
-
-    def embed(self, img, faces):
-        """Embed detected faces in an image.
-
-        Args:
-            img (numpy array): A single image stored as a three-dimensional
-                numpy array.
-            faces (DictList): A DictList giving the location of detected faces
-                in the image.
-
-        Returns:
-            A numpy array with one row for each input face and 128 columns.
-        """
-        embed_mat = []
-        for ind in range(len(faces["top"])):
-            # detect pose
-            rec = self.dlib.rectangle(
-                left=faces["left"][ind],
-                top=faces["top"][ind],
-                right=faces["right"][ind],
-                bottom=faces["bottom"][ind],
-            )
-            rls = self.pose(img, rec)
-
-            # compute the embedding and add to our list of output
-            emat = self.encode.compute_face_descriptor(img, rls, 1)
-            embed_mat.append(np.array(emat))
-
-        return np.vstack(embed_mat)
 
 
 class FaceEmbedVgg2:
@@ -295,43 +182,37 @@ class FaceEmbedVgg2:
         self._model = load_model(mloc)
         self._iformat = K.image_data_format()
 
-    def embed(self, img, faces):
+    def embed(self, img, face):
         """Embed detected faces in an image.
 
         Args:
             img (numpy array): A single image stored as a three-dimensional
                 numpy array.
-            faces (DictList): A DictList giving the location of detected faces
-                in the image.
+            faces (dict): Location of detected faces in the image.
 
         Returns:
             A numpy array with one row for each input face and 2048 columns.
         """
 
-        embed_mat = []
-        for ind in range(len(faces["top"])):
-            iscale = self._proc_image(
-                sub_image(
-                    img=img,
-                    top=faces["top"][ind],
-                    right=faces["right"][ind],
-                    bottom=faces["bottom"][ind],
-                    left=faces["left"][ind],
-                    fct=1.3,
-                    output_shape=(224, 224),
-                )
+        iscale = self._proc_image(
+            sub_image(
+                img=img,
+                top=face["top"],
+                right=face["right"],
+                bottom=face["bottom"],
+                left=face["left"],
+                fct=1.3,
+                output_shape=(224, 224),
             )
+        )
 
-            embed = self._model.predict(iscale)
-            embed_mat.append(embed[0, 0, 0, :])
-
-        return np.vstack(embed_mat)
+        return self._model.predict(iscale)[0, 0, 0, :]
 
     def _proc_image(self, iscale):
         iscale = np.float32(iscale)
         iscale = np.expand_dims(iscale, axis=0)
 
-        if self._iformat == "channels_first":
+        if self._iformat == "channels_first":    # pragma: no cover
             iscale = iscale[:, ::-1, ...]
             iscale[:, 0, :, :] -= 91.4953
             iscale[:, 1, :, :] -= 103.8827

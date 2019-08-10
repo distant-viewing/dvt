@@ -13,7 +13,9 @@ patterns across a corpus.
 from __future__ import absolute_import
 
 from . import annotate
-from . import aggregate
+from . import core
+from . import input
 from . import utils
+from . import aggregate
 
 __version__ = "0.9.0"

@@ -37,7 +37,3 @@ class TestVideoPipeline:
     def test_with_cwd(self):
         finput = abspath(join("test-data", "video-clip.mp4"))
         wp = VideoPipeline(finput)
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

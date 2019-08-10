@@ -36,7 +36,7 @@ Example:
 import cv2
 import numpy as np
 
-from .core import FrameAnnotator
+from ..core import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames
 
 
@@ -59,10 +59,10 @@ class EmbedAnnotator(FrameAnnotator):
 
     name = "embed"
 
-    def __init__(self, embedding, freq=1, frames=None):
-        self.freq = freq
-        self.embedding = embedding
-        self.frames = _proc_frame_list(frames)
+    def __init__(self, **kwargs):
+        self.embedding = kwargs.get("embedding")
+        self.freq = kwargs.get("freq", 1)
+        self.frames = _proc_frame_list(kwargs.get("frames", None))
         super().__init__()
 
     def annotate(self, batch):
@@ -83,10 +83,9 @@ class EmbedAnnotator(FrameAnnotator):
 
         # run the embedding and add video and frame metadata
         obj = self.embedding.embed(batch.img[fnum, :, :, :])
-        obj["video"] = [batch.vname] * len(fnum)
         obj["frame"] = np.array(batch.get_frame_names())[list(fnum)]
 
-        return [obj]
+        return obj
 
 
 class EmbedFrameKeras:

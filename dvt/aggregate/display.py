@@ -11,8 +11,8 @@ import os
 import cv2
 import numpy as np
 
-from .core import Aggregator
-
+from ..core import Aggregator
+from ..utils import _check_out_dir
 
 class DisplayAggregator(Aggregator):
     """Display detected faces and objects as overlay over image frames.
@@ -30,16 +30,15 @@ class DisplayAggregator(Aggregator):
             None to use the default settings.
     """
 
-    def __init__(self, input_dir, output_dir):
+    name = "display"
 
-        if not os.path.isdir(output_dir):
-            os.makedirs(output_dir)
+    def __init__(self, **kwargs):
 
-        self.input_dir = os.path.abspath(os.path.expanduser(input_dir))
-        self.output_dir = os.path.abspath(os.path.expanduser(output_dir))
-        super().__init__()
+        self.input_dir = _check_out_dir(kwargs.get("input_dir"), True)
+        self.output_dir = _check_out_dir(kwargs.get("output_dir"))
+        self.frames = kwargs.get('frames', None)
 
-    def aggregate(self, ldframe, **kwargs):
+    def aggregate(self, ldframe):
         """Create output png files showing the annotated data.
 
         Args:
@@ -48,9 +47,8 @@ class DisplayAggregator(Aggregator):
                 any frame with a detected face or object.
         """
 
-        frames = kwargs.get('frames', None)
-
         # what frames to include?
+        frames = self.frames
         if frames is None:
             frames = set()
             if "face" in ldframe:
@@ -60,6 +58,7 @@ class DisplayAggregator(Aggregator):
         frames = sorted(frames)
 
         for frame in frames:
+            print(frame)
             _add_annotations_to_image(
                 self.input_dir, self.output_dir, frame, ldframe
             )
@@ -77,19 +76,19 @@ def _add_annotations_to_image(input_dir, output_dir, frame, pipeline_data):
 
     img = cv2.imread(input_file)
 
-    if pipeline_data["obj"] is not None:
+    if pipeline_data.get("obj") is not None:
         img = _add_bbox(img, frame, pipeline_data["obj"], box_color, 2)
         img = _add_box_text(
             img,
             frame,
             pipeline_data["obj"],
-            "class",
+            "category",
             color=white_color,
             bgc=box_color,
             size=0.5,
         )
 
-    if pipeline_data["face"] is not None:
+    if pipeline_data.get("face") is not None:
         img = _add_bbox(img, frame, pipeline_data["face"], face_color, 1)
 
     _ = cv2.imwrite(output_file, img)

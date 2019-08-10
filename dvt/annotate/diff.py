@@ -31,7 +31,7 @@ Example:
 import cv2
 import numpy as np
 
-from .core import FrameAnnotator
+from ..core import FrameAnnotator
 
 
 class DiffAnnotator(FrameAnnotator):
@@ -61,13 +61,11 @@ class DiffAnnotator(FrameAnnotator):
 
     name = "diff"
 
-    def __init__(self, quantiles=None, size=32, bins=16):
-        if not quantiles:
-            quantiles = []
+    def __init__(self, **kwargs):
 
-        self.quantiles = quantiles
-        self.size = size
-        self.bins = bins
+        self.quantiles = kwargs.get("quantiles", [])
+        self.size = kwargs.get("size", 32)
+        self.bins = kwargs.get("bins", 16)
         super().__init__()
 
     def annotate(self, batch):
@@ -81,8 +79,7 @@ class DiffAnnotator(FrameAnnotator):
             value, and any requested quantile and histogram differences.
         """
 
-        output = {"video": [batch.vname] * batch.bsize}
-        output["frame"] = batch.get_frame_names()
+        output = {"frame": batch.get_frame_names()}
         output["avg_value"] = _average_value_batch(batch)
 
         for quant in self.quantiles:
@@ -92,7 +89,7 @@ class DiffAnnotator(FrameAnnotator):
             key = "h{0:d}".format(quant)
             output[key] = _hist_diffs(batch, quantile=quant, bins=self.bins)
 
-        return [output]
+        return output
 
 
 def _l1_quantile(batch, quantile=50, size=32):
@@ -100,11 +97,11 @@ def _l1_quantile(batch, quantile=50, size=32):
     """
     bsize = batch.bsize
     msize = bsize + 1
-    assert msize <= batch.img.shape[0]
+    assert msize <= batch.get_frames().shape[0]
 
     simg = np.zeros((msize, size, size, 3))
     for iran in range(msize):
-        fsmall = cv2.resize(batch.img[iran, :, :, :], (size, size))
+        fsmall = cv2.resize(batch.get_frames()[iran, :, :, :], (size, size))
         fsmall_hsv = cv2.cvtColor(fsmall, cv2.COLOR_RGB2HSV)
         simg[iran, :, :, :] = fsmall_hsv
 
@@ -118,11 +115,11 @@ def _hist_diffs(batch, quantile=50, bins=16):
     """
     bsize = batch.bsize
     msize = bsize + 1
-    assert msize <= batch.img.shape[0]
+    assert msize <= batch.get_frames().shape[0]
 
     hist_vals = _hsv_hist(batch, msize, bins=bins)
     norm = hist_vals[slice(0, bsize), :] - hist_vals[slice(1, bsize + 1), :]
-    norm = norm / np.prod(batch.img.shape[1:4]) * 100
+    norm = norm / np.prod(batch.get_frames().shape[1:4]) * 100
 
     return np.percentile(np.abs(norm), q=quantile, axis=(1))
 
@@ -132,7 +129,7 @@ def _hsv_hist(batch, msize, bins=16):
     """
     hist_vals = np.zeros((msize, bins * 3))
     for iran in range(msize):
-        hsv = cv2.cvtColor(batch.img[iran, :, :, :], cv2.COLOR_RGB2HSV)
+        hsv = cv2.cvtColor(batch.get_frames()[iran, :, :, :], cv2.COLOR_RGB2HSV)
         for i in range(3):
             hist = cv2.calcHist([hsv], [i], None, [bins], [0, 256]).flatten()
             hist_vals[iran, slice(i * bins, (i + 1) * bins)] = hist

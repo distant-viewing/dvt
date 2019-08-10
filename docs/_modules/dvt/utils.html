@@ -155,203 +155,41 @@
             
   <h1>Source code for dvt.utils</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;Utility functions used across the Distant Viewing Toolkit.</span>
+<span class="sd">&quot;&quot;&quot;Core objects.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">collections</span>
-<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">expanduser</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">splitext</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">makedirs</span>
 
-<span class="kn">import</span> <span class="nn">cv2</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">DataFrame</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">isin</span><span class="p">,</span> <span class="n">flatnonzero</span><span class="p">,</span> <span class="n">uint8</span><span class="p">,</span> <span class="n">vstack</span>
+<span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span> <span class="n">resize</span>
 
 
-<div class="viewcode-block" id="DictFrame"><a class="viewcode-back" href="../../utils.html#dvt.utils.DictFrame">[docs]</a><span class="k">class</span> <span class="nc">DictFrame</span><span class="p">(</span><span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Object for storing information from annotations.</span>
+<div class="viewcode-block" id="process_output_values"><a class="viewcode-back" href="../../utils.html#dvt.utils.process_output_values">[docs]</a><span class="k">def</span> <span class="nf">process_output_values</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Take input and create pandas data frame.</span>
 
-<span class="sd">    A dictionary frame (DictFrame) is an extension of an ordered dictionary.</span>
-<span class="sd">    It has an additional shape attribute that provides the tuple (nrow, ncol).</span>
-<span class="sd">    The second attribute gives the number of items in the dictionary and is</span>
-<span class="sd">    equivalent to calling the length of the dictionary. The first describes</span>
-<span class="sd">    the size of the values in the dictionary. Every value should either be a</span>
-<span class="sd">    list of length nrow or a numpy array with a first dimension of nrow. Set</span>
-<span class="sd">    the check flag to True (the default) on construction to verify that these</span>
-<span class="sd">    parameters are valid.</span>
-
-<span class="sd">    If an new dictionary frame is constructed with an input value containing a</span>
-<span class="sd">    data type that is neither an array nor a list, the function attempts to</span>
-<span class="sd">    wrap the object in a list of length one. This will only produce a valid</span>
-<span class="sd">    output if all of the inputs are of length one. The behavior described here</span>
-<span class="sd">    is useful when stacking together individual observations, allowing users</span>
-<span class="sd">    to supply data of (for example) integers, strings, and floats.</span>
-
-<span class="sd">    When directly modifying this object, note that it is possible to break the</span>
-<span class="sd">    special structure of the dictionary. It is best to create new dictionary</span>
-<span class="sd">    frames using the constructor or the stack_dict_frames rather than modifying</span>
-<span class="sd">    the original data.</span>
-
-<span class="sd">    The design of a dictionary frame is inspired by R data frame, which allow</span>
-<span class="sd">    for columns containing matrices, and is simultaneously an extension and</span>
-<span class="sd">    stripped down version of a pandas data frame.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        data (dict): A dictionary containing elements that are either lists or</span>
-<span class="sd">            numpy arrays. All have the same length / first dimension.</span>
-<span class="sd">        shape (tuple): The number of rows and columns in the dataset.</span>
+<span class="sd">    Input can be a DataFrame (just return) or a dictionary.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">values</span><span class="p">]</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">data</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="n">values</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">values</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">_process_df_input</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shape</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_compute_shape</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">check</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">verify</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dframe</span><span class="p">):</span>
-        <span class="k">return</span> <span class="n">stack_dict_frames</span><span class="p">([</span><span class="bp">self</span><span class="p">,</span> <span class="n">dframe</span><span class="p">])</span>
+    <span class="c1"># convert numpy array into a list of arrays for pandas</span>
+    <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">values</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="n">ndarray</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">values</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">[</span><span class="n">key</span><span class="p">]]</span>
 
-<div class="viewcode-block" id="DictFrame.todf"><a class="viewcode-back" href="../../utils.html#dvt.utils.DictFrame.todf">[docs]</a>    <span class="k">def</span> <span class="nf">todf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Convert to pandas data frame.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">ve</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 
-<span class="sd">        Numpy arrays are expanded to conform with the structure of a pandas</span>
-<span class="sd">        data frame. Useful for saving as a CSV file and creating simple plots.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            A pandas data frame.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
-
-        <span class="n">dobj</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-        <span class="n">marray</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="n">base_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">dobj</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">base_keys</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dobj</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">dobj</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-                    <span class="n">dfo</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dobj</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
-                    <span class="n">dfo</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dfo</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
-                    <span class="n">marray</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dfo</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">([</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">dobj</span><span class="p">)]</span> <span class="o">+</span> <span class="n">marray</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span></div>
-
-<div class="viewcode-block" id="DictFrame.verify"><a class="viewcode-back" href="../../utils.html#dvt.utils.DictFrame.verify">[docs]</a>    <span class="k">def</span> <span class="nf">verify</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Verify that the shapes and types of the objects.</span>
-
-<span class="sd">        Checks that all of the values in the dictionary are either a list or</span>
-<span class="sd">        a numpy array. Also verifies the length (list) or first dimension</span>
-<span class="sd">        (numpy array) are equal to the number of columns describing the object.</span>
-<span class="sd">        Throws and assertion error if any of these are untrue.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)),</span> <span class="p">(</span>
-                <span class="s2">&quot;Error in data type of &#39;&quot;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;&#39;.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">(</span>
-                <span class="s2">&quot;Error in length of &#39;&quot;</span> <span class="o">+</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;&#39;.&quot;</span>
-            <span class="p">)</span></div>
-
-    <span class="k">def</span> <span class="nf">_compute_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
-
-        <span class="n">ncol</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
-        <span class="k">if</span> <span class="n">ncol</span><span class="p">:</span>
-            <span class="n">nrow</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">values</span><span class="p">())))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">nrow</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="k">return</span> <span class="p">(</span><span class="n">nrow</span><span class="p">,</span> <span class="n">ncol</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="stack_dict_frames"><a class="viewcode-back" href="../../utils.html#dvt.utils.stack_dict_frames">[docs]</a><span class="k">def</span> <span class="nf">stack_dict_frames</span><span class="p">(</span><span class="n">ilist</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Combine a list of objects into a dictionary frame.</span>
-
-<span class="sd">    The input list must consist of dictionary frames (or items that can</span>
-<span class="sd">    converted to dictionary frames) all containing the same set of keys and</span>
-<span class="sd">    corresponding data types.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        ilist (list): A list of dictionary frames or items that can be</span>
-<span class="sd">            converted to a dictionary frame.</span>
-<span class="sd">        check (bool): Should checks be run on the dictionary frames. True by</span>
-<span class="sd">            default.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        A single dictionary frame object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># Convert all elements to DictFrame objects; remove None items</span>
-    <span class="n">ilist</span> <span class="o">=</span> <span class="p">[</span><span class="n">DictFrame</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">check</span><span class="o">=</span><span class="n">check</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ilist</span> <span class="k">if</span> <span class="n">x</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">]</span>
-
-    <span class="c1"># If empty, return an empty DictFrame object</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">ilist</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">DictFrame</span><span class="p">({})</span>
-
-    <span class="c1"># What keys will be in the output and what are their types? Take these</span>
-    <span class="c1"># from the first element</span>
-    <span class="n">base_keys</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ilist</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-    <span class="n">is_key_np</span> <span class="o">=</span> <span class="p">[</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">ilist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">k</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">base_keys</span><span class="p">]</span>
-
-    <span class="c1"># Unless &#39;check&#39; is switched off (dangerous), check that each element</span>
-    <span class="c1"># has the same set of keys and same data types</span>
-    <span class="k">if</span> <span class="n">check</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">ilist</span><span class="p">:</span>
-            <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">==</span> <span class="n">base_keys</span>
-            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">is_np</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">base_keys</span><span class="p">,</span> <span class="n">is_key_np</span><span class="p">):</span>
-                <span class="k">if</span> <span class="n">is_np</span><span class="p">:</span>
-                    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="n">k</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)</span>
-
-    <span class="c1"># Create a new empty dictionary from the base keys</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">(</span><span class="n">base_keys</span><span class="p">)</span>
-
-    <span class="c1"># Fill in values for the dictionary by combining types (ndarray or list)</span>
-    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">out</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ilist</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">k</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
-            <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ilist</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">out</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ilist</span><span class="p">]))</span>
-
-    <span class="k">return</span> <span class="n">DictFrame</span><span class="p">(</span><span class="n">out</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="pd_to_dict_frame"><a class="viewcode-back" href="../../utils.html#dvt.utils.pd_to_dict_frame">[docs]</a><span class="k">def</span> <span class="nf">pd_to_dict_frame</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">use_array</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Convert a pandas data frame into a dictionary frame.</span>
-
-<span class="sd">    Useful for reading a csv file and reconverting into a dictionary frame.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        use_array (bool): Should the function attempt to recreate the array</span>
-<span class="sd">            structure. Default to True. Currently unimplemented.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">out</span> <span class="o">=</span> <span class="n">DictFrame</span><span class="p">(</span><span class="n">pdf</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;list&quot;</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="n">out</span></div>
-
-
-<div class="viewcode-block" id="get_batch"><a class="viewcode-back" href="../../utils.html#dvt.utils.get_batch">[docs]</a><span class="k">def</span> <span class="nf">get_batch</span><span class="p">(</span><span class="n">input_obj</span><span class="p">,</span> <span class="n">batch_num</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Manually extract a batch object from an input.</span>
-
-<span class="sd">    This function is mostly useful for testing new annotators. Generally,</span>
-<span class="sd">    batches should be sent to annotators by using the FrameProcesser.</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        input_obj: A FrameInput object.</span>
-<span class="sd">        batch_num: What batch number to take as the output. Default is 0, the</span>
-<span class="sd">            first batch.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        The selected batch object.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">bnum</span> <span class="o">=</span> <span class="mi">0</span>
-    <span class="k">while</span> <span class="n">input_obj</span><span class="o">.</span><span class="n">continue_read</span><span class="p">:</span>
-        <span class="n">batch</span> <span class="o">=</span> <span class="n">input_obj</span><span class="o">.</span><span class="n">next_batch</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">bnum</span> <span class="o">==</span> <span class="n">batch_num</span><span class="p">:</span>
-            <span class="k">break</span>
-        <span class="n">bnum</span> <span class="o">+=</span> <span class="mi">1</span>
-
-    <span class="k">return</span> <span class="n">batch</span></div>
+    <span class="k">return</span> <span class="p">[</span><span class="n">df</span><span class="p">]</span></div>
 
 
 <div class="viewcode-block" id="sub_image"><a class="viewcode-back" href="../../utils.html#dvt.utils.sub_image">[docs]</a><span class="k">def</span> <span class="nf">sub_image</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">right</span><span class="p">,</span> <span class="n">bottom</span><span class="p">,</span> <span class="n">left</span><span class="p">,</span> <span class="n">fct</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">output_shape</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -386,16 +224,16 @@
     <span class="c1"># crop the image as an array</span>
     <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
     <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
-    <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-    <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
+    <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">])</span>
     <span class="n">crop_img</span> <span class="o">=</span> <span class="n">img</span><span class="p">[</span><span class="n">box</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span><span class="n">box</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">box</span><span class="p">[</span><span class="mi">2</span><span class="p">]:</span><span class="n">box</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="p">:]</span>
 
     <span class="k">if</span> <span class="n">output_shape</span><span class="p">:</span>
-        <span class="n">img_scaled</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">crop_img</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">)</span>
+        <span class="n">img_scaled</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">crop_img</span><span class="p">,</span> <span class="n">output_shape</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">img_scaled</span> <span class="o">=</span> <span class="n">crop_img</span>
 
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">(</span><span class="n">img_scaled</span><span class="p">)</span></div>
+    <span class="k">return</span> <span class="n">uint8</span><span class="p">(</span><span class="n">img_scaled</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="setup_tensorflow"><a class="viewcode-back" href="../../utils.html#dvt.utils.setup_tensorflow">[docs]</a><span class="k">def</span> <span class="nf">setup_tensorflow</span><span class="p">():</span>
@@ -422,44 +260,41 @@
     <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s2">&quot;KMP_DUPLICATE_LIB_OK&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;TRUE&quot;</span></div>
 
 
-<span class="k">def</span> <span class="nf">_process_df_input</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Helper function to construct a dictionary frame.</span>
+<div class="viewcode-block" id="pd_col_asarray"><a class="viewcode-back" href="../../utils.html#dvt.utils.pd_col_asarray">[docs]</a><span class="k">def</span> <span class="nf">pd_col_asarray</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">vstack</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span></div>
 
-<span class="sd">    Args:</span>
-<span class="sd">        data (dict): Input dataset.</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        An ordered dictionary containing values that are only either arrays or</span>
-<span class="sd">        lists.</span>
+<span class="k">def</span> <span class="nf">_proc_frame_list</span><span class="p">(</span><span class="n">frames</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">frames</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">frames</span>
+
+
+<span class="k">def</span> <span class="nf">_which_frames</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">frames</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Determine which frame numbers should be used.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">frames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="n">freq</span><span class="p">))</span>
 
-    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">)):</span>
-            <span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">value</span><span class="p">]</span>
-
-    <span class="k">return</span> <span class="n">collections</span><span class="o">.</span><span class="n">OrderedDict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">flatnonzero</span><span class="p">(</span><span class="n">isin</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">fnames</span><span class="p">,</span> <span class="n">frames</span><span class="p">))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
 
-<span class="k">def</span> <span class="nf">_format_time</span><span class="p">(</span><span class="n">msec</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Takes a millisecond and produces a ISO-8601 formatted string.</span>
+<span class="k">def</span> <span class="nf">_check_out_dir</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">should_exist</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">abspath</span><span class="p">(</span><span class="n">expanduser</span><span class="p">(</span><span class="n">output_dir</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">should_exist</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">isdir</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">output_dir</span><span class="p">):</span>
+            <span class="n">makedirs</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        msec (int): Time in milliseconds.</span>
+    <span class="k">return</span> <span class="n">output_dir</span>
 
-<span class="sd">    Returns:</span>
-<span class="sd">        String of the data in ISO-8601 format.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">msec</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">msec</span><span class="p">)</span>
-    <span class="n">hour</span> <span class="o">=</span> <span class="n">msec</span> <span class="o">//</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-    <span class="n">minute</span> <span class="o">=</span> <span class="p">(</span><span class="n">msec</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">*</span> <span class="mi">60</span><span class="p">))</span> <span class="o">//</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-    <span class="n">second</span> <span class="o">=</span> <span class="p">(</span><span class="n">msec</span> <span class="o">%</span> <span class="p">(</span><span class="mi">1000</span> <span class="o">*</span> <span class="mi">60</span><span class="p">))</span> <span class="o">//</span> <span class="p">(</span><span class="mi">1000</span><span class="p">)</span>
-    <span class="n">remainder</span> <span class="o">=</span> <span class="n">msec</span> <span class="o">%</span> <span class="mi">1000</span>
 
-    <span class="n">output</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{0:02d}</span><span class="s2">:</span><span class="si">{1:02d}</span><span class="s2">:</span><span class="si">{2:02d}</span><span class="s2">,</span><span class="si">{3:03d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-        <span class="n">hour</span><span class="p">,</span> <span class="n">minute</span><span class="p">,</span> <span class="n">second</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">remainder</span><span class="p">)</span>
-    <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">output</span>
+<span class="k">def</span> <span class="nf">_expand_path</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">abspath</span><span class="p">(</span><span class="n">expanduser</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+    <span class="n">bname</span> <span class="o">=</span> <span class="n">basename</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">filename</span><span class="p">,</span> <span class="n">file_extension</span> <span class="o">=</span> <span class="n">splitext</span><span class="p">(</span><span class="n">bname</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">path</span><span class="p">,</span> <span class="n">bname</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">file_extension</span>
 
 
 <span class="k">def</span> <span class="nf">_trim_bbox</span><span class="p">(</span><span class="n">css</span><span class="p">,</span> <span class="n">image_shape</span><span class="p">):</span>
@@ -482,21 +317,6 @@
         <span class="nb">min</span><span class="p">(</span><span class="n">css</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">image_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
         <span class="nb">max</span><span class="p">(</span><span class="n">css</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span>
     <span class="p">)</span>
-
-
-<span class="k">def</span> <span class="nf">_proc_frame_list</span><span class="p">(</span><span class="n">frames</span><span class="p">):</span>
-    <span class="k">if</span> <span class="n">frames</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">frames</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">frames</span>
-
-
-<span class="k">def</span> <span class="nf">_which_frames</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">freq</span><span class="p">,</span> <span class="n">frames</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Determine which frame numbers should be used.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">frames</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">batch</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="n">freq</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">fnames</span><span class="p">,</span> <span class="n">frames</span><span class="p">))</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 </pre></div>
 
            </div>

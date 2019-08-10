@@ -44,9 +44,8 @@ import warnings
 import numpy as np
 from keras.utils import get_file
 
-from .core import FrameAnnotator
-from ..utils import stack_dict_frames
-from ..utils import _proc_frame_list, _which_frames
+from ..core import FrameAnnotator
+from ..utils import _proc_frame_list, _which_frames, process_output_values
 
 
 class ObjectAnnotator(FrameAnnotator):
@@ -67,12 +66,10 @@ class ObjectAnnotator(FrameAnnotator):
 
     name = "obj"
 
-    def __init__(self, detector, freq=1, frames=None):
-        self.freq = freq
-        self.detector = detector
-        self.frames = _proc_frame_list(frames)
-
-        super().__init__()
+    def __init__(self, **kwargs):
+        self.freq = kwargs.get("freq", 1)
+        self.detector = kwargs.get("detector")
+        self.frames = _proc_frame_list(kwargs.get("frames", None))
 
     def annotate(self, batch):
         """Annotate the batch of frames with the object detector.
@@ -89,12 +86,10 @@ class ObjectAnnotator(FrameAnnotator):
         f_obj = []
         for fnum in _which_frames(batch, self.freq, self.frames):
             img = batch.img[fnum, :, :, :]
-            t_obj = stack_dict_frames(self.detector.detect(img))
-            if t_obj:
-                frame = batch.get_frame_names()[fnum]
-                t_obj["video"] = [batch.vname] * len(t_obj["top"])
-                t_obj["frame"] = [frame] * len(t_obj["top"])
-                f_obj.append(t_obj)
+            t_obj = self.detector.detect(img)
+            for obj in t_obj:
+                obj['frame'] = batch.get_frame_names()[fnum]
+                f_obj.extend(process_output_values(obj))
 
         return f_obj
 
@@ -245,7 +240,7 @@ class ObjectDetectRetinaNet:
                         "bottom": int(box[3]),
                         "left": int(box[0]),
                         "score": score,
-                        "class": self.lcodes[label],
+                        "category": self.lcodes[label],
                     }
                 ]
 

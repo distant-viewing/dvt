@@ -192,7 +192,7 @@
 <span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span>
 
 
@@ -215,10 +215,10 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;embed&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">embedding</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">embedding</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;embedding&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frames&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="EmbedAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/embed.html#dvt.annotate.embed.EmbedAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
@@ -235,14 +235,13 @@
         <span class="c1"># what frames do we annotate?</span>
         <span class="n">fnum</span> <span class="o">=</span> <span class="n">_which_frames</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">fnum</span><span class="p">:</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="c1"># run the embedding and add video and frame metadata</span>
         <span class="n">obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding</span><span class="o">.</span><span class="n">embed</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">fnum</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:])</span>
-        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">vname</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">fnum</span><span class="p">)</span>
         <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">())[</span><span class="nb">list</span><span class="p">(</span><span class="n">fnum</span><span class="p">)]</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="n">obj</span></div></div>
 
 
 <div class="viewcode-block" id="EmbedFrameKeras"><a class="viewcode-back" href="../../../annotate/embed.html#dvt.annotate.embed.EmbedFrameKeras">[docs]</a><span class="k">class</span> <span class="nc">EmbedFrameKeras</span><span class="p">:</span>

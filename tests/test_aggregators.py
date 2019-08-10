@@ -3,45 +3,55 @@ import pytest
 import os.path
 import tempfile
 
+from numpy import array
+from pandas import DataFrame
+from pandas.util.testing import assert_frame_equal
 
-from dvt.annotate.core import FrameProcessor, FrameInput
-from dvt.annotate.diff import DiffAnnotator
-from dvt.annotate.face import FaceAnnotator, FaceDetectDlib, FaceEmbedVgg2
-from dvt.annotate.meta import MetaAnnotator
-from dvt.annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
-from dvt.annotate.png import PngAnnotator
-
-from dvt.aggregate.core import Aggregator
 from dvt.aggregate.cut import CutAggregator
 from dvt.aggregate.display import DisplayAggregator
 from dvt.aggregate.length import ShotLengthAggregator
 from dvt.aggregate.people import PeopleAggregator, make_fprint_from_images
-
-from dvt.utils import DictFrame
-
+from dvt.utils import pd_col_asarray
 
 class TestPeopleAggregator:
-    def test_fprint(self):
-        face_anno = FaceAnnotator(
-            detector=FaceDetectDlib(), embedding=FaceEmbedVgg2(), freq=4
-        )
 
-        fpobj = FrameProcessor()
-        fpobj.load_annotator(face_anno)
+    def test_fprint(self, get_video_annotation):
+        de, _ = get_video_annotation
 
-        finput = FrameInput("test-data/video-clip.mp4", bsize=8)
-        fpobj.process(finput, max_batch=2)
-        obj_out = fpobj.collect_all()
-
+        fprint = pd_col_asarray(de.get_data()["face"], "embed")[[0, 1]]
         pa = PeopleAggregator(
             face_names=["person 1", "person 2"],
-            fprint=obj_out["face"]["embed"][[0, 1]],
+            fprint=fprint,
         )
-        agg = pa.aggregate(obj_out).todf()
+        de.run_aggregator(pa)
+        obj = de.get_data()["people"]
 
-        assert set(agg.keys()) == set(
+        assert set(obj.keys()) == set(
             [
-                "video",
+                "frame",
+                "top",
+                "bottom",
+                "right",
+                "left",
+                "confidence",
+                "person",
+                "person-dist",
+            ]
+        )
+
+    def test_fprint_from_img(self, get_video_annotation):
+        de, _ = get_video_annotation
+
+        embed, fnames = make_fprint_from_images("test-data/faces")
+        pa = PeopleAggregator(
+            face_names=fnames,
+            fprint=embed,
+        )
+        de.run_aggregator(pa)
+        obj = de.get_data()["people"]
+
+        assert set(obj.keys()) == set(
+            [
                 "frame",
                 "top",
                 "bottom",
@@ -54,73 +64,30 @@ class TestPeopleAggregator:
         )
 
 
-class TestFaceFingerprints:
-    def test_make_fprint(self, run_setup_tensorflow):
-        embed, fnames = make_fprint_from_images("test-data/faces")
+class TestDisplayAggregator:
 
-        assert embed.shape == (2, 2048)
-        assert set(fnames) == set(['joey', 'ross'])
+    def test_display(self, get_video_annotation):
+        de, dname_root = get_video_annotation
+        dname_png = os.path.join(dname_root, "png")
+        dname_dis = os.path.join(tempfile.mkdtemp(), "dis")
 
-class TestCutAggregator:
-    def test_cutoff(self):
-        fpobj = FrameProcessor()
-        fpobj.load_annotator(DiffAnnotator(quantiles=[40]))
+        da = DisplayAggregator(input_dir=dname_png, output_dir=dname_dis)
+        de.run_aggregator(da)
+        obj = de.get_data()["display"]
 
-        finput = FrameInput("test-data/video-clip.mp4", bsize=128)
-        fpobj.process(finput, max_batch=2)
-        obj_out = fpobj.collect_all()
-
-        ca = CutAggregator(cut_vals={"h40": 0.2, "q40": 3})
-        agg = ca.aggregate(obj_out)
-
-        assert set(agg.keys()) == set(["video", "frame_start", "frame_end"])
-
-    def test_cutoff_empty(self):
-        fpobj = FrameProcessor()
-        fpobj.load_annotator(DiffAnnotator(quantiles=[40]))
-
-        finput = FrameInput("test-data/video-clip.mp4", bsize=128)
-        fpobj.process(finput, max_batch=2)
-        obj_out = fpobj.collect_all()
-
-        ca = CutAggregator()
-        agg = ca.aggregate(obj_out)
-
-        assert agg["frame_start"] == list(range(256))
-
-    def test_cutoff_ignore(self):
-        fpobj = FrameProcessor()
-        fpobj.load_annotator(DiffAnnotator(quantiles=[40]))
-
-        finput = FrameInput("test-data/video-clip.mp4", bsize=128)
-        fpobj.process(finput, max_batch=2)
-        obj_out = fpobj.collect_all()
-
-        ca = CutAggregator(
-            cut_vals={"h40": 0.2, "q40": 3}, ignore_vals={"avg_value": 70}
-        )
-        agg = ca.aggregate(obj_out)
-
-        assert agg == DictFrame()
+        assert_frame_equal(obj, DataFrame())
 
 
 class TestShotLengthAggregator:
-    def test_lengths(self):
-        fp = FrameProcessor()
-        fp.load_annotator(MetaAnnotator())
-        fp.load_annotator(FaceAnnotator(detector=FaceDetectDlib(), freq=128))
-        fp.load_annotator(
-            ObjectAnnotator(detector=ObjectDetectRetinaNet(), freq=128)
-        )
 
-        fp.process(FrameInput("test-data/video-clip.mp4"), max_batch=2)
-        obj = fp.collect_all()
+    def test_shot_length(self, get_video_annotation):
+        de, _ = get_video_annotation
 
         sla = ShotLengthAggregator()
-        agg = sla.aggregate(obj)
-        pdf = agg.todf()
+        de.run_aggregator(sla)
+        obj = de.get_data()["length"]
 
-        assert set(agg.keys()) == set(
+        assert set(obj.keys()) == set(
             [
                 "frame",
                 "num_faces",
@@ -129,45 +96,18 @@ class TestShotLengthAggregator:
                 "largest_body",
                 "shot_length",
                 "objects",
+                "people"
             ]
         )
-        assert agg["shot_length"] == ["5-MCU", "3-MLS", "5-MCU"]
 
 
-class TestDisplayAggregator:
-    def test_lengths(self):
-        dname_png = os.path.join(tempfile.mkdtemp(), "png")
-        dname_dis = os.path.join(tempfile.mkdtemp(), "dis")
+class TestCutAggregator:
 
-        fp = FrameProcessor()
-        fp.load_annotator(PngAnnotator(output_dir=dname_png, freq=128))
-        fp.load_annotator(FaceAnnotator(detector=FaceDetectDlib(), freq=128))
-        fp.load_annotator(
-            ObjectAnnotator(detector=ObjectDetectRetinaNet(), freq=128)
-        )
+    def test_shot_length(self, get_video_annotation):
+        de, _ = get_video_annotation
 
-        fp.process(FrameInput("test-data/video-clip.mp4"), max_batch=2)
-        obj = fp.collect_all()
+        ca = CutAggregator(cut_vals={"q40": 2})
+        de.run_aggregator(ca)
+        obj = de.get_data()["cut"]
 
-        da = DisplayAggregator(input_dir=dname_png, output_dir=dname_dis)
-        agg = da.aggregate(obj)
-        assert agg == None
-
-        # should have a total of four original png files
-        expected_files = set(
-            ["frame-{0:06d}.png".format(x) for x in [0, 128, 256, 384]]
-        )
-        assert set(os.listdir(dname_png)) == expected_files
-
-        # should have only three new png files because, be default, only frames
-        # with detected information have data; this can be changed this by
-        # providing a the desired list of frames as argument to the aggregate
-        # method of DisplayAggregator
-        expected_files = set(
-            ["frame-{0:06d}.png".format(x) for x in [0, 128, 256]]
-        )
-        assert set(os.listdir(dname_dis)) == expected_files
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])
+        assert set(obj.keys()) == set(["frame_start", "frame_end"])

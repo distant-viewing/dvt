@@ -188,8 +188,7 @@
 <span class="sd">    that is too close to another, or include additional cut-off values.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">stack_dict_frames</span>
-<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">Aggregator</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">Aggregator</span>
 
 
 <div class="viewcode-block" id="CutAggregator"><a class="viewcode-back" href="../../../aggregate/cut.html#dvt.aggregate.cut.CutAggregator">[docs]</a><span class="k">class</span> <span class="nc">CutAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
@@ -212,17 +211,13 @@
 <span class="sd">            return no cuts.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_len</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">ignore_vals</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cut_vals</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">ignore_vals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">ignore_vals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;cut&quot;</span>
 
-        <span class="k">if</span> <span class="n">cut_vals</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">cut_vals</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_len</span> <span class="o">=</span> <span class="n">min_len</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_vals</span> <span class="o">=</span> <span class="n">ignore_vals</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cut_vals</span> <span class="o">=</span> <span class="n">cut_vals</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_vals</span> <span class="o">=</span> <span class="n">kargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ignore_vals&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cut_vals</span> <span class="o">=</span> <span class="n">kargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cut_vals&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_len</span> <span class="o">=</span> <span class="n">kargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min_len&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CutAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/cut.html#dvt.aggregate.cut.CutAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Aggregate difference annotator.</span>
@@ -238,21 +233,15 @@
 
         <span class="c1"># grab the data, initialize counters, and create output `cuts`</span>
         <span class="n">ops</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;diff&quot;</span><span class="p">]</span>
-        <span class="n">this_video</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="n">ignore_this_frame</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="n">current_cut_start</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">cuts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">cuts</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;frame_start&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;frame_end&#39;</span><span class="p">:</span> <span class="p">[]}</span>
 
         <span class="c1"># cycle through frames and collection shots; assumes that the data is</span>
-        <span class="c1"># grouped by video and ordered by frame</span>
+        <span class="c1"># ordered by frame</span>
         <span class="n">mlen</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ops</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">])</span>
         <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">mlen</span><span class="p">):</span>
             <span class="n">this_frame</span> <span class="o">=</span> <span class="n">ops</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
-
-            <span class="c1"># if this a new video, restart the frame numbering</span>
-            <span class="k">if</span> <span class="n">this_video</span> <span class="o">!=</span> <span class="n">ops</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]:</span>
-                <span class="n">this_video</span> <span class="o">=</span> <span class="n">ops</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
-                <span class="n">current_cut_start</span> <span class="o">=</span> <span class="n">this_frame</span>
 
             <span class="c1"># check to see if we should ignore the next frame; by default we</span>
             <span class="c1"># ignore the phantom frame at the end of the video at time T+1.</span>
@@ -261,7 +250,7 @@
                 <span class="n">ignore_next_frame</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">coff</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">ignore_vals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-                    <span class="k">if</span> <span class="n">ops</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">coff</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ops</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="n">ind</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">coff</span><span class="p">:</span>   <span class="c1"># pragma: no cover</span>
                         <span class="n">ignore_next_frame</span> <span class="o">=</span> <span class="kc">True</span>
                         <span class="k">break</span>
 
@@ -284,13 +273,8 @@
             <span class="c1"># if `cut_detect` at this point, then we want to finish the active</span>
             <span class="c1"># cut with the current frame</span>
             <span class="k">if</span> <span class="n">cut_detect</span><span class="p">:</span>
-                <span class="n">cuts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="n">this_video</span><span class="p">,</span>
-                        <span class="s2">&quot;frame_start&quot;</span><span class="p">:</span> <span class="n">current_cut_start</span><span class="p">,</span>
-                        <span class="s2">&quot;frame_end&quot;</span><span class="p">:</span> <span class="n">this_frame</span><span class="p">,</span>
-                    <span class="p">}</span>
-                <span class="p">)</span>
+                <span class="n">cuts</span><span class="p">[</span><span class="s2">&quot;frame_start&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">current_cut_start</span><span class="p">)</span>
+                <span class="n">cuts</span><span class="p">[</span><span class="s2">&quot;frame_end&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_frame</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">cut_detect</span> <span class="ow">or</span> <span class="n">ignore_next_frame</span><span class="p">:</span>
                 <span class="n">current_cut_start</span> <span class="o">=</span> <span class="n">this_frame</span> <span class="o">+</span> <span class="mi">1</span>
@@ -298,7 +282,7 @@
             <span class="c1"># push forward the ignore flag</span>
             <span class="n">ignore_this_frame</span> <span class="o">=</span> <span class="n">ignore_next_frame</span>
 
-        <span class="k">return</span> <span class="n">stack_dict_frames</span><span class="p">(</span><span class="n">cuts</span><span class="p">)</span></div></div>
+        <span class="k">return</span> <span class="n">cuts</span></div></div>
 </pre></div>
 
            </div>

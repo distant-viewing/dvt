@@ -92,9 +92,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html"> Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#core-functions">Core Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#annotations">Annotations</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cut.html">Cut Aggregators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="display.html">Display Aggregators</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Length Aggregators</a></li>
@@ -102,7 +102,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#pipelines">Pipelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../dvt.html#utility-functions">Utility Functions</a></li>
 </ul>
 </li>
 </ul>
@@ -210,8 +209,8 @@ in a  medium close-up (MCU) and the middle frame contains five people
 shot (MLS).</p>
 <dl class="class">
 <dt id="dvt.aggregate.length.ShotLengthAggregator">
-<em class="property">class </em><code class="descclassname">dvt.aggregate.length.</code><code class="descname">ShotLengthAggregator</code><span class="sig-paren">(</span><em>min_obj_score=0.7</em>, <em>min_face_score=0.7</em>, <em>shot_names=None</em>, <em>shot_sizes=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/length.html#ShotLengthAggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="core.html#dvt.aggregate.core.Aggregator" title="dvt.aggregate.core.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.aggregate.core.Aggregator</span></code></a></p>
+<em class="property">class </em><code class="descclassname">dvt.aggregate.length.</code><code class="descname">ShotLengthAggregator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/length.html#ShotLengthAggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../core.html#dvt.core.Aggregator" title="dvt.core.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.Aggregator</span></code></a></p>
 <p>Uses detected faces and objects to estimate shot length.</p>
 <p>You can change the cut-offs and names of the face types.</p>
 <dl class="attribute">
@@ -234,6 +233,21 @@ object in the computation</p>
 <code class="descname">min_face_score</code><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator.min_face_score" title="Permalink to this definition">¶</a></dt>
 <dd><p>minimum confidence score to include a detected
 face in the computation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.aggregate.length.ShotLengthAggregator.max_person_dist">
+<code class="descname">max_person_dist</code><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator.max_person_dist" title="Permalink to this definition">¶</a></dt>
+<dd><p>maximum distance to a face to categorize as
+a known person.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -278,7 +292,7 @@ None to use the default settings.</p>
 
 <dl class="method">
 <dt id="dvt.aggregate.length.ShotLengthAggregator.aggregate">
-<code class="descname">aggregate</code><span class="sig-paren">(</span><em>ldframe</em>, <em>frames=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/length.html#ShotLengthAggregator.aggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator.aggregate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">aggregate</code><span class="sig-paren">(</span><em>ldframe</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/length.html#ShotLengthAggregator.aggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator.aggregate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Determine shot lengths using detected faces and objects.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -300,6 +314,11 @@ frame in the original input.</p>
 </tbody>
 </table>
 </dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.aggregate.length.ShotLengthAggregator.name">
+<code class="descname">name</code><em class="property"> = 'length'</em><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 

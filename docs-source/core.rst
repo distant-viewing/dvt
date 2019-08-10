@@ -1,8 +1,8 @@
 
-Metadata Annotations
+Generic Classes
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: dvt.annotate.meta
+.. automodule:: dvt.core
     :members:
     :undoc-members:
     :show-inheritance:

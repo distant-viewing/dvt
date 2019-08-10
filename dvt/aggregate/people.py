@@ -41,9 +41,8 @@ from os.path import join, basename, splitext
 import numpy as np
 
 from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
-from ..utils import DictFrame
-from .core import Aggregator
-from ..annotate.core import ImageInput, FrameProcessor
+from ..core import Aggregator, DataExtraction
+from ..input import ImageInput
 
 class PeopleAggregator(Aggregator):
     """Uses face embeddings to identify the identity of people in the frame.
@@ -61,14 +60,14 @@ class PeopleAggregator(Aggregator):
             embedding.
     """
 
-    def __init__(self, face_names, fprint):
+    name = "people"
 
-        assert fprint.shape[0] == len(face_names)
+    def __init__(self, **kwargs):
 
-        self.face_names = face_names
-        self.fprint = fprint
+        self.face_names = kwargs.get("face_names")
+        self.fprint = kwargs.get("fprint")
 
-        super().__init__()
+        assert self.fprint.shape[0] == len(self.face_names)
 
     def aggregate(self, ldframe, **kwargs):
         """Aggregate faces.
@@ -86,28 +85,25 @@ class PeopleAggregator(Aggregator):
         # grab the data and create new output
         ops = ldframe["face"]
 
-        output = DictFrame(
-            {
-                "video": ops["video"].copy(),
-                "frame": ops["frame"].copy(),
-                "top": ops["top"].copy(),
-                "left": ops["left"].copy(),
-                "bottom": ops["bottom"].copy(),
-                "right": ops["right"].copy(),
-                "confidence": ops["confidence"].copy(),
-                "person": [""] * len(ops["frame"]),
-                "person-dist": [""] * len(ops["frame"]),
-            }
-        )
+        output = {
+                "frame": ops.frame.values.copy(),
+                "top": ops.top.values.copy(),
+                "left": ops.left.values.copy(),
+                "bottom": ops.bottom.values.copy(),
+                "right": ops.right.values.copy(),
+                "confidence": ops.confidence.values.copy(),
+                "person": [""] * len(ops.frame.values),
+                "person-dist": [""] * len(ops.frame.values),
+        }
 
         # cycle through frames and detect closest face; let the user filter as
         # needed
-        for fid, face in enumerate(ops["embed"]):
+        for fid, face in enumerate(ops.embed.values):
             dists = np.linalg.norm(face - self.fprint, axis=1)
             output["person"][fid] = self.face_names[np.argmin(dists)]
             output["person-dist"][fid] = np.min(dists)
 
-        return DictFrame(output)
+        return output
 
 
 def make_fprint_from_images(dinput):
@@ -126,15 +122,13 @@ def make_fprint_from_images(dinput):
         A tuple giving the number array of embedding vectors and a list of the
         names of the people in the images.
     """
-    fpobj = FrameProcessor()
-    fpobj.load_annotator(FaceAnnotator(
+    de = DataExtraction(ImageInput(input_paths=join(dinput, "", "*")))
+    de.run_annotators([FaceAnnotator(
         detector=FaceDetectMtcnn(),
         embedding=FaceEmbedVgg2()
-    ))
+    )])
 
-    fpobj.process(ImageInput(input_paths=join(dinput, "", "*")))
+    faces = de.get_data()['face']
+    face_names = [splitext(basename(x))[0] for x in faces.frame.values]
 
-    faces = fpobj.collect('face')
-    names = [splitext(basename(x))[0] for x in faces['frame']]
-
-    return faces['embed'], names
+    return np.vstack(faces.embed), face_names

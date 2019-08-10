@@ -48,7 +48,3 @@ class TestCli:
 
         with pytest.raises(AssertionError) as e_info:
             run_cli()
-
-
-if __name__ == "__main__":
-    pytest.main([__file__])

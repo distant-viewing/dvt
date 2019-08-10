@@ -8,8 +8,8 @@ import os
 import numpy as np
 import cv2
 
-from .core import FrameAnnotator
-from ..utils import _proc_frame_list, _which_frames
+from ..core import FrameAnnotator
+from ..utils import _proc_frame_list, _which_frames, _check_out_dir
 
 
 class OpticalFlowAnnotator(FrameAnnotator):
@@ -33,16 +33,11 @@ class OpticalFlowAnnotator(FrameAnnotator):
 
     name = "opticalflow"
 
-    def __init__(self, freq=1, raw=False, frames=None, output_dir=None):
-        if output_dir is not None:
-            if not os.path.isdir(output_dir):
-                os.makedirs(output_dir)
-
-        self.freq = freq
-        self.raw = raw
-        self.frames = _proc_frame_list(frames)
-        self.output_dir = output_dir
-        super().__init__()
+    def __init__(self, **kwargs):
+        self.freq = kwargs.get("freq", 1)
+        self.raw = kwargs.get("raw", False)
+        self.frames = _proc_frame_list(kwargs.get("frames", None))
+        self.output_dir = _check_out_dir(kwargs.get("output_dir", None))
 
     def annotate(self, batch):
         """Annotate the batch of frames with the optical flow annotator.
@@ -78,10 +73,9 @@ class OpticalFlowAnnotator(FrameAnnotator):
         obj = {"opticalflow": np.stack(flow)}
 
         # Add video and frame metadata
-        obj["video"] = [batch.vname] * len(frames)
         obj["frame"] = frame_names[list(frames)]
 
-        return [obj]
+        return obj
 
 
 def _get_optical_flow(batch, fnum):

@@ -92,9 +92,9 @@
 <li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html"> Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#core-functions">Core Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#annotations">Annotations</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cut.html">Cut Aggregators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="display.html">Display Aggregators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="length.html">Length Aggregators</a></li>
@@ -102,7 +102,6 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#pipelines">Pipelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../dvt.html#utility-functions">Utility Functions</a></li>
 </ul>
 </li>
 </ul>
@@ -209,8 +208,8 @@ default faces:</p>
 sitting next to one another.</p>
 <dl class="class">
 <dt id="dvt.aggregate.people.PeopleAggregator">
-<em class="property">class </em><code class="descclassname">dvt.aggregate.people.</code><code class="descname">PeopleAggregator</code><span class="sig-paren">(</span><em>face_names</em>, <em>fprint</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/people.html#PeopleAggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="core.html#dvt.aggregate.core.Aggregator" title="dvt.aggregate.core.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.aggregate.core.Aggregator</span></code></a></p>
+<em class="property">class </em><code class="descclassname">dvt.aggregate.people.</code><code class="descname">PeopleAggregator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/people.html#PeopleAggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../core.html#dvt.core.Aggregator" title="dvt.core.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.Aggregator</span></code></a></p>
 <p>Uses face embeddings to identify the identity of people in the frame.</p>
 <p>You will need to provide baseline faces for the annotator to compare to.
 Note that the annotator returns the nearest faces along with the distance
@@ -249,7 +248,7 @@ embedding.</p>
 
 <dl class="method">
 <dt id="dvt.aggregate.people.PeopleAggregator.aggregate">
-<code class="descname">aggregate</code><span class="sig-paren">(</span><em>ldframe</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/people.html#PeopleAggregator.aggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator.aggregate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">aggregate</code><span class="sig-paren">(</span><em>ldframe</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/people.html#PeopleAggregator.aggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator.aggregate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Aggregate faces.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -266,6 +265,33 @@ detected face.</td>
 </table>
 </dd></dl>
 
+<dl class="attribute">
+<dt id="dvt.aggregate.people.PeopleAggregator.name">
+<code class="descname">name</code><em class="property"> = 'people'</em><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="dvt.aggregate.people.make_fprint_from_images">
+<code class="descclassname">dvt.aggregate.people.</code><code class="descname">make_fprint_from_images</code><span class="sig-paren">(</span><em>dinput</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/people.html#make_fprint_from_images"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.people.make_fprint_from_images" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create face fingerprints from a directory of faces.</p>
+<p>This function takes as an input a directory containing image files, with
+each image given the name of a person or character. The function returns
+the ‘fingerprints’ (sterotypical embedding) of the faces in a format that
+can be passed to the PeopleAggregator.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>face_names</strong> (<em>list</em>) – List of names associated with each face in the set
+of predefined faces</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A tuple giving the number array of embedding vectors and a list of the
+names of the people in the images.</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </div>

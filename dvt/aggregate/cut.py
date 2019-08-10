@@ -32,8 +32,7 @@ Example:
     that is too close to another, or include additional cut-off values.
 """
 
-from ..utils import stack_dict_frames
-from .core import Aggregator
+from ..core import Aggregator
 
 
 class CutAggregator(Aggregator):
@@ -56,19 +55,15 @@ class CutAggregator(Aggregator):
             return no cuts.
     """
 
-    def __init__(self, min_len=1, ignore_vals=None, cut_vals=None):
-        if ignore_vals is None:
-            ignore_vals = {}
+    name = "cut"
 
-        if cut_vals is None:
-            cut_vals = {}
+    def __init__(self, **kargs):
 
-        self.min_len = min_len
-        self.ignore_vals = ignore_vals
-        self.cut_vals = cut_vals
-        super().__init__()
+        self.ignore_vals = kargs.get("ignore_vals", {})
+        self.cut_vals = kargs.get("cut_vals", None)
+        self.min_len = kargs.get("min_len", 1)
 
-    def aggregate(self, ldframe, **kwargs):
+    def aggregate(self, ldframe):
         """Aggregate difference annotator.
 
         Args:
@@ -82,21 +77,15 @@ class CutAggregator(Aggregator):
 
         # grab the data, initialize counters, and create output `cuts`
         ops = ldframe["diff"]
-        this_video = ""
         ignore_this_frame = True
         current_cut_start = 0
-        cuts = []
+        cuts = {'frame_start': [], 'frame_end': []}
 
         # cycle through frames and collection shots; assumes that the data is
-        # grouped by video and ordered by frame
+        # ordered by frame
         mlen = len(ops["frame"])
         for ind in range(mlen):
             this_frame = ops["frame"][ind]
-
-            # if this a new video, restart the frame numbering
-            if this_video != ops["video"][ind]:
-                this_video = ops["video"][ind]
-                current_cut_start = this_frame
 
             # check to see if we should ignore the next frame; by default we
             # ignore the phantom frame at the end of the video at time T+1.
@@ -105,7 +94,7 @@ class CutAggregator(Aggregator):
                 ignore_next_frame = True
             else:
                 for key, coff in self.ignore_vals.items():
-                    if ops[key][ind + 1] < coff:
+                    if ops[key][ind + 1] < coff:   # pragma: no cover
                         ignore_next_frame = True
                         break
 
@@ -128,13 +117,8 @@ class CutAggregator(Aggregator):
             # if `cut_detect` at this point, then we want to finish the active
             # cut with the current frame
             if cut_detect:
-                cuts.append(
-                    {
-                        "video": this_video,
-                        "frame_start": current_cut_start,
-                        "frame_end": this_frame,
-                    }
-                )
+                cuts["frame_start"].append(current_cut_start)
+                cuts["frame_end"].append(this_frame)
 
             if cut_detect or ignore_next_frame:
                 current_cut_start = this_frame + 1
@@ -142,4 +126,4 @@ class CutAggregator(Aggregator):
             # push forward the ignore flag
             ignore_this_frame = ignore_next_frame
 
-        return stack_dict_frames(cuts)
+        return cuts

@@ -1,0 +1,479 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Input Classes &mdash; dvt 0.0.8 documentation</title>
+  
+
+  
+  
+  
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utility Functions" href="utils.html" />
+    <link rel="prev" title="Generic Classes" href="core.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo.html"> Minimal Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dvt.html#core-functions">Core Functions</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Input Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utility Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dvt.html#annotations">Annotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dvt.html#aggregators">Aggregators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dvt.html#pipelines">Pipelines</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
+        
+      <li>Input Classes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/input.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dvt.input">
+<span id="input-classes"></span><h1>Input Classes<a class="headerlink" href="#module-dvt.input" title="Permalink to this headline">¶</a></h1>
+<p>Input objects</p>
+<dl class="class">
+<dt id="dvt.input.FrameInput">
+<em class="property">class </em><code class="descclassname">dvt.input.</code><code class="descname">FrameInput</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/input.html#FrameInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.input.FrameInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="core.html#dvt.core.VisualInput" title="dvt.core.VisualInput"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.VisualInput</span></code></a></p>
+<p>An input object for extracting batches of images from an input video.</p>
+<p>Once initialized, subsequent calls to the next_batch method should be
+called to cycle through batches of frames. The continue_read flag will be
+turn false when all of data from the source has been returned within a
+batch. Note that this does not include the look-ahead region. The final
+batch will include padding by zeros (black) in this region.</p>
+<dl class="attribute">
+<dt id="dvt.input.FrameInput.bsize">
+<code class="descname">bsize</code><a class="headerlink" href="#dvt.input.FrameInput.bsize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of frames in a batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.input.FrameInput.fcount">
+<code class="descname">fcount</code><a class="headerlink" href="#dvt.input.FrameInput.fcount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Frame counter for the first frame in the current batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.input.FrameInput.vname">
+<code class="descname">vname</code><a class="headerlink" href="#dvt.input.FrameInput.vname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the video file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.input.FrameInput.continue_read">
+<code class="descname">continue_read</code><a class="headerlink" href="#dvt.input.FrameInput.continue_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates whether there more frames to read from
+the input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.input.FrameInput.start">
+<code class="descname">start</code><a class="headerlink" href="#dvt.input.FrameInput.start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time code at the start of the current batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.input.FrameInput.end">
+<code class="descname">end</code><a class="headerlink" href="#dvt.input.FrameInput.end" title="Permalink to this definition">¶</a></dt>
+<dd><p>Time code at the end of the current batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">float</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.input.FrameInput.meta">
+<code class="descname">meta</code><a class="headerlink" href="#dvt.input.FrameInput.meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary containing additional metadata about the
+video file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.input.FrameInput.get_metadata">
+<code class="descname">get_metadata</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/input.html#FrameInput.get_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.input.FrameInput.get_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide metadata from the input connection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.input.FrameInput.next_batch">
+<code class="descname">next_batch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/input.html#FrameInput.next_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.input.FrameInput.next_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move forward one batch and return the current FrameBatch object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A FrameBatch object that contains the next set of frames.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.input.FrameInput.open_input">
+<code class="descname">open_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/input.html#FrameInput.open_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.input.FrameInput.open_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open connection to the video file.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.input.ImageInput">
+<em class="property">class </em><code class="descclassname">dvt.input.</code><code class="descname">ImageInput</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/input.html#ImageInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.input.ImageInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="core.html#dvt.core.VisualInput" title="dvt.core.VisualInput"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.VisualInput</span></code></a></p>
+<p>An input object for create batches of images from input images.</p>
+<p>Once initialized, subsequent calls to the next_batch method should be
+called to cycle through batches of frames. The continue_read flag will be
+turn false when all of data from the sources has been returned. Note that
+the batch will always be of size 1 and include a look-ahead region of all
+black pixels. This is needed because not all images will be the same size.</p>
+<dl class="attribute">
+<dt id="dvt.input.ImageInput.bsize">
+<code class="descname">bsize</code><a class="headerlink" href="#dvt.input.ImageInput.bsize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of frames in a batch. Always 1.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.input.ImageInput.vname">
+<code class="descname">vname</code><a class="headerlink" href="#dvt.input.ImageInput.vname" title="Permalink to this definition">¶</a></dt>
+<dd><p>Name of the video file.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.input.ImageInput.continue_read">
+<code class="descname">continue_read</code><a class="headerlink" href="#dvt.input.ImageInput.continue_read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates whether there more frames to read from
+the input.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.input.ImageInput.fcount">
+<code class="descname">fcount</code><a class="headerlink" href="#dvt.input.ImageInput.fcount" title="Permalink to this definition">¶</a></dt>
+<dd><p>Pointer to the next image to return.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.input.ImageInput.meta">
+<code class="descname">meta</code><a class="headerlink" href="#dvt.input.ImageInput.meta" title="Permalink to this definition">¶</a></dt>
+<dd><p>A dictionary containing additional metadata about the
+input images.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">dict</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.input.ImageInput.get_metadata">
+<code class="descname">get_metadata</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/input.html#ImageInput.get_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.input.ImageInput.get_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide metadata from the input connection.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.input.ImageInput.next_batch">
+<code class="descname">next_batch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/input.html#ImageInput.next_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.input.ImageInput.next_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move forward one batch and return the current FrameBatch object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">A FrameBatch object that contains the next set of frames.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.input.ImageInput.open_input">
+<code class="descname">open_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/input.html#ImageInput.open_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.input.ImageInput.open_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restart and initialize the input feed.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utils.html" class="btn btn-neutral float-right" title="Utility Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="core.html" class="btn btn-neutral float-left" title="Generic Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+
+    </p>
+  </div>
+    
+    
+      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

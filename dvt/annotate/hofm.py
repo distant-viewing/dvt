@@ -10,7 +10,7 @@ import importlib
 import numpy as np
 import cv2
 
-from .core import FrameAnnotator
+from ..core import FrameAnnotator
 from .opticalflow import _get_optical_flow
 from ..utils import _proc_frame_list, _which_frames
 
@@ -40,27 +40,17 @@ class HOFMAnnotator(FrameAnnotator):
 
     name = "hofm"
 
-    def __init__(
-        self, freq=1,
-        blocks=3,
-        mag_buckets=None,
-        ang_buckets=None,
-        frames=None,
-    ):
-
-        if mag_buckets is None:
-            mag_buckets = [0, 20, 40, 60, 80, 100]
-
-        if ang_buckets is None:
-            ang_buckets = [0, 45, 90, 135, 180, 225, 270, 315, 360]
+    def __init__(self, **kwargs):
 
         self.skutil = importlib.import_module("skimage.util")
-        self.freq = freq
-        self.blocks = blocks
-        self.mag_buckets = mag_buckets
-        self.ang_buckets = ang_buckets
-        self.frames = _proc_frame_list(frames)
-        super().__init__()
+        self.freq = kwargs.get("freq", 1)
+        self.blocks = kwargs.get("blocks", 3)
+        self.mag_buckets = kwargs.get("mag_buckets", [0, 20, 40, 60, 80, 100])
+        self.ang_buckets = kwargs.get(
+            "ang_buckets",
+            [0, 45, 90, 135, 180, 225, 270, 315, 360]
+        )
+        self.frames = _proc_frame_list(kwargs.get("frames", None))
 
     def annotate(self, batch):
         """Annotate the batch of frames with the optical flow annotator.
@@ -96,10 +86,9 @@ class HOFMAnnotator(FrameAnnotator):
         obj = {"hofm": np.stack(hofm)}
 
         # Add video and frame metadata
-        obj["video"] = [batch.vname] * len(frames)
         obj["frame"] = np.array(batch.get_frame_names())[list(frames)]
 
-        return [obj]
+        return obj
 
 
 def _make_block_hofm(flow, blocks, mag_buckets, ang_buckets, skutil):

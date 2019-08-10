@@ -162,7 +162,7 @@
 <span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">from</span> <span class="nn">scipy.cluster.vq</span> <span class="k">import</span> <span class="n">kmeans</span>
 
-<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span>
 
 
@@ -187,15 +187,12 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;cielab&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">num_buckets</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="n">num_dominant</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">frames</span><span class="o">=</span><span class="kc">None</span>
-    <span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">freq</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_buckets</span> <span class="o">=</span> <span class="n">num_buckets</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">num_dominant</span> <span class="o">=</span> <span class="n">num_dominant</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_buckets</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_buckets&quot;</span><span class="p">,</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">,</span> <span class="mi">16</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num_dominant</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;num_dominant&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frames&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 
 <div class="viewcode-block" id="CIElabAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the cielab annotator.</span>
@@ -212,7 +209,7 @@
         <span class="c1"># determine which frames to work on</span>
         <span class="n">frames</span> <span class="o">=</span> <span class="n">_which_frames</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">freq</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">frames</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">frames</span><span class="p">:</span>
-            <span class="k">return</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="c1"># run the color analysis on each frame</span>
         <span class="n">hgrams</span> <span class="o">=</span> <span class="p">[]</span>
@@ -232,18 +229,17 @@
             <span class="n">shp</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj_rgb</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_dominant</span><span class="p">)</span>
             <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">shp</span><span class="p">,</span> <span class="s2">&quot;#000000&quot;</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">dtype</span><span class="p">(</span><span class="s2">&quot;&lt;U7&quot;</span><span class="p">))</span>
             <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">obj_frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj_rgb</span><span class="p">):</span>
-                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">oc</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj_frame</span><span class="p">):</span>
+                <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">occ</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">obj_frame</span><span class="p">):</span>
                     <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;#</span><span class="si">{0:02x}{1:02x}{2:02x}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
-                        <span class="n">oc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">oc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">oc</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="n">occ</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">occ</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">occ</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
                     <span class="p">)</span>
 
             <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;dominant_colors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">out</span>
 
         <span class="c1"># Add video and frame metadata</span>
-        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;video&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">vname</span><span class="p">]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
         <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">())[</span><span class="nb">list</span><span class="p">(</span><span class="n">frames</span><span class="p">)]</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="n">obj</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="n">obj</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_get_cielab_histogram</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">num_buckets</span><span class="p">):</span>
@@ -258,6 +254,13 @@
 
     <span class="c1"># increasing iter would give &#39;better&#39; clustering, at the cost of speed</span>
     <span class="n">dominant_colors</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">kmeans</span><span class="p">(</span><span class="n">img_flat</span><span class="p">,</span> <span class="n">num_dominant</span><span class="p">,</span> <span class="nb">iter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">dominant_colors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">num_dominant</span><span class="p">:</span>         <span class="c1"># pragma: no cover</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">num_dominant</span> <span class="o">-</span> <span class="n">dominant_colors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">dominant_colors</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">([</span>
+            <span class="n">dominant_colors</span><span class="p">,</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">diff</span><span class="p">,</span> <span class="n">dominant_colors</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+        <span class="p">])</span>
 
     <span class="k">return</span> <span class="n">dominant_colors</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">uint8</span><span class="p">)</span>
 </pre></div>

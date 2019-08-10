@@ -36,7 +36,7 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Metadata Annotations" href="meta.html" />
+    <link rel="next" title="Object Annotations" href="obj.html" />
     <link rel="prev" title="Face Annotations" href="face.html" /> 
 </head>
 
@@ -92,15 +92,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html"> Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#core-functions">Core Functions</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#annotations">Annotations</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cielab.html">CieLAB Annotators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="clutter.html">Clutter Annotators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="diff.html">Frame Difference Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="embed.html">Embed Image Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="face.html">Face Annotations</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Histograms of Optical Flow</a></li>
-<li class="toctree-l3"><a class="reference internal" href="meta.html">Metadata Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="obj.html">Object Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opticalflow.html">Dense Optical Flow Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="png.html">Png Annotations</a></li>
@@ -108,7 +106,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#pipelines">Pipelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../dvt.html#utility-functions">Utility Functions</a></li>
 </ul>
 </li>
 </ul>
@@ -186,8 +183,8 @@ histogram of optical flow orientation and magnitude (HOFM),
 as described in <a class="reference external" href="https://doi.org/10.1109/SIBGRAPI.2015.21">https://doi.org/10.1109/SIBGRAPI.2015.21</a></p>
 <dl class="class">
 <dt id="dvt.annotate.hofm.HOFMAnnotator">
-<em class="property">class </em><code class="descclassname">dvt.annotate.hofm.</code><code class="descname">HOFMAnnotator</code><span class="sig-paren">(</span><em>freq=1</em>, <em>blocks=3</em>, <em>mag_buckets=None</em>, <em>ang_buckets=None</em>, <em>frames=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/hofm.html#HOFMAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<em class="property">class </em><code class="descclassname">dvt.annotate.hofm.</code><code class="descname">HOFMAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/hofm.html#HOFMAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../core.html#dvt.core.FrameAnnotator" title="dvt.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.FrameAnnotator</span></code></a></p>
 <p>Annotator to extract dense Optical Flow using the opencv
 Gunnar Farneback’s algorithm and represent it as a
 histogram of optical flow orientation and magnitude (HOFM),
@@ -278,7 +275,7 @@ set to something other than None, the freq input is ignored.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="core.html#dvt.annotate.core.FrameBatch" title="dvt.annotate.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="../core.html#dvt.core.FrameBatch" title="dvt.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, and the
 HOFM optical flow representation of length (len(blocks) *
@@ -305,7 +302,7 @@ len(blocks) * len(mag_buckets) * len(ang_buckets))</td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="meta.html" class="btn btn-neutral float-right" title="Metadata Annotations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="obj.html" class="btn btn-neutral float-right" title="Object Annotations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="face.html" class="btn btn-neutral float-left" title="Face Annotations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

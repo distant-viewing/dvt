@@ -36,8 +36,8 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Clutter Annotators" href="clutter.html" />
-    <link rel="prev" title="Generic Classes" href="core.html" /> 
+    <link rel="next" title="Frame Difference Annotations" href="diff.html" />
+    <link rel="prev" title="Utility Functions" href="../utils.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -92,15 +92,13 @@
 <li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Demo</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial/index.html"> Tutorials</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dvt.html#core-functions">Core Functions</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#annotations">Annotations</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">CieLAB Annotators</a></li>
-<li class="toctree-l3"><a class="reference internal" href="clutter.html">Clutter Annotators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="diff.html">Frame Difference Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="embed.html">Embed Image Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="face.html">Face Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hofm.html">Histograms of Optical Flow</a></li>
-<li class="toctree-l3"><a class="reference internal" href="meta.html">Metadata Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="obj.html">Object Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="opticalflow.html">Dense Optical Flow Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="png.html">Png Annotations</a></li>
@@ -108,7 +106,6 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#pipelines">Pipelines</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../dvt.html#utility-functions">Utility Functions</a></li>
 </ul>
 </li>
 </ul>
@@ -183,8 +180,8 @@
 <p>Annotators to extract CIELAB color histograms.</p>
 <dl class="class">
 <dt id="dvt.annotate.cielab.CIElabAnnotator">
-<em class="property">class </em><code class="descclassname">dvt.annotate.cielab.</code><code class="descname">CIElabAnnotator</code><span class="sig-paren">(</span><em>freq=1</em>, <em>num_buckets=(16</em>, <em>16</em>, <em>16)</em>, <em>num_dominant=5</em>, <em>frames=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/cielab.html#CIElabAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.cielab.CIElabAnnotator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="core.html#dvt.annotate.core.FrameAnnotator" title="dvt.annotate.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.annotate.core.FrameAnnotator</span></code></a></p>
+<em class="property">class </em><code class="descclassname">dvt.annotate.cielab.</code><code class="descname">CIElabAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/cielab.html#CIElabAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.cielab.CIElabAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../core.html#dvt.core.FrameAnnotator" title="dvt.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.FrameAnnotator</span></code></a></p>
 <p>Annotator for constructing a color histogram and extracting the dominant
 colours for an image in CIELAB colorspace.</p>
 <p>The annotator will return a histogram describing the color distribution
@@ -258,7 +255,7 @@ set to something other than None, the freq input is ignored.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="core.html#dvt.annotate.core.FrameBatch" title="dvt.annotate.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="../core.html#dvt.core.FrameBatch" title="dvt.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, the
 CIELAB histogram of length (num_buckets[0] * num_buckets[1] *
@@ -286,10 +283,10 @@ num_buckets[2]), and an array of dominant colors of shape
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="clutter.html" class="btn btn-neutral float-right" title="Clutter Annotators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="diff.html" class="btn btn-neutral float-right" title="Frame Difference Annotations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="core.html" class="btn btn-neutral float-left" title="Generic Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../utils.html" class="btn btn-neutral float-left" title="Utility Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

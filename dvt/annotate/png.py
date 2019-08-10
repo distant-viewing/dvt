@@ -21,8 +21,8 @@ import os
 
 import cv2
 
-from .core import FrameAnnotator
-from ..utils import _proc_frame_list, _which_frames
+from ..core import FrameAnnotator
+from ..utils import _proc_frame_list, _which_frames, _check_out_dir
 
 
 class PngAnnotator(FrameAnnotator):
@@ -46,15 +46,11 @@ class PngAnnotator(FrameAnnotator):
 
     name = "png"
 
-    def __init__(self, output_dir, freq=1, size=None, frames=None):
-        self.freq = freq
-        self.output_dir = os.path.abspath(os.path.expanduser(output_dir))
-        if not os.path.isdir(self.output_dir):
-            os.makedirs(self.output_dir)
-        self.size = size
-        self.frames = _proc_frame_list(frames)
-
-        super().__init__()
+    def __init__(self, **kwargs):
+        self.output_dir = _check_out_dir(kwargs['output_dir'])
+        self.freq = kwargs.get('freq', 1)
+        self.size = kwargs.get('size', None)
+        self.frames = _proc_frame_list(kwargs.get('frames', None))
 
     def annotate(self, batch):
         """Annotate the batch of frames with the PNG annotator.
@@ -82,4 +78,4 @@ class PngAnnotator(FrameAnnotator):
             else:
                 cv2.imwrite(filename=opath, img=img)
 
-        return []
+        return None

@@ -187,7 +187,7 @@
 <span class="kn">import</span> <span class="nn">cv2</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">.core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
 
 
 <div class="viewcode-block" id="DiffAnnotator"><a class="viewcode-back" href="../../../annotate/diff.html#dvt.annotate.diff.DiffAnnotator">[docs]</a><span class="k">class</span> <span class="nc">DiffAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
@@ -217,13 +217,11 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;diff&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">quantiles</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">32</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="mi">16</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">quantiles</span><span class="p">:</span>
-            <span class="n">quantiles</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span> <span class="o">=</span> <span class="n">quantiles</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">size</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">bins</span> <span class="o">=</span> <span class="n">bins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;quantiles&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;size&quot;</span><span class="p">,</span> <span class="mi">32</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bins</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bins&quot;</span><span class="p">,</span> <span class="mi">16</span><span class="p">)</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="DiffAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/diff.html#dvt.annotate.diff.DiffAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
@@ -237,8 +235,7 @@
 <span class="sd">            value, and any requested quantile and histogram differences.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;video&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">batch</span><span class="o">.</span><span class="n">vname</span><span class="p">]</span> <span class="o">*</span> <span class="n">batch</span><span class="o">.</span><span class="n">bsize</span><span class="p">}</span>
-        <span class="n">output</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">()</span>
+        <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;frame&quot;</span><span class="p">:</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">()}</span>
         <span class="n">output</span><span class="p">[</span><span class="s2">&quot;avg_value&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_average_value_batch</span><span class="p">(</span><span class="n">batch</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">quant</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">quantiles</span><span class="p">:</span>
@@ -248,7 +245,7 @@
             <span class="n">key</span> <span class="o">=</span> <span class="s2">&quot;h</span><span class="si">{0:d}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">quant</span><span class="p">)</span>
             <span class="n">output</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">_hist_diffs</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="n">quant</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bins</span><span class="p">)</span>
 
-        <span class="k">return</span> <span class="p">[</span><span class="n">output</span><span class="p">]</span></div></div>
+        <span class="k">return</span> <span class="n">output</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_l1_quantile</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">quantile</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mi">32</span><span class="p">):</span>
@@ -256,11 +253,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bsize</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">bsize</span>
     <span class="n">msize</span> <span class="o">=</span> <span class="n">bsize</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="k">assert</span> <span class="n">msize</span> <span class="o">&lt;=</span> <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">msize</span> <span class="o">&lt;=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_frames</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">simg</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">msize</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">iran</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">msize</span><span class="p">):</span>
-        <span class="n">fsmall</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">iran</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
+        <span class="n">fsmall</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">resize</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">get_frames</span><span class="p">()[</span><span class="n">iran</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="p">(</span><span class="n">size</span><span class="p">,</span> <span class="n">size</span><span class="p">))</span>
         <span class="n">fsmall_hsv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">fsmall</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span><span class="p">)</span>
         <span class="n">simg</span><span class="p">[</span><span class="n">iran</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">fsmall_hsv</span>
 
@@ -274,11 +271,11 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">bsize</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">bsize</span>
     <span class="n">msize</span> <span class="o">=</span> <span class="n">bsize</span> <span class="o">+</span> <span class="mi">1</span>
-    <span class="k">assert</span> <span class="n">msize</span> <span class="o">&lt;=</span> <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">msize</span> <span class="o">&lt;=</span> <span class="n">batch</span><span class="o">.</span><span class="n">get_frames</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="n">hist_vals</span> <span class="o">=</span> <span class="n">_hsv_hist</span><span class="p">(</span><span class="n">batch</span><span class="p">,</span> <span class="n">msize</span><span class="p">,</span> <span class="n">bins</span><span class="o">=</span><span class="n">bins</span><span class="p">)</span>
     <span class="n">norm</span> <span class="o">=</span> <span class="n">hist_vals</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">bsize</span><span class="p">),</span> <span class="p">:]</span> <span class="o">-</span> <span class="n">hist_vals</span><span class="p">[</span><span class="nb">slice</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">bsize</span> <span class="o">+</span> <span class="mi">1</span><span class="p">),</span> <span class="p">:]</span>
-    <span class="n">norm</span> <span class="o">=</span> <span class="n">norm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span>
+    <span class="n">norm</span> <span class="o">=</span> <span class="n">norm</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">get_frames</span><span class="p">()</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="mi">4</span><span class="p">])</span> <span class="o">*</span> <span class="mi">100</span>
 
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">norm</span><span class="p">),</span> <span class="n">q</span><span class="o">=</span><span class="n">quantile</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
 
@@ -288,7 +285,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">hist_vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">msize</span><span class="p">,</span> <span class="n">bins</span> <span class="o">*</span> <span class="mi">3</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">iran</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">msize</span><span class="p">):</span>
-        <span class="n">hsv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="p">[</span><span class="n">iran</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span><span class="p">)</span>
+        <span class="n">hsv</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cvtColor</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">get_frames</span><span class="p">()[</span><span class="n">iran</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:],</span> <span class="n">cv2</span><span class="o">.</span><span class="n">COLOR_RGB2HSV</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
             <span class="n">hist</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">calcHist</span><span class="p">([</span><span class="n">hsv</span><span class="p">],</span> <span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="kc">None</span><span class="p">,</span> <span class="p">[</span><span class="n">bins</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">256</span><span class="p">])</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="n">hist_vals</span><span class="p">[</span><span class="n">iran</span><span class="p">,</span> <span class="nb">slice</span><span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">bins</span><span class="p">,</span> <span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">bins</span><span class="p">)]</span> <span class="o">=</span> <span class="n">hist</span>

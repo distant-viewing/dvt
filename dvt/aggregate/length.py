@@ -40,8 +40,7 @@ Example:
 
 import numpy as np
 
-from ..utils import DictFrame
-from .core import Aggregator
+from ..core import Aggregator
 
 
 class ShotLengthAggregator(Aggregator):
@@ -54,6 +53,8 @@ class ShotLengthAggregator(Aggregator):
             object in the computation
         min_face_score (float): minimum confidence score to include a detected
             face in the computation
+        max_person_dist (float): maximum distance to a face to categorize as
+            a known person.
         shot_names (list): a list of shot names, from the longest shot to the
             tightest. Set to None to use the default settings.
         shot_sizes (list): as list of shot size cut-offs given as a proportion
@@ -62,38 +63,30 @@ class ShotLengthAggregator(Aggregator):
             None to use the default settings.
     """
 
-    def __init__(
-        self,
-        min_obj_score=0.7,
-        min_face_score=0.7,
-        shot_names=None,
-        shot_sizes=None,
-    ):
+    name = "length"
 
-        if shot_names is None:
-            shot_names = [
-                "1-VLS",
-                "2-LS",
-                "3-MLS",
-                "4-MS",
-                "5-MCU",
-                "6-CU",
-                "7-BCU",
-            ]
+    def __init__(self, **kwargs):
 
-        if shot_sizes is None:
-            shot_sizes = [0, 0.05, 0.15, 0.2, 0.3, 0.5, 0.7]
+        self.min_obj_score = kwargs.get("min_obj_score", 0.7)
+        self.min_face_score = kwargs.get("min_face_score", 0.7)
+        self.max_person_dist = kwargs.get("max_person_dist", 100)
+        self.shot_sizes = np.array(kwargs.get("shot_sizes",
+            [0, 0.05, 0.15, 0.2, 0.3, 0.5, 0.7]
+        ))
+        self.shot_names = kwargs.get("shot_names", [
+            "1-VLS",
+            "2-LS",
+            "3-MLS",
+            "4-MS",
+            "5-MCU",
+            "6-CU",
+            "7-BCU",
+        ])
+        self.frames = kwargs.get('frames', None)
 
-        assert len(shot_sizes) == len(shot_names)
+        assert len(self.shot_sizes) == len(self.shot_names)
 
-        self.min_obj_score = min_obj_score
-        self.min_face_score = min_face_score
-        self.shot_sizes = np.array(shot_sizes)
-        self.shot_names = shot_names
-
-        super().__init__()
-
-    def aggregate(self, ldframe, **kwargs):
+    def aggregate(self, ldframe):
         """Determine shot lengths using detected faces and objects.
 
         Args:
@@ -108,34 +101,30 @@ class ShotLengthAggregator(Aggregator):
             frame in the original input.
         """
 
-        frames = kwargs.get('frames', None)
-
         # grab the data sets
         face = ldframe["face"]
         objs = ldframe["obj"]
-        meta_height = ldframe["meta"]["height"]
+        meta_height = ldframe["meta"].height.values[0]
 
         # compute data using vectorized numpy arrays, where possible
-        face_frames = np.array(face["frame"])
-        objs_frames = np.array(objs["frame"])
         face_height = (
-            np.array(face["bottom"]) - np.array(face["top"])
+            face.bottom.values - face.top.values
         ) / meta_height
         objs_height = (
-            np.array(objs["bottom"]) - np.array(objs["top"])
+            objs.bottom.values - objs.top.values
         ) / meta_height
-        face_scores = np.array(face["confidence"])
-        objs_scores = np.array(objs["score"])
-        objs_object = np.array(objs["class"])
+        if "person" not in face:
+            face['person'] = ""
+        if "person_dist" not in face:
+            face['person_dist'] = 0
 
         # what frames to include?
-        if frames is None:
-            frames = set(face_frames).union(objs_frames)
-        frames = sorted(frames)
+        if self.frames is None:
+            self.frames = set(face.frame.values).union(objs.frame.values)
+        frames = sorted(self.frames)
 
         # create the output
-        output = DictFrame(
-            {
+        output = {
                 "frame": frames,
                 "num_faces": [0] * len(frames),
                 "num_people": [0] * len(frames),
@@ -143,19 +132,25 @@ class ShotLengthAggregator(Aggregator):
                 "largest_body": [0.0] * len(frames),
                 "shot_length": [""] * len(frames),
                 "objects": [""] * len(frames),
-            }
-        )
+                "people": [""] * len(frames)
+        }
 
         for fnum, frame in enumerate(frames):
             face_ids = np.nonzero(
-                (face_frames == frame) & (face_scores > self.min_face_score)
+                (face.frame.values == frame) &
+                (face.confidence.values > self.min_face_score)
+            )[0]
+            face_person_ids = np.nonzero(
+                (face.frame.values == frame)
+                & (face.confidence.values > self.min_face_score)
+                & (face.person_dist.values < self.max_person_dist)
             )[0]
             objs_ids = np.nonzero(
-                (objs_frames == frame)
-                & (objs_object == "person")
-                & (objs_scores > self.min_obj_score)
+                (objs.frame.values == frame)
+                & (objs.category.values == "person")
+                & (objs.score.values > self.min_obj_score)
             )[0]
-            aobj_ids = np.nonzero(objs_frames == frame)[0]
+            aobj_ids = np.nonzero(objs.frame.values == frame)[0]
 
             output["num_faces"][fnum] = len(face_ids)
             output["num_people"][fnum] = len(objs_ids)
@@ -166,11 +161,14 @@ class ShotLengthAggregator(Aggregator):
                 objs_height[objs_ids], initial=0
             )
             output["objects"][fnum] = "; ".join(
-                sorted(set(objs_object[aobj_ids]))
+                sorted(set(objs.category.values[aobj_ids]))
+            )
+            output["people"][fnum] = "; ".join(
+                sorted(set(face.person.values[face_ids]))
             )
 
             output["shot_length"][fnum] = self.shot_names[
                 np.argmax(self.shot_sizes >= output["largest_face"][fnum])
             ]
 
-        return DictFrame(output)
+        return output

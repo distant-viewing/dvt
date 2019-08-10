@@ -4,32 +4,28 @@
 
 import numpy as np
 
-from ..annotate.core import FrameProcessor, FrameInput
+from ..core import DataExtraction
+from ..input import FrameInput
 from ..annotate.diff import DiffAnnotator
-from ..annotate.meta import MetaAnnotator
 from ..aggregate.cut import CutAggregator
 
 
 def _get_cuts(finput, diff_co=10, cut_min_length=30):
-    fpobj = FrameProcessor()
-    fpobj.load_annotator(DiffAnnotator(quantiles=[40]))
-    fri = FrameInput(finput, bsize=128)
-    fpobj.process(fri)
-    obj_out = fpobj.collect_all()
+    de = DataExtraction(FrameInput(input_path=finput, bsize=128))
+    de.run_annotators([DiffAnnotator(quantiles=[40])])
+    de.run_aggregator(
+        CutAggregator(cut_vals={"q40": diff_co}, min_len=cut_min_length)
+    )
 
-    cagg = CutAggregator(cut_vals={"q40": diff_co}, min_len=cut_min_length)
-    agg = cagg.aggregate(obj_out)
-    agg["frame_start"] = np.array(agg["frame_start"])
-    agg["frame_end"] = np.array(agg["frame_end"])
-    agg["mpoint"] = (
-        agg["frame_start"] + (agg["frame_end"] - agg["frame_start"]) // 2
+    agg = de.get_data()['cut']
+    agg["mpoint"] = (agg.frame_start.values +
+        (agg.frame_end.values - agg.frame_start.values) / 2
     )
     return agg
 
 
 def _get_meta(finput):
-    fpobj = FrameProcessor()
-    fpobj.load_annotator(MetaAnnotator())
-    fri = FrameInput(finput, bsize=2)
-    fpobj.process(fri, max_batch=1)
-    return fpobj.collect("meta")
+    de = DataExtraction(FrameInput(input_path=finput, bsize=2))
+    de.run_annotators([], max_batch=1)
+
+    return de.get_data()["meta"]

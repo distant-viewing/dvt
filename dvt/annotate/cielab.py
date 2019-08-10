@@ -6,7 +6,7 @@ import numpy as np
 import cv2
 from scipy.cluster.vq import kmeans
 
-from .core import FrameAnnotator
+from ..core import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames
 
 
@@ -31,15 +31,12 @@ class CIElabAnnotator(FrameAnnotator):
 
     name = "cielab"
 
-    def __init__(
-        self, freq=1, num_buckets=(16, 16, 16), num_dominant=5, frames=None
-    ):
+    def __init__(self, **kwargs):
 
-        self.freq = freq
-        self.num_buckets = num_buckets
-        self.num_dominant = num_dominant
-        self.frames = _proc_frame_list(frames)
-        super().__init__()
+        self.freq = kwargs.get("freq", 1)
+        self.num_buckets = kwargs.get("num_buckets", (16, 16, 16))
+        self.num_dominant = kwargs.get("num_dominant", 5)
+        self.frames = _proc_frame_list(kwargs.get("frames", None))
 
     def annotate(self, batch):
         """Annotate the batch of frames with the cielab annotator.
@@ -84,10 +81,9 @@ class CIElabAnnotator(FrameAnnotator):
             obj["dominant_colors"] = out
 
         # Add video and frame metadata
-        obj["video"] = [batch.vname] * len(frames)
         obj["frame"] = np.array(batch.get_frame_names())[list(frames)]
 
-        return [obj]
+        return obj
 
 
 def _get_cielab_histogram(img, num_buckets):
@@ -103,7 +99,7 @@ def _get_cielab_dominant(img, num_dominant):
     # increasing iter would give 'better' clustering, at the cost of speed
     dominant_colors, _ = kmeans(img_flat, num_dominant, iter=5)
 
-    if dominant_colors.shape[0] != num_dominant:              # pragma nocov
+    if dominant_colors.shape[0] != num_dominant:         # pragma: no cover
         diff = num_dominant - dominant_colors.shape[0]
         dominant_colors = np.vstack([
             dominant_colors,

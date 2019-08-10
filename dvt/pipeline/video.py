@@ -25,18 +25,19 @@ import os
 import os.path
 
 import numpy as np
+from pandas import DataFrame
 
+from ..core import DataExtraction
+from ..input import FrameInput
 from ..annotate.cielab import CIElabAnnotator
-from ..annotate.core import FrameProcessor, FrameInput
 from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
-from ..annotate.meta import MetaAnnotator
 from ..annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from ..annotate.opticalflow import OpticalFlowAnnotator
 from ..annotate.png import PngAnnotator
 from ..aggregate.display import DisplayAggregator
 from ..aggregate.people import PeopleAggregator, make_fprint_from_images
 from ..aggregate.length import ShotLengthAggregator
-from ..utils import setup_tensorflow, _format_time, DictFrame
+from ..utils import setup_tensorflow
 from .utils import _get_cuts, _get_meta
 from .data import INDEX_MAIN, INDEX_PAGE, DVT_CSS, DVT_JS, DVT_MAIN_JS
 
@@ -99,20 +100,16 @@ class VideoPipeline:
                 self.finput, self.diff_co, self.cut_min_length
             )
         else:
-            cuts = DictFrame(
-                {"frame_start": list(range(0, self.nframes - 1, freq))}
-            )
-            cuts["frame_end"] = [x + 1 for x in cuts["frame_start"][1:]]
-            cuts["frame_end"].extend([self.nframes - 1])
+            frame_start = np.array(range(0, self.nframes - 1, freq))
+            frame_end = np.append(frame_start[1:] + 1, self.nframes - 1)
 
-            cuts["frame_start"] = np.array(cuts["frame_start"])
-            cuts["frame_end"] = np.array(cuts["frame_end"])
+            self.cuts = DataFrame({
+                "frame_start": frame_start,
+                "frame_end": frame_end,
+                "mpoint": frame_start + (frame_end - frame_start) // 2
+            })
 
-            cuts["mpoint"] = (
-                cuts["frame_start"]
-                + (cuts["frame_end"] - cuts["frame_start"]) // 2
-            )
-            self.cuts = cuts
+        self.cuts["mpoint"] = np.int32(self.cuts["mpoint"].values)
 
     def run(self, level=2):
         """Run the pipeline over the input video file.
@@ -125,115 +122,105 @@ class VideoPipeline:
         if not os.path.exists(self.doutput):
             os.makedirs(self.doutput)
 
-        self._run_pipeline()
+        self._run_pipeline(level=level)
         self._make_json()
-
-        if level >= 1:
-            self._annotate_images()
 
         if level >= 2:
             self._json_toc()
             self._copy_web()
 
-    def _run_pipeline(self):
-        frames = self.cuts["mpoint"]
-
-        fpobj = FrameProcessor()
-        fpobj.load_annotator(MetaAnnotator())
-        fpobj.load_annotator(
-            PngAnnotator(
-                output_dir=os.path.join(self.doutput, "img"), frames=frames
-            )
-        )
-        fpobj.load_annotator(
-            OpticalFlowAnnotator(
-                output_dir=os.path.join(self.doutput, "img-flow"),
-                frames=frames,
-            )
-        )
-        fpobj.load_annotator(CIElabAnnotator(frames=frames, num_dominant=5))
-        fpobj.load_annotator(
-            FaceAnnotator(detector=FaceDetectMtcnn(), frames=frames)
-        )
-        fpobj.load_annotator(
-            ObjectAnnotator(detector=ObjectDetectRetinaNet(), frames=frames)
-        )
+    def _run_pipeline(self,level):
+        frames = self.cuts["mpoint"].values
 
         if self.path_to_faces is not None:
-            fembed, fnames = make_fprint_from_images(self.path_to_faces)
-            fpobj.load_annotator(
-                FaceAnnotator(
+            face_anno = FaceAnnotator(
                     detector=FaceDetectMtcnn(),
                     embedding=FaceEmbedVgg2(),
                     frames=frames
-                )
             )
         else:
-            fpobj.load_annotator(
-                FaceAnnotator(detector=FaceDetectMtcnn(), frames=frames)
+            face_anno = FaceAnnotator(
+                detector=FaceDetectMtcnn(), frames=frames
             )
 
-        fri = FrameInput(self.finput, bsize=128)
-        fpobj.process(fri)
-        self.pipeline_data = fpobj.collect_all()
+        de = DataExtraction(FrameInput(input_path=self.finput, bsize=128))
+        de.run_annotators([
+            PngAnnotator(
+                output_dir=os.path.join(self.doutput, "img"), frames=frames
+            ),
+            OpticalFlowAnnotator(
+                output_dir=os.path.join(self.doutput, "img-flow"),
+                frames=frames,
+            ),
+            CIElabAnnotator(frames=frames, num_dominant=5),
+            ObjectAnnotator(detector=ObjectDetectRetinaNet(), frames=frames),
+            face_anno
+        ])
 
-        self.pipeline_data["length"] = ShotLengthAggregator().aggregate(
-            self.pipeline_data, frames=frames
-        )
+        de.run_aggregator(ShotLengthAggregator(frames=frames))
 
-    def _annotate_images(self):
-        img_output_dir = os.path.join(self.doutput, "img-anno")
-        if not os.path.exists(img_output_dir):
-            os.makedirs(img_output_dir)
+        if self.path_to_faces is not None:
+            fembed, fnames = make_fprint_from_images(self.path_to_faces)
 
-        dagg = DisplayAggregator(
-            input_dir=os.path.join(self.doutput, "img"),
-            output_dir=img_output_dir,
-        )
-        dagg.aggregate(self.pipeline_data, frames=self.cuts["mpoint"])
+            de.run_aggregator(PeopleAggregator(
+                face_names=fnames,
+                fprint=fembed,
+                frames=frames
+            ))
+
+        self.pipeline_data = de.get_data()
+
+        if level >= 1:
+            img_output_dir = os.path.join(self.doutput, "img-anno")
+            if not os.path.exists(img_output_dir):
+                os.makedirs(img_output_dir)
+
+            de.run_aggregator(DisplayAggregator(
+                input_dir=os.path.join(self.doutput, "img"),
+                output_dir=img_output_dir,
+                frames=frames
+            ))
 
     def _make_json(self):
         nframes = len(self.cuts["mpoint"])
-        fps = self.pipeline_data["meta"]["fps"][0]
+        fps = self.pipeline_data["meta"]["fps"].values[0]
         ldata = self.pipeline_data["length"]
-
-        if self.path_to_faces is not None:
-            people = PeopleAggregator(self.pipeline_data)
 
         output = []
         for fnum in range(nframes):
 
             output += [
                 {
-                    "frame_start": int(self.cuts["frame_start"][fnum]),
-                    "frame_end": int(self.cuts["frame_end"][fnum]),
-                    "time_start": _format_time(
-                        float(self.cuts["frame_start"][fnum]) / fps * 1000,
-                    ),
-                    "time_end": _format_time(
-                        float(self.cuts["frame_end"][fnum]) / fps * 1000,
-                    ),
+                    "frame_start": int(self.cuts["frame_start"].values[fnum]),
+                    "frame_end": int(self.cuts["frame_end"].values[fnum]),
+                    "time_start": float(
+                        self.cuts["frame_start"].values[fnum]
+                    ) / fps * 1000,
+                    "time_end": float(
+                        self.cuts["frame_end"].values[fnum]
+                    ) / fps * 1000,
                     "img_path": os.path.join(
                         "img",
-                        "frame-{0:06d}.png".format(self.cuts["mpoint"][fnum]),
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"].values[fnum]),
                     ),
                     "anno_path": os.path.join(
                         "img-anno",
-                        "frame-{0:06d}.png".format(self.cuts["mpoint"][fnum]),
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"].values[fnum]),
                     ),
                     "flow_path": os.path.join(
                         "img-flow",
-                        "frame-{0:06d}.png".format(self.cuts["mpoint"][fnum]),
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"].values[fnum]),
                     ),
                     "dominant_colors": self.pipeline_data["cielab"][
                         "dominant_colors"
-                    ][fnum].tolist(),
-                    "num_faces": int(ldata["num_faces"][fnum]),
-                    "num_people": int(ldata["num_people"][fnum]),
-                    "largest_face": int(ldata["largest_face"][fnum]),
-                    "largest_body": int(ldata["largest_body"][fnum]),
-                    "obj_list": ldata["objects"][fnum],
-                    "shot_length": ldata["shot_length"][fnum],
+                    ].values[fnum].tolist(),
+                    "num_faces": int(ldata["num_faces"].values[fnum]),
+                    "num_people": int(ldata["num_people"].values[fnum]),
+                    "largest_face": int(ldata["largest_face"].values[fnum]),
+                    "largest_body": int(ldata["largest_body"].values[fnum]),
+                    "obj_list": ldata["objects"].values[fnum],
+                    "people_list": ldata["people"].values[fnum],
+                    "shot_length": ldata["shot_length"].values[fnum],
                 }
             ]
 
@@ -250,14 +237,14 @@ class VideoPipeline:
 
             data = [x for x in data if x["video_name"] != self.fname]
 
-        miter = len(self.cuts["mpoint"]) // 2
+        miter = len(self.cuts["mpoint"].values) // 2
         data.extend(
             [
                 {
                     "thumb_path": os.path.join(
                         self.fname,
                         "img",
-                        "frame-{0:06d}.png".format(self.cuts["mpoint"][miter]),
+                        "frame-{0:06d}.png".format(self.cuts["mpoint"].values[miter]),
                     ),
                     "video_name": self.fname,
                 }
