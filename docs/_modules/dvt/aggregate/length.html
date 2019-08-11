@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.aggregate.length &mdash; dvt 0.0.8 documentation</title>
+  <title>dvt.aggregate.length &mdash; dvt 0.0.9 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.8
+                0.0.9
               </div>
             
           
@@ -194,7 +194,7 @@
 <span class="sd">    shot (MLS).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">argmax</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="nb">max</span> <span class="k">as</span> <span class="n">npmax</span><span class="p">,</span> <span class="n">nonzero</span>
 
 <span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">Aggregator</span>
 
@@ -226,9 +226,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">min_obj_score</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min_obj_score&quot;</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">min_face_score</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min_face_score&quot;</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_person_dist</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_person_dist&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">shot_sizes</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shot_sizes&quot;</span><span class="p">,</span>
-            <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">]</span>
-        <span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shot_sizes</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span>
+            <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shot_sizes&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">])</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">shot_names</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shot_names&quot;</span><span class="p">,</span> <span class="p">[</span>
             <span class="s2">&quot;1-VLS&quot;</span><span class="p">,</span>
             <span class="s2">&quot;2-LS&quot;</span><span class="p">,</span>
@@ -242,7 +242,9 @@
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shot_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shot_names</span><span class="p">)</span>
 
-<div class="viewcode-block" id="ShotLengthAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/length.html#dvt.aggregate.length.ShotLengthAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ShotLengthAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/length.html#dvt.aggregate.length.ShotLengthAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Determine shot lengths using detected faces and objects.</span>
 
 <span class="sd">        Args:</span>
@@ -292,39 +294,39 @@
         <span class="p">}</span>
 
         <span class="k">for</span> <span class="n">fnum</span><span class="p">,</span> <span class="n">frame</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">frames</span><span class="p">):</span>
-            <span class="n">face_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span>
+            <span class="n">face_ids</span> <span class="o">=</span> <span class="n">nonzero</span><span class="p">(</span>
                 <span class="p">(</span><span class="n">face</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">frame</span><span class="p">)</span> <span class="o">&amp;</span>
                 <span class="p">(</span><span class="n">face</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_face_score</span><span class="p">)</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">face_person_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span>
+            <span class="n">face_person_ids</span> <span class="o">=</span> <span class="n">nonzero</span><span class="p">(</span>
                 <span class="p">(</span><span class="n">face</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">frame</span><span class="p">)</span>
                 <span class="o">&amp;</span> <span class="p">(</span><span class="n">face</span><span class="o">.</span><span class="n">confidence</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_face_score</span><span class="p">)</span>
                 <span class="o">&amp;</span> <span class="p">(</span><span class="n">face</span><span class="o">.</span><span class="n">person_dist</span><span class="o">.</span><span class="n">values</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_person_dist</span><span class="p">)</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">objs_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span>
+            <span class="n">objs_ids</span> <span class="o">=</span> <span class="n">nonzero</span><span class="p">(</span>
                 <span class="p">(</span><span class="n">objs</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">frame</span><span class="p">)</span>
                 <span class="o">&amp;</span> <span class="p">(</span><span class="n">objs</span><span class="o">.</span><span class="n">category</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="s2">&quot;person&quot;</span><span class="p">)</span>
                 <span class="o">&amp;</span> <span class="p">(</span><span class="n">objs</span><span class="o">.</span><span class="n">score</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_obj_score</span><span class="p">)</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="n">aobj_ids</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">objs</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">frame</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">aobj_ids</span> <span class="o">=</span> <span class="n">nonzero</span><span class="p">(</span><span class="n">objs</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">values</span> <span class="o">==</span> <span class="n">frame</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
 
             <span class="n">output</span><span class="p">[</span><span class="s2">&quot;num_faces&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">face_ids</span><span class="p">)</span>
             <span class="n">output</span><span class="p">[</span><span class="s2">&quot;num_people&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">]</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">objs_ids</span><span class="p">)</span>
-            <span class="n">output</span><span class="p">[</span><span class="s2">&quot;largest_face&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
+            <span class="n">output</span><span class="p">[</span><span class="s2">&quot;largest_face&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">npmax</span><span class="p">(</span>
                 <span class="n">face_height</span><span class="p">[</span><span class="n">face_ids</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span>
             <span class="p">)</span>
-            <span class="n">output</span><span class="p">[</span><span class="s2">&quot;largest_body&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
+            <span class="n">output</span><span class="p">[</span><span class="s2">&quot;largest_body&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">npmax</span><span class="p">(</span>
                 <span class="n">objs_height</span><span class="p">[</span><span class="n">objs_ids</span><span class="p">],</span> <span class="n">initial</span><span class="o">=</span><span class="mi">0</span>
             <span class="p">)</span>
             <span class="n">output</span><span class="p">[</span><span class="s2">&quot;objects&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
                 <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">objs</span><span class="o">.</span><span class="n">category</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">aobj_ids</span><span class="p">]))</span>
             <span class="p">)</span>
             <span class="n">output</span><span class="p">[</span><span class="s2">&quot;people&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">face</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">face_ids</span><span class="p">]))</span>
+                <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">face</span><span class="o">.</span><span class="n">person</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">face_person_ids</span><span class="p">]))</span>
             <span class="p">)</span>
 
             <span class="n">output</span><span class="p">[</span><span class="s2">&quot;shot_length&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">shot_names</span><span class="p">[</span>
-                <span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shot_sizes</span> <span class="o">&gt;=</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;largest_face&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">])</span>
+                <span class="n">argmax</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shot_sizes</span> <span class="o">&gt;=</span> <span class="n">output</span><span class="p">[</span><span class="s2">&quot;largest_face&quot;</span><span class="p">][</span><span class="n">fnum</span><span class="p">])</span>
             <span class="p">]</span>
 
         <span class="k">return</span> <span class="n">output</span></div></div>

@@ -2,7 +2,7 @@
 Input Classes
 ======================
 
-.. automodule:: dvt.input
+.. automodule:: dvt.inputs
     :members:
     :undoc-members:
     :show-inheritance:

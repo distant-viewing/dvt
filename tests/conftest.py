@@ -5,7 +5,7 @@ from cv2 import imread
 import pytest
 
 from dvt.core import DataExtraction
-from dvt.input import FrameInput, ImageInput
+from dvt.inputs import FrameInput, ImageInput
 from dvt.utils import setup_tensorflow
 from dvt.annotate.cielab import CIElabAnnotator
 from dvt.annotate.diff import DiffAnnotator

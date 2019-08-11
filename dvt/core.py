@@ -5,7 +5,7 @@
 from abc import ABC, abstractmethod
 from collections import OrderedDict
 
-import pandas as pd
+from pandas import concat, DataFrame
 
 from .utils import process_output_values
 
@@ -118,6 +118,8 @@ class DataExtraction:
         self.data = OrderedDict()
 
     def run_annotators(self, annotators, max_batch=None):
+        """Run the extraction.
+        """
         self.vinput.open_input()
 
         pipeline = {anno.name: anno for anno in annotators}
@@ -142,20 +144,23 @@ class DataExtraction:
 
         for key, value in output.items():
             if value:
-                self.data[key] = pd.concat(value, ignore_index=True)
+                self.data[key] = concat(value, ignore_index=True)
             else:
-                self.data[key] = pd.DataFrame()
+                self.data[key] = DataFrame()
 
     def run_aggregator(self, aggregator):
+        """Run an aggregator.
+        """
 
         value = process_output_values(aggregator.aggregate(self.data))
         if value:
-            self.data[aggregator.name] = pd.concat(value, ignore_index=True)
+            self.data[aggregator.name] = concat(value, ignore_index=True)
         else:
-            self.data[aggregator.name] = pd.DataFrame()
-
+            self.data[aggregator.name] = DataFrame()
 
     def get_data(self):
+        """Get dataset from the object.
+        """
 
         return self.data
 

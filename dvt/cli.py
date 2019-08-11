@@ -5,9 +5,9 @@ This tool allows users to quickly apply pre-build pipelines to one or more
 media files.
 """
 
-import argparse
-import glob
-import logging
+from argparse import ArgumentParser
+from glob import glob
+from logging import basicConfig
 from os.path import abspath, splitext, basename
 
 from .pipeline.video import VideoPipeline
@@ -23,7 +23,7 @@ def run_cli():
     args = parser.parse_args()
 
     if not args.quiet:
-        logging.basicConfig(level="INFO")
+        basicConfig(level="INFO")
 
     for vin in _expand_path_and_check(args.inputs):
 
@@ -39,7 +39,7 @@ def run_cli():
 
 
 def _get_arg_parse():
-    parser = argparse.ArgumentParser(
+    parser = ArgumentParser(
         prog="python3 -m dvt",
         description="The Distant Viewing Toolkit command line interface makes "
         "it possible to quickly apply pre-build pipelines to one or more "
@@ -112,7 +112,7 @@ def _expand_path_and_check(fnames):
     """
     video_files = []
     for this_name in fnames:
-        video_files.extend(glob.glob(this_name, recursive=True))
+        video_files.extend(glob(this_name, recursive=True))
 
     video_files = sorted((abspath(x) for x in video_files))
     base_names = [splitext(basename(x))[0] for x in video_files]

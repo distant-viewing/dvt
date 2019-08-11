@@ -28,8 +28,8 @@ Example:
     detect shot breaks.
 """
 
-import cv2
-import numpy as np
+from cv2 import calcHist, cvtColor, resize, COLOR_RGB2HSV
+from numpy import abs as npabs, mean, percentile, prod, zeros
 
 from ..core import FrameAnnotator
 
@@ -99,15 +99,15 @@ def _l1_quantile(batch, quantile=50, size=32):
     msize = bsize + 1
     assert msize <= batch.get_frames().shape[0]
 
-    simg = np.zeros((msize, size, size, 3))
+    simg = zeros((msize, size, size, 3))
     for iran in range(msize):
-        fsmall = cv2.resize(batch.get_frames()[iran, :, :, :], (size, size))
-        fsmall_hsv = cv2.cvtColor(fsmall, cv2.COLOR_RGB2HSV)
+        fsmall = resize(batch.get_frames()[iran, :, :, :], (size, size))
+        fsmall_hsv = cvtColor(fsmall, COLOR_RGB2HSV)
         simg[iran, :, :, :] = fsmall_hsv
 
     norm = simg[slice(0, bsize), :, :, :] - simg[slice(1, bsize + 1), :, :, :]
 
-    return np.percentile(np.abs(norm), q=quantile, axis=(1, 2, 3))
+    return percentile(npabs(norm), q=quantile, axis=(1, 2, 3))
 
 
 def _hist_diffs(batch, quantile=50, bins=16):
@@ -119,19 +119,22 @@ def _hist_diffs(batch, quantile=50, bins=16):
 
     hist_vals = _hsv_hist(batch, msize, bins=bins)
     norm = hist_vals[slice(0, bsize), :] - hist_vals[slice(1, bsize + 1), :]
-    norm = norm / np.prod(batch.get_frames().shape[1:4]) * 100
+    norm = norm / prod(batch.get_frames().shape[1:4]) * 100
 
-    return np.percentile(np.abs(norm), q=quantile, axis=(1))
+    return percentile(npabs(norm), q=quantile, axis=(1))
 
 
 def _hsv_hist(batch, msize, bins=16):
     """Compute histogram counts from a batch of images.
     """
-    hist_vals = np.zeros((msize, bins * 3))
+    hist_vals = zeros((msize, bins * 3))
     for iran in range(msize):
-        hsv = cv2.cvtColor(batch.get_frames()[iran, :, :, :], cv2.COLOR_RGB2HSV)
+        hsv = cvtColor(
+            batch.get_frames()[iran, :, :, :],
+            COLOR_RGB2HSV
+        )
         for i in range(3):
-            hist = cv2.calcHist([hsv], [i], None, [bins], [0, 256]).flatten()
+            hist = calcHist([hsv], [i], None, [bins], [0, 256]).flatten()
             hist_vals[iran, slice(i * bins, (i + 1) * bins)] = hist
 
     return hist_vals
@@ -141,4 +144,4 @@ def _average_value_batch(batch):
     """Compute the average value across a batch of images.
     """
     img = batch.get_batch()
-    return np.mean(img, axis=(1, 2, 3))
+    return mean(img, axis=(1, 2, 3))

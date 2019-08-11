@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.annotate.hofm &mdash; dvt 0.0.8 documentation</title>
+  <title>dvt.annotate.hofm &mdash; dvt 0.0.9 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.8
+                0.0.9
               </div>
             
           
@@ -161,10 +161,10 @@
 <span class="sd">as described in https://doi.org/10.1109/SIBGRAPI.2015.21</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">importlib</span>
+<span class="kn">from</span> <span class="nn">importlib</span> <span class="k">import</span> <span class="n">import_module</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">cv2</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">digitize</span><span class="p">,</span> <span class="n">stack</span><span class="p">,</span> <span class="n">zeros</span>
+<span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span> <span class="n">cartToPolar</span>
 
 <span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
 <span class="kn">from</span> <span class="nn">.opticalflow</span> <span class="k">import</span> <span class="n">_get_optical_flow</span>
@@ -198,7 +198,7 @@
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">skutil</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;skimage.util&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skutil</span> <span class="o">=</span> <span class="n">import_module</span><span class="p">(</span><span class="s2">&quot;skimage.util&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;freq&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;blocks&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">mag_buckets</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mag_buckets&quot;</span><span class="p">,</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">100</span><span class="p">])</span>
@@ -207,6 +207,8 @@
             <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">135</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">225</span><span class="p">,</span> <span class="mi">270</span><span class="p">,</span> <span class="mi">315</span><span class="p">,</span> <span class="mi">360</span><span class="p">]</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frames&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="HOFMAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the optical flow annotator.</span>
@@ -239,25 +241,25 @@
                 <span class="p">)</span><span class="o">.</span><span class="n">flatten</span><span class="p">()</span>
             <span class="p">)</span>
 
-        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;hofm&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">hofm</span><span class="p">)}</span>
+        <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;hofm&quot;</span><span class="p">:</span> <span class="n">stack</span><span class="p">(</span><span class="n">hofm</span><span class="p">)}</span>
 
         <span class="c1"># Add video and frame metadata</span>
-        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">())[</span><span class="nb">list</span><span class="p">(</span><span class="n">frames</span><span class="p">)]</span>
+        <span class="n">obj</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">get_frame_names</span><span class="p">())[</span><span class="nb">list</span><span class="p">(</span><span class="n">frames</span><span class="p">)]</span>
 
         <span class="k">return</span> <span class="n">obj</span></div></div>
 
 
 <span class="k">def</span> <span class="nf">_make_block_hofm</span><span class="p">(</span><span class="n">flow</span><span class="p">,</span> <span class="n">blocks</span><span class="p">,</span> <span class="n">mag_buckets</span><span class="p">,</span> <span class="n">ang_buckets</span><span class="p">,</span> <span class="n">skutil</span><span class="p">):</span>
-    <span class="n">mag</span><span class="p">,</span> <span class="n">ang</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">cartToPolar</span><span class="p">(</span><span class="n">flow</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">flow</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">angleInDegrees</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">mag</span><span class="p">,</span> <span class="n">ang</span> <span class="o">=</span> <span class="n">cartToPolar</span><span class="p">(</span><span class="n">flow</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">flow</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">angleInDegrees</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="n">mag_digit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">mag</span><span class="p">,</span> <span class="n">mag_buckets</span><span class="p">)</span>
+    <span class="n">mag_digit</span> <span class="o">=</span> <span class="n">digitize</span><span class="p">(</span><span class="n">mag</span><span class="p">,</span> <span class="n">mag_buckets</span><span class="p">)</span>
     <span class="c1"># mod so 360 falls into first bucket</span>
-    <span class="n">ang_digit</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">digitize</span><span class="p">(</span><span class="n">ang</span> <span class="o">%</span> <span class="mi">360</span><span class="p">,</span> <span class="n">ang_buckets</span><span class="p">)</span>
+    <span class="n">ang_digit</span> <span class="o">=</span> <span class="n">digitize</span><span class="p">(</span><span class="n">ang</span> <span class="o">%</span> <span class="mi">360</span><span class="p">,</span> <span class="n">ang_buckets</span><span class="p">)</span>
 
     <span class="n">mag_blocks</span> <span class="o">=</span> <span class="n">skutil</span><span class="o">.</span><span class="n">view_as_blocks</span><span class="p">(</span><span class="n">mag_digit</span><span class="p">,</span> <span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">blocks</span><span class="p">))</span>
     <span class="n">ang_blocks</span> <span class="o">=</span> <span class="n">skutil</span><span class="o">.</span><span class="n">view_as_blocks</span><span class="p">(</span><span class="n">ang_digit</span><span class="p">,</span> <span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">blocks</span><span class="p">))</span>
 
-    <span class="n">histogram</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+    <span class="n">histogram</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span>
         <span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">blocks</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">mag_buckets</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">ang_buckets</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
     <span class="p">)</span>
 

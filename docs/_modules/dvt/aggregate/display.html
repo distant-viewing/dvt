@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.aggregate.display &mdash; dvt 0.0.8 documentation</title>
+  <title>dvt.aggregate.display &mdash; dvt 0.0.9 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.8
+                0.0.9
               </div>
             
           
@@ -157,18 +157,29 @@
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;Display detected objects and faces in output image files.</span>
 
-<span class="sd">The aggregator functions here takes detected faces and objects. It draws</span>
-<span class="sd">bounding boxes over the repective frames and saves the png files locally.</span>
-<span class="sd">Requires that the PNG annotator was run and the original images are saved.</span>
+<span class="sd">The aggregator functions here take as input detected faces and objects. It</span>
+<span class="sd">draws bounding boxes over the repective frames and saves the png files</span>
+<span class="sd">locally. Requires that the PNG annotator was run and the original images are</span>
+<span class="sd">saved somewhere locally.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span>
 
-<span class="kn">import</span> <span class="nn">cv2</span>
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">getTextSize</span><span class="p">,</span>
+    <span class="n">imread</span><span class="p">,</span>
+    <span class="n">imwrite</span><span class="p">,</span>
+    <span class="n">putText</span><span class="p">,</span>
+    <span class="n">rectangle</span><span class="p">,</span>
+    <span class="n">FILLED</span><span class="p">,</span>
+    <span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
+    <span class="n">LINE_AA</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">nonzero</span>
 
 <span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">Aggregator</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_check_out_dir</span>
+
 
 <div class="viewcode-block" id="DisplayAggregator"><a class="viewcode-back" href="../../../aggregate/display.html#dvt.aggregate.display.DisplayAggregator">[docs]</a><span class="k">class</span> <span class="nc">DisplayAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Display detected faces and objects as overlay over image frames.</span>
@@ -194,7 +205,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">_check_out_dir</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output_dir&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;frames&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-<div class="viewcode-block" id="DisplayAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/display.html#dvt.aggregate.display.DisplayAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="DisplayAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/display.html#dvt.aggregate.display.DisplayAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create output png files showing the annotated data.</span>
 
 <span class="sd">        Args:</span>
@@ -222,15 +235,15 @@
 
 <span class="k">def</span> <span class="nf">_add_annotations_to_image</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pipeline_data</span><span class="p">):</span>
     <span class="c1"># get input and file paths</span>
-    <span class="n">input_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
-    <span class="n">output_file</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
+    <span class="n">input_file</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
+    <span class="n">output_file</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
 
     <span class="c1"># define colours</span>
     <span class="n">box_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">165</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">face_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">203</span><span class="p">)</span>
     <span class="n">white_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
 
-    <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imread</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+    <span class="n">img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">pipeline_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;obj&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">_add_bbox</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pipeline_data</span><span class="p">[</span><span class="s2">&quot;obj&quot;</span><span class="p">],</span> <span class="n">box_color</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
@@ -247,12 +260,12 @@
     <span class="k">if</span> <span class="n">pipeline_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">img</span> <span class="o">=</span> <span class="n">_add_bbox</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pipeline_data</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">],</span> <span class="n">face_color</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">_</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">imwrite</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>
+    <span class="n">_</span> <span class="o">=</span> <span class="n">imwrite</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>
 
 
 <span class="k">def</span> <span class="nf">_add_bbox</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>
 
-    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="n">frame</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">nonzero</span><span class="p">(</span><span class="n">array</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="n">frame</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
         <span class="c1"># grab values from data</span>
         <span class="n">top</span> <span class="o">=</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
         <span class="n">right</span> <span class="o">=</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
@@ -260,7 +273,7 @@
         <span class="n">left</span> <span class="o">=</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
 
         <span class="c1"># plot the rectangle</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">rectangle</span><span class="p">(</span>
             <span class="n">img</span><span class="p">,</span> <span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">top</span><span class="p">),</span> <span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">bottom</span><span class="p">),</span> <span class="n">color</span><span class="p">,</span> <span class="n">thickness</span>
         <span class="p">)</span>
 
@@ -269,8 +282,7 @@
 
 <span class="k">def</span> <span class="nf">_add_box_text</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">lvar</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="n">bgc</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">):</span>
 
-    <span class="n">font</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span>
-    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="n">frame</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
+    <span class="k">for</span> <span class="n">ind</span> <span class="ow">in</span> <span class="n">nonzero</span><span class="p">(</span><span class="n">array</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;frame&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="n">frame</span><span class="p">)[</span><span class="mi">0</span><span class="p">]:</span>
         <span class="c1"># grab values from data</span>
         <span class="n">bottom</span> <span class="o">=</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
         <span class="n">left</span> <span class="o">=</span> <span class="n">pdf</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">][</span><span class="n">ind</span><span class="p">]</span>
@@ -278,8 +290,8 @@
 
         <span class="k">if</span> <span class="n">bgc</span><span class="p">:</span>
             <span class="c1"># make a text box with background color bg</span>
-            <span class="p">(</span><span class="n">text_width</span><span class="p">,</span> <span class="n">text_height</span><span class="p">)</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">getTextSize</span><span class="p">(</span>
-                <span class="n">msg</span><span class="p">,</span> <span class="n">font</span><span class="p">,</span> <span class="n">fontScale</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span>
+            <span class="p">(</span><span class="n">text_width</span><span class="p">,</span> <span class="n">text_height</span><span class="p">)</span> <span class="o">=</span> <span class="n">getTextSize</span><span class="p">(</span>
+                <span class="n">msg</span><span class="p">,</span> <span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span> <span class="n">fontScale</span><span class="o">=</span><span class="n">size</span><span class="p">,</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">1</span>
             <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
             <span class="n">text_offset_x</span> <span class="o">=</span> <span class="n">left</span>
             <span class="n">text_offset_y</span> <span class="o">=</span> <span class="n">bottom</span>
@@ -290,20 +302,20 @@
                     <span class="n">text_offset_y</span> <span class="o">-</span> <span class="n">text_height</span> <span class="o">-</span> <span class="mi">10</span><span class="p">,</span>
                 <span class="p">),</span>
             <span class="p">)</span>
-            <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">rectangle</span><span class="p">(</span>
-                <span class="n">img</span><span class="p">,</span> <span class="n">box_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bgc</span><span class="p">,</span> <span class="n">cv2</span><span class="o">.</span><span class="n">FILLED</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">rectangle</span><span class="p">(</span>
+                <span class="n">img</span><span class="p">,</span> <span class="n">box_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">box_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">bgc</span><span class="p">,</span> <span class="n">FILLED</span>
             <span class="p">)</span>
 
         <span class="c1"># plot text and text box</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">cv2</span><span class="o">.</span><span class="n">putText</span><span class="p">(</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">putText</span><span class="p">(</span>
             <span class="n">img</span><span class="p">,</span>
             <span class="n">msg</span><span class="p">,</span>
             <span class="p">(</span><span class="n">left</span> <span class="o">+</span> <span class="mi">5</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">-</span> <span class="mi">5</span><span class="p">),</span>
-            <span class="n">cv2</span><span class="o">.</span><span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
+            <span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
             <span class="n">size</span><span class="p">,</span>
             <span class="n">color</span><span class="p">,</span>
             <span class="mi">1</span><span class="p">,</span>
-            <span class="n">cv2</span><span class="o">.</span><span class="n">LINE_AA</span><span class="p">,</span>
+            <span class="n">LINE_AA</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">return</span> <span class="n">img</span>

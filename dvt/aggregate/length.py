@@ -38,7 +38,7 @@ Example:
     shot (MLS).
 """
 
-import numpy as np
+from numpy import argmax, array, max as npmax, nonzero
 
 from ..core import Aggregator
 
@@ -70,9 +70,9 @@ class ShotLengthAggregator(Aggregator):
         self.min_obj_score = kwargs.get("min_obj_score", 0.7)
         self.min_face_score = kwargs.get("min_face_score", 0.7)
         self.max_person_dist = kwargs.get("max_person_dist", 100)
-        self.shot_sizes = np.array(kwargs.get("shot_sizes",
-            [0, 0.05, 0.15, 0.2, 0.3, 0.5, 0.7]
-        ))
+        self.shot_sizes = array(
+            kwargs.get("shot_sizes", [0, 0.05, 0.15, 0.2, 0.3, 0.5, 0.7])
+        )
         self.shot_names = kwargs.get("shot_names", [
             "1-VLS",
             "2-LS",
@@ -86,7 +86,9 @@ class ShotLengthAggregator(Aggregator):
 
         assert len(self.shot_sizes) == len(self.shot_names)
 
-    def aggregate(self, ldframe):
+        super().__init__()
+
+    def aggregate(self, ldframe, **kwargs):
         """Determine shot lengths using detected faces and objects.
 
         Args:
@@ -136,39 +138,39 @@ class ShotLengthAggregator(Aggregator):
         }
 
         for fnum, frame in enumerate(frames):
-            face_ids = np.nonzero(
+            face_ids = nonzero(
                 (face.frame.values == frame) &
                 (face.confidence.values > self.min_face_score)
             )[0]
-            face_person_ids = np.nonzero(
+            face_person_ids = nonzero(
                 (face.frame.values == frame)
                 & (face.confidence.values > self.min_face_score)
                 & (face.person_dist.values < self.max_person_dist)
             )[0]
-            objs_ids = np.nonzero(
+            objs_ids = nonzero(
                 (objs.frame.values == frame)
                 & (objs.category.values == "person")
                 & (objs.score.values > self.min_obj_score)
             )[0]
-            aobj_ids = np.nonzero(objs.frame.values == frame)[0]
+            aobj_ids = nonzero(objs.frame.values == frame)[0]
 
             output["num_faces"][fnum] = len(face_ids)
             output["num_people"][fnum] = len(objs_ids)
-            output["largest_face"][fnum] = np.max(
+            output["largest_face"][fnum] = npmax(
                 face_height[face_ids], initial=0
             )
-            output["largest_body"][fnum] = np.max(
+            output["largest_body"][fnum] = npmax(
                 objs_height[objs_ids], initial=0
             )
             output["objects"][fnum] = "; ".join(
                 sorted(set(objs.category.values[aobj_ids]))
             )
             output["people"][fnum] = "; ".join(
-                sorted(set(face.person.values[face_ids]))
+                sorted(set(face.person.values[face_person_ids]))
             )
 
             output["shot_length"][fnum] = self.shot_names[
-                np.argmax(self.shot_sizes >= output["largest_face"][fnum])
+                argmax(self.shot_sizes >= output["largest_face"][fnum])
             ]
 
         return output

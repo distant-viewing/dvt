@@ -5,10 +5,10 @@ histogram of optical flow orientation and magnitude (HOFM),
 as described in https://doi.org/10.1109/SIBGRAPI.2015.21
 """
 
-import importlib
+from importlib import import_module
 
-import numpy as np
-import cv2
+from numpy import array, digitize, stack, zeros
+from cv2 import cartToPolar
 
 from ..core import FrameAnnotator
 from .opticalflow import _get_optical_flow
@@ -42,7 +42,7 @@ class HOFMAnnotator(FrameAnnotator):
 
     def __init__(self, **kwargs):
 
-        self.skutil = importlib.import_module("skimage.util")
+        self.skutil = import_module("skimage.util")
         self.freq = kwargs.get("freq", 1)
         self.blocks = kwargs.get("blocks", 3)
         self.mag_buckets = kwargs.get("mag_buckets", [0, 20, 40, 60, 80, 100])
@@ -51,6 +51,8 @@ class HOFMAnnotator(FrameAnnotator):
             [0, 45, 90, 135, 180, 225, 270, 315, 360]
         )
         self.frames = _proc_frame_list(kwargs.get("frames", None))
+
+        super().__init__()
 
     def annotate(self, batch):
         """Annotate the batch of frames with the optical flow annotator.
@@ -83,25 +85,25 @@ class HOFMAnnotator(FrameAnnotator):
                 ).flatten()
             )
 
-        obj = {"hofm": np.stack(hofm)}
+        obj = {"hofm": stack(hofm)}
 
         # Add video and frame metadata
-        obj["frame"] = np.array(batch.get_frame_names())[list(frames)]
+        obj["frame"] = array(batch.get_frame_names())[list(frames)]
 
         return obj
 
 
 def _make_block_hofm(flow, blocks, mag_buckets, ang_buckets, skutil):
-    mag, ang = cv2.cartToPolar(flow[..., 0], flow[..., 1], angleInDegrees=True)
+    mag, ang = cartToPolar(flow[..., 0], flow[..., 1], angleInDegrees=True)
 
-    mag_digit = np.digitize(mag, mag_buckets)
+    mag_digit = digitize(mag, mag_buckets)
     # mod so 360 falls into first bucket
-    ang_digit = np.digitize(ang % 360, ang_buckets)
+    ang_digit = digitize(ang % 360, ang_buckets)
 
     mag_blocks = skutil.view_as_blocks(mag_digit, (blocks, blocks))
     ang_blocks = skutil.view_as_blocks(ang_digit, (blocks, blocks))
 
-    histogram = np.zeros(
+    histogram = zeros(
         (blocks, blocks, len(mag_buckets), len(ang_buckets) - 1)
     )
 

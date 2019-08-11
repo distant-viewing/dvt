@@ -39,7 +39,7 @@ required = [
 
 extras = {
     "tests": ["pytest", "pytest-pep8", "pytest-xdist", "pytest-cov", "codecov"],
-    "optional": ["pyrtools", "cmake", "dlib", "scikit-image"]
+    "optional": ["scikit-image"]
 }
 
 setup(

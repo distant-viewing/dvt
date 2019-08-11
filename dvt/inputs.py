@@ -2,11 +2,21 @@
 """Input objects
 """
 
-import glob
-import itertools
+from glob import glob
+from itertools import chain
 
-import cv2
-import numpy as np
+from cv2 import (
+  COLOR_BGR2RGB,
+  cvtColor,
+  imread,
+  VideoCapture,
+  CAP_PROP_FPS,
+  CAP_PROP_FRAME_COUNT,
+  CAP_PROP_FRAME_HEIGHT,
+  CAP_PROP_FRAME_WIDTH,
+  CAP_PROP_POS_MSEC
+)
+from numpy import zeros, uint8, stack, zeros_like
 
 from .core import VisualInput, FrameBatch
 from .utils import _expand_path
@@ -45,6 +55,15 @@ class FrameInput(VisualInput):
         self.input_path = _expand_path(kwargs["input_path"])[0]
         self.bsize = kwargs.get("bsize", 256)
         self.meta = None
+        self.fcount = 0
+        self.continue_read = True
+        self.start = 0
+        self.end = 0
+        self._video_cap = None
+        self._img = None
+        self._continue = True
+
+        super().__init__()
 
     def open_input(self):
         """Open connection to the video file.
@@ -54,12 +73,12 @@ class FrameInput(VisualInput):
         self.continue_read = True
         self.start = 0
         self.end = 0
-        self._video_cap = cv2.VideoCapture(self.input_path)
+        self._video_cap = VideoCapture(self.input_path)
         self.meta = self._metadata()
 
-        self._img = np.zeros(
+        self._img = zeros(
             (self.bsize * 2, self.meta["height"], self.meta["width"], 3),
-            dtype=np.uint8,
+            dtype=uint8,
         )
         self._fill_bandwidth()  # fill the buffer with the first batch
         self._continue = True   # is there any more input left in the video
@@ -86,7 +105,7 @@ class FrameInput(VisualInput):
         # update counters
         frame_start = self.fcount
         self.start = self.end
-        self.end = self._video_cap.get(cv2.CAP_PROP_POS_MSEC)
+        self.end = self._video_cap.get(CAP_PROP_POS_MSEC)
         self.fcount = self.fcount + self.bsize
 
         # get frame names
@@ -111,10 +130,10 @@ class FrameInput(VisualInput):
         path, bname, filename, file_extension = _expand_path(self.input_path)
         return {
             "type": "video",
-            "fps": self._video_cap.get(cv2.CAP_PROP_FPS),
-            "frames": int(self._video_cap.get(cv2.CAP_PROP_FRAME_COUNT)),
-            "height": int(self._video_cap.get(cv2.CAP_PROP_FRAME_HEIGHT)),
-            "width": int(self._video_cap.get(cv2.CAP_PROP_FRAME_WIDTH)),
+            "fps": self._video_cap.get(CAP_PROP_FPS),
+            "frames": int(self._video_cap.get(CAP_PROP_FRAME_COUNT)),
+            "height": int(self._video_cap.get(CAP_PROP_FRAME_HEIGHT)),
+            "width": int(self._video_cap.get(CAP_PROP_FRAME_WIDTH)),
             "input_path": path,
             "input_bname": bname,
             "input_filename": filename,
@@ -130,8 +149,8 @@ class FrameInput(VisualInput):
         for idx in range(self.bsize):
             self._continue, frame = self._video_cap.read()
             if self._continue:
-                rgb_id = cv2.COLOR_BGR2RGB
-                self._img[idx + self.bsize, :, :, :] = cv2.cvtColor(
+                rgb_id = COLOR_BGR2RGB
+                self._img[idx + self.bsize, :, :, :] = cvtColor(
                     frame, rgb_id
                 )
             else:
@@ -172,11 +191,21 @@ class ImageInput(VisualInput):
         if not isinstance(input_paths, list):
             input_paths = [input_paths]
 
-        input_paths = [glob.glob(x, recursive=True) for x in input_paths]
-        self.paths = list(itertools.chain.from_iterable(input_paths))
+        input_paths = [glob(x, recursive=True) for x in input_paths]
+        self.paths = list(chain.from_iterable(input_paths))
+
+        # fill in attribute defaults
+        self.meta = None
+        self.fcount = 0
+        self.continue_read = True
+        self.start = 0
+        self.end = 0
+        self._video_cap = None
 
         # create metadata
         self.meta = {"type": "image", "paths": self.paths}
+
+        super().__init__()
 
     def open_input(self):
         self.fcount = 0
@@ -194,9 +223,9 @@ class ImageInput(VisualInput):
         this_index = self.fcount
 
         # read the next image and create buffer
-        img = cv2.imread(self.paths[this_index])
-        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-        img = np.stack([img, np.zeros_like(img)])
+        img = imread(self.paths[this_index])
+        img = cvtColor(img, COLOR_BGR2RGB)
+        img = stack([img, zeros_like(img)])
 
         # is this the last image?
         self.fcount += 1

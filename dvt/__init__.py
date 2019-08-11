@@ -14,7 +14,7 @@ from __future__ import absolute_import
 
 from . import annotate
 from . import core
-from . import input
+from . import inputs
 from . import utils
 from . import aggregate
 

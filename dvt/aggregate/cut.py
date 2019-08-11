@@ -63,7 +63,9 @@ class CutAggregator(Aggregator):
         self.cut_vals = kargs.get("cut_vals", None)
         self.min_len = kargs.get("min_len", 1)
 
-    def aggregate(self, ldframe):
+        super().__init__()
+
+    def aggregate(self, ldframe, **kwargs):
         """Aggregate difference annotator.
 
         Args:

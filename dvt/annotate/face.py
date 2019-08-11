@@ -40,11 +40,9 @@ Example:
     face at frame 128 and two faces at frame 384.
 """
 
-import importlib
+from importlib import import_module
 
-import numpy as np
-from keras.utils import get_file
-from keras import backend as K
+from numpy import float32, expand_dims
 
 from ..core import FrameAnnotator
 from ..utils import (
@@ -85,6 +83,8 @@ class FaceAnnotator(FrameAnnotator):
         self.embedding = kwargs.get("embedding", None)
         self.frames = _proc_frame_list(kwargs.get("frames", None))
 
+        super().__init__()
+
     def annotate(self, batch):
         """Annotate the batch of frames with the face annotator.
 
@@ -120,7 +120,7 @@ class FaceDetectMtcnn:
     """
 
     def __init__(self, cutoff=0):
-        self.mtcnn = importlib.import_module("mtcnn.mtcnn")
+        self.mtcnn = import_module("mtcnn.mtcnn")
         self.cutoff = cutoff
         self._mt = self.mtcnn.MTCNN(min_face_size=20)
 
@@ -172,6 +172,8 @@ class FaceEmbedVgg2:
 
     def __init__(self):
         from keras.models import load_model
+        from keras.utils import get_file
+        from keras import backend as K
 
         mloc = get_file(
             "vggface2-resnet50.h5",
@@ -209,8 +211,8 @@ class FaceEmbedVgg2:
         return self._model.predict(iscale)[0, 0, 0, :]
 
     def _proc_image(self, iscale):
-        iscale = np.float32(iscale)
-        iscale = np.expand_dims(iscale, axis=0)
+        iscale = float32(iscale)
+        iscale = expand_dims(iscale, axis=0)
 
         if self._iformat == "channels_first":    # pragma: no cover
             iscale = iscale[:, ::-1, ...]

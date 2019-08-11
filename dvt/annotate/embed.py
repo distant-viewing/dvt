@@ -33,8 +33,8 @@ Example:
     ran two batches, each with 256 frames.
 """
 
-import cv2
-import numpy as np
+from cv2 import resize
+from numpy import array, zeros
 
 from ..core import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames
@@ -83,7 +83,7 @@ class EmbedAnnotator(FrameAnnotator):
 
         # run the embedding and add video and frame metadata
         obj = self.embedding.embed(batch.img[fnum, :, :, :])
-        obj["frame"] = np.array(batch.get_frame_names())[list(fnum)]
+        obj["frame"] = array(batch.get_frame_names())[list(fnum)]
 
         return obj
 
@@ -128,9 +128,9 @@ class EmbedFrameKeras:
         """
 
         # resize the images
-        rimg = np.zeros([img.shape[0]] + list(self.input_shape) + [3])
+        rimg = zeros([img.shape[0]] + list(self.input_shape) + [3])
         for i in range(img.shape[0]):
-            rimg[i, :, :, :] = cv2.resize(img[i, :, :, :], self.input_shape)
+            rimg[i, :, :, :] = resize(img[i, :, :, :], self.input_shape)
 
         # process the inputs image
         if self.preprocess_input:

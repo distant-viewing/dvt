@@ -9,7 +9,7 @@ Core Functions
 
    cli
    core
-   input
+   inputs
    utils
 
 Annotations

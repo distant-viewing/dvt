@@ -2,8 +2,8 @@
 """Annotators to extract CIELAB color histograms.
 """
 
-import numpy as np
-import cv2
+from numpy import vstack, stack, dtype, full, zeros, uint8, array, float32
+from cv2 import calcHist, cvtColor, COLOR_LAB2RGB, COLOR_RGB2LAB
 from scipy.cluster.vq import kmeans
 
 from ..core import FrameAnnotator
@@ -38,6 +38,8 @@ class CIElabAnnotator(FrameAnnotator):
         self.num_dominant = kwargs.get("num_dominant", 5)
         self.frames = _proc_frame_list(kwargs.get("frames", None))
 
+        super().__init__()
+
     def annotate(self, batch):
         """Annotate the batch of frames with the cielab annotator.
 
@@ -59,19 +61,19 @@ class CIElabAnnotator(FrameAnnotator):
         hgrams = []
         dominant = []
         for fnum in frames:
-            img_lab = cv2.cvtColor(batch.img[fnum, :, :, :], cv2.COLOR_RGB2LAB)
+            img_lab = cvtColor(batch.img[fnum, :, :, :], COLOR_RGB2LAB)
 
             hgrams += [_get_cielab_histogram(img_lab, self.num_buckets)]
             if self.num_dominant > 0:
                 dominant += [_get_cielab_dominant(img_lab, self.num_dominant)]
 
-        obj = {"cielab": np.vstack(hgrams)}
+        obj = {"cielab": vstack(hgrams)}
 
         if self.num_dominant > 0:
-            obj_rgb = cv2.cvtColor(np.stack(dominant), cv2.COLOR_LAB2RGB)
+            obj_rgb = cvtColor(stack(dominant), COLOR_LAB2RGB)
 
             shp = (obj_rgb.shape[0], self.num_dominant)
-            out = np.full(shp, "#000000", dtype=np.dtype("<U7"))
+            out = full(shp, "#000000", dtype=dtype("<U7"))
             for i, obj_frame in enumerate(obj_rgb):
                 for j, occ in enumerate(obj_frame):
                     out[i, j] = "#{0:02x}{1:02x}{2:02x}".format(
@@ -81,29 +83,29 @@ class CIElabAnnotator(FrameAnnotator):
             obj["dominant_colors"] = out
 
         # Add video and frame metadata
-        obj["frame"] = np.array(batch.get_frame_names())[list(frames)]
+        obj["frame"] = array(batch.get_frame_names())[list(frames)]
 
         return obj
 
 
 def _get_cielab_histogram(img, num_buckets):
 
-    return cv2.calcHist(
+    return calcHist(
         [img], [0, 1, 2], None, num_buckets, [0, 256, 0, 256, 0, 256]
     ).reshape(-1)
 
 
 def _get_cielab_dominant(img, num_dominant):
-    img_flat = img.reshape(-1, 3).astype(np.float32)
+    img_flat = img.reshape(-1, 3).astype(float32)
 
     # increasing iter would give 'better' clustering, at the cost of speed
     dominant_colors, _ = kmeans(img_flat, num_dominant, iter=5)
 
     if dominant_colors.shape[0] != num_dominant:         # pragma: no cover
         diff = num_dominant - dominant_colors.shape[0]
-        dominant_colors = np.vstack([
+        dominant_colors = vstack([
             dominant_colors,
-            np.zeros((diff, dominant_colors.shape[1]))
+            zeros((diff, dominant_colors.shape[1]))
         ])
 
-    return dominant_colors.astype(np.uint8)
+    return dominant_colors.astype(uint8)

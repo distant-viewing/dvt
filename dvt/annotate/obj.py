@@ -39,10 +39,9 @@ Example:
     a total of 11 people and one couch.
 """
 
-import warnings
+from warnings import catch_warnings, simplefilter
 
-import numpy as np
-from keras.utils import get_file
+from numpy import expand_dims
 
 from ..core import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames, process_output_values
@@ -70,6 +69,8 @@ class ObjectAnnotator(FrameAnnotator):
         self.freq = kwargs.get("freq", 1)
         self.detector = kwargs.get("detector")
         self.frames = _proc_frame_list(kwargs.get("frames", None))
+
+        super().__init__()
 
     def annotate(self, batch):
         """Annotate the batch of frames with the object detector.
@@ -108,6 +109,7 @@ class ObjectDetectRetinaNet:
     def __init__(self, cutoff=0.5):
         from keras_retinanet import models
         from keras_retinanet.utils.image import preprocess_image, resize_image
+        from keras.utils import get_file
 
         mloc = get_file(
             "resnet50_coco_best_v2.1.0.h5",
@@ -119,8 +121,8 @@ class ObjectDetectRetinaNet:
         self.preprocess_image = preprocess_image
         self.resize_image = resize_image
         self.cutoff = cutoff
-        with warnings.catch_warnings():
-            warnings.simplefilter("ignore")
+        with catch_warnings():
+            simplefilter("ignore")
             self.model = models.load_model(mloc, backbone_name="resnet50")
 
         self.lcodes = {
@@ -223,7 +225,7 @@ class ObjectDetectRetinaNet:
         # process the input image
         img = self.preprocess_image(img)
         img, scale = self.resize_image(img)
-        img = np.expand_dims(img, axis=0)
+        img = expand_dims(img, axis=0)
 
         # make predictions and scale back to original
         boxes, scores, labels = self.model.predict_on_batch(img)

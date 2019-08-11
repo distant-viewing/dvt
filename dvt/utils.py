@@ -18,7 +18,7 @@ def process_output_values(values):
     if isinstance(values, DataFrame):
         return [values]
 
-    if isinstance(values, list) or values == None:
+    if isinstance(values, list) or values is None:
         return values
 
     assert isinstance(values, dict)
@@ -29,11 +29,11 @@ def process_output_values(values):
             values[key] = [x for x in values[key]]
 
     try:
-        df = DataFrame(values)
-    except ValueError as ve:
-        df = DataFrame(values, index=[0])
+        dframe = DataFrame(values)
+    except ValueError as _:
+        dframe = DataFrame(values, index=[0])
 
-    return [df]
+    return [dframe]
 
 
 def sub_image(img, top, right, bottom, left, fct=1, output_shape=None):
@@ -87,24 +87,26 @@ def setup_tensorflow():
     GPU or CPU.
     """
     from keras.backend.tensorflow_backend import set_session
-    import tensorflow as tf
-    import os
+    from tensorflow import logging, ConfigProto, Session
+    from os import environ
 
     # supress warnings
-    tf.logging.set_verbosity(tf.logging.ERROR)
-    os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+    logging.set_verbosity(logging.ERROR)
+    environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
     # ensure that keras does not use all of the available memory
-    config = tf.ConfigProto()
+    config = ConfigProto()
     config.gpu_options.per_process_gpu_memory_fraction = 0.3
     config.gpu_options.visible_device_list = "0"
-    set_session(tf.Session(config=config))
+    set_session(Session(config=config))
 
     # fix a common local bug
-    os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+    environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 
 def pd_col_asarray(pdf, column):
+    """Takes a pandas dataframe and column name returns a numpy array.
+    """
     return vstack(pdf[column].to_list())
 
 

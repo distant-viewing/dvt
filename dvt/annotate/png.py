@@ -17,9 +17,9 @@ Example:
     They images named according following the format "frame-000255.png".
 """
 
-import os
+from os.path import basename, join, splitext
 
-import cv2
+from cv2 import cvtColor, imwrite, resize, COLOR_RGB2BGR
 
 from ..core import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames, _check_out_dir
@@ -52,6 +52,8 @@ class PngAnnotator(FrameAnnotator):
         self.size = kwargs.get('size', None)
         self.frames = _proc_frame_list(kwargs.get('frames', None))
 
+        super().__init__()
+
     def annotate(self, batch):
         """Annotate the batch of frames with the PNG annotator.
 
@@ -62,20 +64,18 @@ class PngAnnotator(FrameAnnotator):
             Returns an empty list.
         """
         for fnum in _which_frames(batch, self.freq, self.frames):
-            img = cv2.cvtColor(batch.img[fnum, :, :, :], cv2.COLOR_RGB2BGR)
+            img = cvtColor(batch.img[fnum, :, :, :], COLOR_RGB2BGR)
             frame = batch.get_frame_names()[fnum]
 
             if isinstance(frame, int):
                 opath = "frame-{0:06d}.png".format(frame)
             else:
-                opath = os.path.basename(frame)
-                opath = os.path.splitext(opath)[0] + ".png"
+                opath = basename(frame)
+                opath = splitext(opath)[0] + ".png"
 
-            opath = os.path.join(self.output_dir, opath)
+            opath = join(self.output_dir, opath)
             if self.size is not None:
-                img_resize = cv2.resize(img, self.size)
-                cv2.imwrite(filename=opath, img=img_resize)
+                img_resize = resize(img, self.size)
+                imwrite(filename=opath, img=img_resize)
             else:
-                cv2.imwrite(filename=opath, img=img)
-
-        return None
+                imwrite(filename=opath, img=img)

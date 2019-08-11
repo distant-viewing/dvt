@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Display Aggregators &mdash; dvt 0.0.8 documentation</title>
+  <title>Display Aggregators &mdash; dvt 0.0.9 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.0.8
+                0.0.9
               </div>
             
           
@@ -174,9 +174,10 @@
   <div class="section" id="module-dvt.aggregate.display">
 <span id="display-aggregators"></span><h1>Display Aggregators<a class="headerlink" href="#module-dvt.aggregate.display" title="Permalink to this headline">¶</a></h1>
 <p>Display detected objects and faces in output image files.</p>
-<p>The aggregator functions here takes detected faces and objects. It draws
-bounding boxes over the repective frames and saves the png files locally.
-Requires that the PNG annotator was run and the original images are saved.</p>
+<p>The aggregator functions here take as input detected faces and objects. It
+draws bounding boxes over the repective frames and saves the png files
+locally. Requires that the PNG annotator was run and the original images are
+saved somewhere locally.</p>
 <dl class="class">
 <dt id="dvt.aggregate.display.DisplayAggregator">
 <em class="property">class </em><code class="descclassname">dvt.aggregate.display.</code><code class="descname">DisplayAggregator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/display.html#DisplayAggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.display.DisplayAggregator" title="Permalink to this definition">¶</a></dt>
@@ -246,7 +247,7 @@ None to use the default settings.</p>
 
 <dl class="method">
 <dt id="dvt.aggregate.display.DisplayAggregator.aggregate">
-<code class="descname">aggregate</code><span class="sig-paren">(</span><em>ldframe</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/display.html#DisplayAggregator.aggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.display.DisplayAggregator.aggregate" title="Permalink to this definition">¶</a></dt>
+<code class="descname">aggregate</code><span class="sig-paren">(</span><em>ldframe</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/display.html#DisplayAggregator.aggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.display.DisplayAggregator.aggregate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create output png files showing the annotated data.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -268,6 +269,183 @@ any frame with a detected face or object.</li>
 <code class="descname">name</code><em class="property"> = 'display'</em><a class="headerlink" href="#dvt.aggregate.display.DisplayAggregator.name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
+</dd></dl>
+
+<dl class="function">
+<dt id="dvt.aggregate.display.getTextSize">
+<code class="descclassname">dvt.aggregate.display.</code><code class="descname">getTextSize</code><span class="sig-paren">(</span><em>text</em>, <em>fontFace</em>, <em>fontScale</em>, <em>thickness</em><span class="sig-paren">)</span> &#x2192; retval, baseLine<a class="headerlink" href="#dvt.aggregate.display.getTextSize" title="Permalink to this definition">¶</a></dt>
+<dd><p>.   &#64;brief Calculates the width and height of a text string.
+.
+.   The function cv::getTextSize calculates and returns the size of a box that contains the specified text.
+.   That is, the following code renders some text, the tight box surrounding it, and the baseline: :
+.   &#64;code
+.   String text = “Funny text inside the box”;
+.   int fontFace = FONT_HERSHEY_SCRIPT_SIMPLEX;
+.   double fontScale = 2;
+.   int thickness = 3;
+.
+.   Mat img(600, 800, CV_8UC3, Scalar::all(0));
+.
+.   int baseline=0;
+.   Size textSize = getTextSize(text, fontFace,
+.   fontScale, thickness, &amp;baseline);
+.   baseline += thickness;
+.
+.   // center the text
+.   Point textOrg((img.cols - textSize.width)/2,
+.   (img.rows + textSize.height)/2);
+.
+.   // draw the box
+.   rectangle(img, textOrg + Point(0, baseline),
+.   textOrg + Point(textSize.width, -textSize.height),
+.   Scalar(0,0,255));
+.   // … and the baseline first
+.   line(img, textOrg + Point(0, thickness),
+.   textOrg + Point(textSize.width, thickness),
+.   Scalar(0, 0, 255));
+.
+.   // then put the text itself
+.   putText(img, text, textOrg, fontFace, fontScale,
+.   Scalar::all(255), thickness, 8);
+.   &#64;endcode
+.
+.   &#64;param text Input text string.
+.   &#64;param fontFace Font to use, see #HersheyFonts.
+.   &#64;param fontScale Font scale factor that is multiplied by the font-specific base size.
+.   &#64;param thickness Thickness of lines used to render the text. See #putText for details.
+.   &#64;param[out] baseLine y-coordinate of the baseline relative to the bottom-most text
+.   point.
+.   &#64;return The size of a box that contains the specified text.
+.
+.   &#64;see putText</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dvt.aggregate.display.imread">
+<code class="descclassname">dvt.aggregate.display.</code><code class="descname">imread</code><span class="sig-paren">(</span><em>filename</em><span class="optional">[</span>, <em>flags</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; retval<a class="headerlink" href="#dvt.aggregate.display.imread" title="Permalink to this definition">¶</a></dt>
+<dd><p>.   &#64;brief Loads an image from a file.
+.
+.   &#64;anchor imread
+.
+.   The function imread loads an image from the specified file and returns it. If the image cannot be
+.   read (because of missing file, improper permissions, unsupported or invalid format), the function
+.   returns an empty matrix ( Mat::data==NULL ).
+.
+.   Currently, the following file formats are supported:
+.
+.   -   Windows bitmaps - *.bmp, *.dib (always supported)
+.   -   JPEG files - *.jpeg, *.jpg, *.jpe (see the <em>Note</em> section)
+.   -   JPEG 2000 files - *.jp2 (see the <em>Note</em> section)
+.   -   Portable Network Graphics - *.png (see the <em>Note</em> section)
+.   -   WebP - *.webp (see the <em>Note</em> section)
+.   -   Portable image format - *.pbm, *.pgm, *.ppm *.pxm, *.pnm (always supported)
+.   -   PFM files - *.pfm (see the <em>Note</em> section)
+.   -   Sun rasters - *.sr, *.ras (always supported)
+.   -   TIFF files - *.tiff, *.tif (see the <em>Note</em> section)
+.   -   OpenEXR Image files - *.exr (see the <em>Note</em> section)
+.   -   Radiance HDR - *.hdr, *.pic (always supported)
+.   -   Raster and Vector geospatial data supported by GDAL (see the <em>Note</em> section)
+.
+.   &#64;note
+.   -   The function determines the type of an image by the content, not by the file extension.
+.   -   In the case of color images, the decoded images will have the channels stored in <strong>B G R</strong> order.
+.   -   When using IMREAD_GRAYSCALE, the codec’s internal grayscale conversion will be used, if available.
+.   Results may differ to the output of cvtColor()
+.   -   On Microsoft Windows* OS and MacOSX*, the codecs shipped with an OpenCV image (libjpeg,
+.   libpng, libtiff, and libjasper) are used by default. So, OpenCV can always read JPEGs, PNGs,
+.   and TIFFs. On MacOSX, there is also an option to use native MacOSX image readers. But beware
+.   that currently these native image loaders give images with different pixel values because of
+.   the color management embedded into MacOSX.
+.   -   On Linux*, BSD flavors and other Unix-like open-source operating systems, OpenCV looks for
+.   codecs supplied with an OS image. Install the relevant packages (do not forget the development
+.   files, for example, “libjpeg-dev”, in Debian* and Ubuntu*) to get the codec support or turn
+.   on the OPENCV_BUILD_3RDPARTY_LIBS flag in CMake.
+.   -   In the case you set <em>WITH_GDAL</em> flag to true in CMake and &#64;ref IMREAD_LOAD_GDAL to load the image,
+.   then the [GDAL](<a class="reference external" href="http://www.gdal.org">http://www.gdal.org</a>) driver will be used in order to decode the image, supporting
+.   the following formats: [Raster](<a class="reference external" href="http://www.gdal.org/formats_list.html">http://www.gdal.org/formats_list.html</a>),
+.   [Vector](<a class="reference external" href="http://www.gdal.org/ogr_formats.html">http://www.gdal.org/ogr_formats.html</a>).
+.   -   If EXIF information are embedded in the image file, the EXIF orientation will be taken into account
+.   and thus the image will be rotated accordingly except if the flag &#64;ref IMREAD_IGNORE_ORIENTATION is passed.
+.   -   Use the IMREAD_UNCHANGED flag to keep the floating point values from PFM image.
+.   -   By default number of pixels must be less than 2^30. Limit can be set using system
+.   variable OPENCV_IO_MAX_IMAGE_PIXELS
+.
+.   &#64;param filename Name of file to be loaded.
+.   &#64;param flags Flag that can take values of cv::ImreadModes</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dvt.aggregate.display.imwrite">
+<code class="descclassname">dvt.aggregate.display.</code><code class="descname">imwrite</code><span class="sig-paren">(</span><em>filename</em>, <em>img</em><span class="optional">[</span>, <em>params</em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; retval<a class="headerlink" href="#dvt.aggregate.display.imwrite" title="Permalink to this definition">¶</a></dt>
+<dd><p>.   &#64;brief Saves an image to a specified file.
+.
+.   The function imwrite saves the image to the specified file. The image format is chosen based on the
+.   filename extension (see cv::imread for the list of extensions). In general, only 8-bit
+.   single-channel or 3-channel (with ‘BGR’ channel order) images
+.   can be saved using this function, with these exceptions:
+.
+.   - 16-bit unsigned (CV_16U) images can be saved in the case of PNG, JPEG 2000, and TIFF formats
+.   - 32-bit float (CV_32F) images can be saved in PFM, TIFF, OpenEXR, and Radiance HDR formats;
+.   3-channel (CV_32FC3) TIFF images will be saved using the LogLuv high dynamic range encoding
+.   (4 bytes per pixel)
+.   - PNG images with an alpha channel can be saved using this function. To do this, create
+.   8-bit (or 16-bit) 4-channel image BGRA, where the alpha channel goes last. Fully transparent pixels
+.   should have alpha set to 0, fully opaque pixels should have alpha set to 255/65535 (see the code sample below).
+.
+.   If the format, depth or channel order is different, use
+.   Mat::convertTo and cv::cvtColor to convert it before saving. Or, use the universal FileStorage I/O
+.   functions to save the image to XML or YAML format.
+.
+.   The sample below shows how to create a BGRA image and save it to a PNG file. It also demonstrates how to set custom
+.   compression parameters:
+.   &#64;include snippets/imgcodecs_imwrite.cpp
+.   &#64;param filename Name of the file.
+.   &#64;param img Image to be saved.
+.   &#64;param params Format-specific parameters encoded as pairs (paramId_1, paramValue_1, paramId_2, paramValue_2, … .) see cv::ImwriteFlags</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dvt.aggregate.display.putText">
+<code class="descclassname">dvt.aggregate.display.</code><code class="descname">putText</code><span class="sig-paren">(</span><em>img</em>, <em>text</em>, <em>org</em>, <em>fontFace</em>, <em>fontScale</em>, <em>color</em><span class="optional">[</span>, <em>thickness</em><span class="optional">[</span>, <em>lineType</em><span class="optional">[</span>, <em>bottomLeftOrigin</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; img<a class="headerlink" href="#dvt.aggregate.display.putText" title="Permalink to this definition">¶</a></dt>
+<dd><p>.   &#64;brief Draws a text string.
+.
+.   The function cv::putText renders the specified text string in the image. Symbols that cannot be rendered
+.   using the specified font are replaced by question marks. See #getTextSize for a text rendering code
+.   example.
+.
+.   &#64;param img Image.
+.   &#64;param text Text string to be drawn.
+.   &#64;param org Bottom-left corner of the text string in the image.
+.   &#64;param fontFace Font type, see #HersheyFonts.
+.   &#64;param fontScale Font scale factor that is multiplied by the font-specific base size.
+.   &#64;param color Text color.
+.   &#64;param thickness Thickness of the lines used to draw a text.
+.   &#64;param lineType Line type. See #LineTypes
+.   &#64;param bottomLeftOrigin When true, the image data origin is at the bottom-left corner. Otherwise,
+.   it is at the top-left corner.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="dvt.aggregate.display.rectangle">
+<code class="descclassname">dvt.aggregate.display.</code><code class="descname">rectangle</code><span class="sig-paren">(</span><em>img</em>, <em>pt1</em>, <em>pt2</em>, <em>color</em><span class="optional">[</span>, <em>thickness</em><span class="optional">[</span>, <em>lineType</em><span class="optional">[</span>, <em>shift</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; img<a class="headerlink" href="#dvt.aggregate.display.rectangle" title="Permalink to this definition">¶</a></dt>
+<dd><p>.   &#64;brief Draws a simple, thick, or filled up-right rectangle.
+.
+.   The function cv::rectangle draws a rectangle outline or a filled rectangle whose two opposite corners
+.   are pt1 and pt2.
+.
+.   &#64;param img Image.
+.   &#64;param pt1 Vertex of the rectangle.
+.   &#64;param pt2 Vertex of the rectangle opposite to pt1 .
+.   &#64;param color Rectangle color or brightness (grayscale image).
+.   &#64;param thickness Thickness of lines that make up the rectangle. Negative values, like #FILLED,
+.   mean that the function has to draw a filled rectangle.
+.   &#64;param lineType Type of the line. See #LineTypes
+.   &#64;param shift Number of fractional bits in the point coordinates.</p>
+<p>rectangle(img, rec, color[, thickness[, lineType[, shift]]]) -&gt; img
+.   &#64;overload
+.
+.   use <cite>rec</cite> parameter as alternative specification of the drawn rectangle: <cite>r.tl() and
+.   r.br()-Point(1,1)</cite> are opposite corners</p>
 </dd></dl>
 
 </div>

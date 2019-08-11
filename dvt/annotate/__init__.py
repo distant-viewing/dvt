@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+"""Annotators for processing the visual input.
+"""
 
 from __future__ import absolute_import
 

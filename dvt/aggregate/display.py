@@ -1,18 +1,29 @@
 # -*- coding: utf-8 -*-
 """Display detected objects and faces in output image files.
 
-The aggregator functions here takes detected faces and objects. It draws
-bounding boxes over the repective frames and saves the png files locally.
-Requires that the PNG annotator was run and the original images are saved.
+The aggregator functions here take as input detected faces and objects. It
+draws bounding boxes over the repective frames and saves the png files
+locally. Requires that the PNG annotator was run and the original images are
+saved somewhere locally.
 """
 
-import os
+from os.path import join
 
-import cv2
-import numpy as np
+from cv2 import (
+    getTextSize,
+    imread,
+    imwrite,
+    putText,
+    rectangle,
+    FILLED,
+    FONT_HERSHEY_SIMPLEX,
+    LINE_AA
+)
+from numpy import array, nonzero
 
 from ..core import Aggregator
 from ..utils import _check_out_dir
+
 
 class DisplayAggregator(Aggregator):
     """Display detected faces and objects as overlay over image frames.
@@ -38,7 +49,9 @@ class DisplayAggregator(Aggregator):
         self.output_dir = _check_out_dir(kwargs.get("output_dir"))
         self.frames = kwargs.get('frames', None)
 
-    def aggregate(self, ldframe):
+        super().__init__()
+
+    def aggregate(self, ldframe, **kwargs):
         """Create output png files showing the annotated data.
 
         Args:
@@ -66,15 +79,15 @@ class DisplayAggregator(Aggregator):
 
 def _add_annotations_to_image(input_dir, output_dir, frame, pipeline_data):
     # get input and file paths
-    input_file = os.path.join(input_dir, "frame-{0:06d}.png".format(frame))
-    output_file = os.path.join(output_dir, "frame-{0:06d}.png".format(frame))
+    input_file = join(input_dir, "frame-{0:06d}.png".format(frame))
+    output_file = join(output_dir, "frame-{0:06d}.png".format(frame))
 
     # define colours
     box_color = (255, 165, 0)
     face_color = (22, 75, 203)
     white_color = (255, 255, 255)
 
-    img = cv2.imread(input_file)
+    img = imread(input_file)
 
     if pipeline_data.get("obj") is not None:
         img = _add_bbox(img, frame, pipeline_data["obj"], box_color, 2)
@@ -91,12 +104,12 @@ def _add_annotations_to_image(input_dir, output_dir, frame, pipeline_data):
     if pipeline_data.get("face") is not None:
         img = _add_bbox(img, frame, pipeline_data["face"], face_color, 1)
 
-    _ = cv2.imwrite(output_file, img)
+    _ = imwrite(output_file, img)
 
 
 def _add_bbox(img, frame, pdf, color=(255, 255, 255), thickness=2):
 
-    for ind in np.nonzero(np.array(pdf["frame"]) == frame)[0]:
+    for ind in nonzero(array(pdf["frame"]) == frame)[0]:
         # grab values from data
         top = pdf["top"][ind]
         right = pdf["right"][ind]
@@ -104,7 +117,7 @@ def _add_bbox(img, frame, pdf, color=(255, 255, 255), thickness=2):
         left = pdf["left"][ind]
 
         # plot the rectangle
-        img = cv2.rectangle(
+        img = rectangle(
             img, (left, top), (right, bottom), color, thickness
         )
 
@@ -113,8 +126,7 @@ def _add_bbox(img, frame, pdf, color=(255, 255, 255), thickness=2):
 
 def _add_box_text(img, frame, pdf, lvar, color=(0, 0, 0), bgc=None, size=0.5):
 
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    for ind in np.nonzero(np.array(pdf["frame"]) == frame)[0]:
+    for ind in nonzero(array(pdf["frame"]) == frame)[0]:
         # grab values from data
         bottom = pdf["bottom"][ind]
         left = pdf["left"][ind]
@@ -122,8 +134,8 @@ def _add_box_text(img, frame, pdf, lvar, color=(0, 0, 0), bgc=None, size=0.5):
 
         if bgc:
             # make a text box with background color bg
-            (text_width, text_height) = cv2.getTextSize(
-                msg, font, fontScale=size, thickness=1
+            (text_width, text_height) = getTextSize(
+                msg, FONT_HERSHEY_SIMPLEX, fontScale=size, thickness=1
             )[0]
             text_offset_x = left
             text_offset_y = bottom
@@ -134,20 +146,20 @@ def _add_box_text(img, frame, pdf, lvar, color=(0, 0, 0), bgc=None, size=0.5):
                     text_offset_y - text_height - 10,
                 ),
             )
-            img = cv2.rectangle(
-                img, box_coords[0], box_coords[1], bgc, cv2.FILLED
+            img = rectangle(
+                img, box_coords[0], box_coords[1], bgc, FILLED
             )
 
         # plot text and text box
-        img = cv2.putText(
+        img = putText(
             img,
             msg,
             (left + 5, bottom - 5),
-            cv2.FONT_HERSHEY_SIMPLEX,
+            FONT_HERSHEY_SIMPLEX,
             size,
             color,
             1,
-            cv2.LINE_AA,
+            LINE_AA,
         )
 
     return img

@@ -38,11 +38,13 @@ Example:
 
 from os.path import join, basename, splitext
 
-import numpy as np
+from numpy import argmin, min as npmin, vstack
+from numpy.linalg import norm
 
 from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
 from ..core import Aggregator, DataExtraction
-from ..input import ImageInput
+from ..inputs import ImageInput
+
 
 class PeopleAggregator(Aggregator):
     """Uses face embeddings to identify the identity of people in the frame.
@@ -54,7 +56,7 @@ class PeopleAggregator(Aggregator):
     Attributes:
         face_names (list): List of names associated with each face in the set
             of predefined faces
-        fprint (np.array): A numpy array giving the embedding vectors for the
+        fprint (numpy array): A numpy array giving the embedding vectors for the
             predefined faces. Each row should correspond with one face id and
             the number of columns should match the number of columns in your
             embedding.
@@ -68,6 +70,8 @@ class PeopleAggregator(Aggregator):
         self.fprint = kwargs.get("fprint")
 
         assert self.fprint.shape[0] == len(self.face_names)
+
+        super().__init__()
 
     def aggregate(self, ldframe, **kwargs):
         """Aggregate faces.
@@ -99,9 +103,9 @@ class PeopleAggregator(Aggregator):
         # cycle through frames and detect closest face; let the user filter as
         # needed
         for fid, face in enumerate(ops.embed.values):
-            dists = np.linalg.norm(face - self.fprint, axis=1)
-            output["person"][fid] = self.face_names[np.argmin(dists)]
-            output["person-dist"][fid] = np.min(dists)
+            dists = norm(face - self.fprint, axis=1)
+            output["person"][fid] = self.face_names[argmin(dists)]
+            output["person-dist"][fid] = npmin(dists)
 
         return output
 
@@ -122,13 +126,13 @@ def make_fprint_from_images(dinput):
         A tuple giving the number array of embedding vectors and a list of the
         names of the people in the images.
     """
-    de = DataExtraction(ImageInput(input_paths=join(dinput, "", "*")))
-    de.run_annotators([FaceAnnotator(
+    dextra = DataExtraction(ImageInput(input_paths=join(dinput, "", "*")))
+    dextra.run_annotators([FaceAnnotator(
         detector=FaceDetectMtcnn(),
         embedding=FaceEmbedVgg2()
     )])
 
-    faces = de.get_data()['face']
+    faces = dextra.get_data()['face']
     face_names = [splitext(basename(x))[0] for x in faces.frame.values]
 
-    return np.vstack(faces.embed), face_names
+    return vstack(faces.embed), face_names

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.aggregate.people &mdash; dvt 0.0.8 documentation</title>
+  <title>dvt.aggregate.people &mdash; dvt 0.0.9 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.8
+                0.0.9
               </div>
             
           
@@ -194,11 +194,13 @@
 
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">splitext</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">argmin</span><span class="p">,</span> <span class="nb">min</span> <span class="k">as</span> <span class="n">npmin</span><span class="p">,</span> <span class="n">vstack</span>
+<span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">norm</span>
 
 <span class="kn">from</span> <span class="nn">..annotate.face</span> <span class="k">import</span> <span class="n">FaceAnnotator</span><span class="p">,</span> <span class="n">FaceDetectMtcnn</span><span class="p">,</span> <span class="n">FaceEmbedVgg2</span>
 <span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">Aggregator</span><span class="p">,</span> <span class="n">DataExtraction</span>
-<span class="kn">from</span> <span class="nn">..input</span> <span class="k">import</span> <span class="n">ImageInput</span>
+<span class="kn">from</span> <span class="nn">..inputs</span> <span class="k">import</span> <span class="n">ImageInput</span>
+
 
 <div class="viewcode-block" id="PeopleAggregator"><a class="viewcode-back" href="../../../aggregate/people.html#dvt.aggregate.people.PeopleAggregator">[docs]</a><span class="k">class</span> <span class="nc">PeopleAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Uses face embeddings to identify the identity of people in the frame.</span>
@@ -210,7 +212,7 @@
 <span class="sd">    Attributes:</span>
 <span class="sd">        face_names (list): List of names associated with each face in the set</span>
 <span class="sd">            of predefined faces</span>
-<span class="sd">        fprint (np.array): A numpy array giving the embedding vectors for the</span>
+<span class="sd">        fprint (numpy array): A numpy array giving the embedding vectors for the</span>
 <span class="sd">            predefined faces. Each row should correspond with one face id and</span>
 <span class="sd">            the number of columns should match the number of columns in your</span>
 <span class="sd">            embedding.</span>
@@ -224,6 +226,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">fprint</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fprint&quot;</span><span class="p">)</span>
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">fprint</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">face_names</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
 <div class="viewcode-block" id="PeopleAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/people.html#dvt.aggregate.people.PeopleAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Aggregate faces.</span>
@@ -255,9 +259,9 @@
         <span class="c1"># cycle through frames and detect closest face; let the user filter as</span>
         <span class="c1"># needed</span>
         <span class="k">for</span> <span class="n">fid</span><span class="p">,</span> <span class="n">face</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ops</span><span class="o">.</span><span class="n">embed</span><span class="o">.</span><span class="n">values</span><span class="p">):</span>
-            <span class="n">dists</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">face</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">fprint</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-            <span class="n">output</span><span class="p">[</span><span class="s2">&quot;person&quot;</span><span class="p">][</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_names</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">argmin</span><span class="p">(</span><span class="n">dists</span><span class="p">)]</span>
-            <span class="n">output</span><span class="p">[</span><span class="s2">&quot;person-dist&quot;</span><span class="p">][</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
+            <span class="n">dists</span> <span class="o">=</span> <span class="n">norm</span><span class="p">(</span><span class="n">face</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">fprint</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">output</span><span class="p">[</span><span class="s2">&quot;person&quot;</span><span class="p">][</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">face_names</span><span class="p">[</span><span class="n">argmin</span><span class="p">(</span><span class="n">dists</span><span class="p">)]</span>
+            <span class="n">output</span><span class="p">[</span><span class="s2">&quot;person-dist&quot;</span><span class="p">][</span><span class="n">fid</span><span class="p">]</span> <span class="o">=</span> <span class="n">npmin</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">output</span></div></div>
 
@@ -278,16 +282,16 @@
 <span class="sd">        A tuple giving the number array of embedding vectors and a list of the</span>
 <span class="sd">        names of the people in the images.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">de</span> <span class="o">=</span> <span class="n">DataExtraction</span><span class="p">(</span><span class="n">ImageInput</span><span class="p">(</span><span class="n">input_paths</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="n">dinput</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)))</span>
-    <span class="n">de</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">([</span><span class="n">FaceAnnotator</span><span class="p">(</span>
+    <span class="n">dextra</span> <span class="o">=</span> <span class="n">DataExtraction</span><span class="p">(</span><span class="n">ImageInput</span><span class="p">(</span><span class="n">input_paths</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="n">dinput</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)))</span>
+    <span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">([</span><span class="n">FaceAnnotator</span><span class="p">(</span>
         <span class="n">detector</span><span class="o">=</span><span class="n">FaceDetectMtcnn</span><span class="p">(),</span>
         <span class="n">embedding</span><span class="o">=</span><span class="n">FaceEmbedVgg2</span><span class="p">()</span>
     <span class="p">)])</span>
 
-    <span class="n">faces</span> <span class="o">=</span> <span class="n">de</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s1">&#39;face&#39;</span><span class="p">]</span>
+    <span class="n">faces</span> <span class="o">=</span> <span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s1">&#39;face&#39;</span><span class="p">]</span>
     <span class="n">face_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">splitext</span><span class="p">(</span><span class="n">basename</span><span class="p">(</span><span class="n">x</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">faces</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">vstack</span><span class="p">(</span><span class="n">faces</span><span class="o">.</span><span class="n">embed</span><span class="p">),</span> <span class="n">face_names</span></div>
+    <span class="k">return</span> <span class="n">vstack</span><span class="p">(</span><span class="n">faces</span><span class="o">.</span><span class="n">embed</span><span class="p">),</span> <span class="n">face_names</span></div>
 </pre></div>
 
            </div>
