@@ -46,7 +46,7 @@ pixel will be determined by arguments passed to our annotator::
 Running this gives::
 
     dextra = DataExtraction(FrameInput(input_path="video-clip.mp4"))
-    dextra.run_annotators([DemoAnnotator(row=0)])
+    dextra.run_annotators([DemoAnnotator(row=0, col=0)])
 
     dextra.get_data()['demo_anno'].head()
         frame  red  green  blue

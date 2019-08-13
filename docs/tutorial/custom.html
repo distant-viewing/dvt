@@ -204,7 +204,7 @@ pixel will be determined by arguments passed to our annotator:</p>
 </div>
 <p>Running this gives:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dextra</span> <span class="o">=</span> <span class="n">DataExtraction</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="n">input_path</span><span class="o">=</span><span class="s2">&quot;video-clip.mp4&quot;</span><span class="p">))</span>
-<span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">([</span><span class="n">DemoAnnotator</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">)])</span>
+<span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">([</span><span class="n">DemoAnnotator</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">0</span><span class="p">)])</span>
 
 <span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s1">&#39;demo_anno&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
     <span class="n">frame</span>  <span class="n">red</span>  <span class="n">green</span>  <span class="n">blue</span>
