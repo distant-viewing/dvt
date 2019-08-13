@@ -3,6 +3,6 @@ Png Annotations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.annotate.png
-    :members:
+    :members: PngAnnotator
     :undoc-members:
     :show-inheritance:

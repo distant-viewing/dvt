@@ -1,8 +1,8 @@
 
-Generic Classes
+Core Objects
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.core
-    :members:
+    :members: DataExtraction, FrameBatch
     :undoc-members:
     :show-inheritance:

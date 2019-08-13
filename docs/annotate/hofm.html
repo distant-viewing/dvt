@@ -177,18 +177,16 @@
             
   <div class="section" id="module-dvt.annotate.hofm">
 <span id="histograms-of-optical-flow"></span><h1>Histograms of Optical Flow<a class="headerlink" href="#module-dvt.annotate.hofm" title="Permalink to this headline">¶</a></h1>
-<p>Annotator to extract dense Optical Flow using the opencv
-Gunnar Farneback’s algorithm and represent it as a
-histogram of optical flow orientation and magnitude (HOFM),
-as described in <a class="reference external" href="https://doi.org/10.1109/SIBGRAPI.2015.21">https://doi.org/10.1109/SIBGRAPI.2015.21</a></p>
+<p>Annotator to extract dense Optical Flow.</p>
+<p>Uses the opencv Gunnar Farneback’s algorithm and represent it as a
+histogram of optical flow orientation and magnitude (HOFM).</p>
 <dl class="class">
 <dt id="dvt.annotate.hofm.HOFMAnnotator">
 <em class="property">class </em><code class="descclassname">dvt.annotate.hofm.</code><code class="descname">HOFMAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/hofm.html#HOFMAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.hofm.HOFMAnnotator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../core.html#dvt.core.FrameAnnotator" title="dvt.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.FrameAnnotator</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.FrameAnnotator" title="dvt.abstract.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.FrameAnnotator</span></code></a></p>
 <p>Annotator to extract dense Optical Flow using the opencv
 Gunnar Farneback’s algorithm and represent it as a
-histogram of optical flow orientation and magnitude (HOFM),
-as described in <a class="reference external" href="https://doi.org/10.1109/SIBGRAPI.2015.21">https://doi.org/10.1109/SIBGRAPI.2015.21</a></p>
+histogram of optical flow orientation and magnitude (HOFM).</p>
 <p>The annotator will return the optical flow describing the motion in
 two subsequent frames as a HOFM feature.</p>
 <dl class="attribute">
@@ -292,28 +290,6 @@ len(blocks) * len(mag_buckets) * len(ang_buckets))</td>
 
 </dd></dl>
 
-<dl class="function">
-<dt id="dvt.annotate.hofm.cartToPolar">
-<code class="descclassname">dvt.annotate.hofm.</code><code class="descname">cartToPolar</code><span class="sig-paren">(</span><em>x</em>, <em>y</em><span class="optional">[</span>, <em>magnitude</em><span class="optional">[</span>, <em>angle</em><span class="optional">[</span>, <em>angleInDegrees</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; magnitude, angle<a class="headerlink" href="#dvt.annotate.hofm.cartToPolar" title="Permalink to this definition">¶</a></dt>
-<dd><p>.   &#64;brief Calculates the magnitude and angle of 2D vectors.
-.
-.   The function cv::cartToPolar calculates either the magnitude, angle, or both
-.   for every 2D vector (x(I),y(I)):
-.   f[begin{array}{l} texttt{magnitude} (I)= sqrt{texttt{x}(I)^2+texttt{y}(I)^2} , \ texttt{angle} (I)= texttt{atan2} ( texttt{y} (I), texttt{x} (I))[ cdot180 / pi ] end{array}f]
-.
-.   The angles are calculated with accuracy about 0.3 degrees. For the point
-.   (0,0), the angle is set to 0.
-.   &#64;param x array of x-coordinates; this must be a single-precision or
-.   double-precision floating-point array.
-.   &#64;param y array of y-coordinates, that must have the same size and same type as x.
-.   &#64;param magnitude output array of magnitudes of the same size and type as x.
-.   &#64;param angle output array of angles that has the same size and type as
-.   x; the angles are measured in radians (from 0 to 2*Pi) or in degrees (0 to 360 degrees).
-.   &#64;param angleInDegrees a flag, indicating whether the angles are measured
-.   in radians (which is by default), or in degrees.
-.   &#64;sa Sobel, Scharr</p>
-</dd></dl>
-
 </div>
 
 
@@ -340,13 +316,9 @@ len(blocks) * len(mag_buckets) * len(ang_buckets))</td>
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

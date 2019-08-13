@@ -51,13 +51,11 @@ through PyPI.
 
 ## Minimal Demo
 
-The following demo assumes that you have installed the dvt toolkit and have
+The following code assumes that you have installed the dvt toolkit and have
 the video file
 [video-clip.mp4](https://github.com/distant-viewing/dvt/raw/master/tests/test-data/video-clip.mp4/)
-in your working directory.
-
-Run the following command to run the default pipeline of annotators from the
-distant viewing toolkit:
+in your working directory. Run the following command to run the default
+pipeline of annotators from the distant viewing toolkit:
 
 ```
 python3 -m dvt video-clip.mp4
@@ -77,10 +75,102 @@ And opening the following: [http://0.0.0.0:8000/](http://0.0.0.0:8000/).
 
 You can repeat the same process with your own video inputs, though keep in
 mind that it may take some time (often several times the length of the input
-video file) to finish. Further tutorials in the
-[toolkit documentation](https://distant-viewing.github.io/dvt/) further explain
-other command line options and additional approaches using the lower-level
-architecture provided in the distant viewing toolkit.
+video file) to finish. You can see an example of the toolkit's output on
+several video files [here](https://www.distantviewing.org/labs/).
+
+## Getting started with the Python API
+
+The command line tools provide a fast way to get started with the toolkit
+but there is much more functionality available when using the full Python
+API provided by the module.
+
+Using the distant viewing toolkit starts by constructing a `DataExtraction`
+object that is associated with some input data (either a video file or a
+collection of still images). Algorithms are then applied to the
+`DataExtraction`; the results are stored as Pandas DataFrames and can be
+exported as CSV or JSON files. There are two distinct types of algorithms:
+
+- **annotators**: algorithms that work directly with the visual data source
+but are able to only work with a small subset of frames or still images
+- **aggregators**: algorithms that have access to information extracted
+from previously run annotators across across the entire input, but cannot
+direclty access the visual data
+
+The separation of algorithms into these two parts makes it easier to write
+straightforward, error-free code. It closely mirrors the theory of
+[theory of distant viewing](https://www.distantviewing.org/pdf/distant-viewing.pdf):
+
+> Distant viewing is distinguished from other approaches by making explicit
+> the interpretive nature of extracting semantic metadata from images.
+> In other words, one must 'view' visual materials before studying them.
+> Viewing,  which  we  define  as an interpretive action taken by either a
+> person or a model, is necessitated by  the  way  in  which  information  is
+> transferred  in visual materials. Therefore, in order to view images
+> computationally,  a  representation  of  elements  contained within the
+> visual material—a code system in semiotics  or,  similarly,  a  metadata
+> schema  in  informatics—must  be  constructed.  Algorithms  capable  of
+> automatically  converting  raw  images  into the  established  representation
+> are  then  needed  t oapply  the  approach  at  scale.
+
+The annotator algorithms conduct the process of 'viewing' the material whereas
+the aggregator algorithms perform a 'distant' (e.g., separated from the raw
+materials) analysis of the visual inputs.
+
+Here is an example showing the usage of these elements to detect shot breaks
+it a video input. We start by running an annotator that detects the differences
+between subsequent shots and then apply the cut aggregator to determine where
+the changes indicate a pattern consistent with a shot break. As in the Minimal
+Demo, the code assumes that the video file
+[video-clip.mp4](https://github.com/distant-viewing/dvt/raw/master/tests/test-data/video-clip.mp4/)
+is in your working directory:
+
+```
+from dvt.core import DataExtraction, FrameInput
+from dvt.annotate.diff import DiffAnnotator
+from dvt.aggregate.cut import CutAggregator
+
+dextra = DataExtraction(FrameInput(input_path="video-clip.mp4"))
+dextra.run_annotators([DiffAnnotator(quantiles=[40])])
+dextra.run_aggregator(CutAggregator(cut_vals={'q40': 3}))
+```
+
+Looking at the output data, we see that there are four detected shots in the
+video file:
+
+```
+dextra.get_data()['cut']
+```
+```
+frame_start  frame_end
+0            0         74
+1           75        154
+2          155        299
+3          300        511
+```
+
+There are many annotators and aggregators currently available in the toolkit.
+Pipelines, pre-bundled sequences of annotators and aggregators, are also
+included in the package. Currently available implementations in the toolkit
+are:
+
+| Annotators           | Aggregators           | Pipelines      |
+| -------------------- |---------------------- | -------------- |
+| CIElabAnnotator      | CutAggregator         | VideoPipeline  |
+| DiffAnnotator        | DisplayAggregator     |                |
+| EmbedAnnotator       | ShotLengthAggregator  |                |
+| FaceAnnotator        | PeopleAggregator      |                |
+| HOFMAnnotator        |                       |                |
+| ObjectAnnotator      |                       |                |
+| OpticalFlowAnnotator |                       |                |
+| PngAnnotator         |                       |                |
+
+Details of these implementations can be found in the full
+[API documentation](https://distant-viewing.github.io/dvt/). Additionally, it
+is possible to construct your own Annotator and Aggregator objects. Details
+are available in [this tutorial](https://distant-viewing.github.io/dvt/tutorial/custom.html).
+If you develop an object that you think
+may be useful to others, consider [contributing](#contributing) your code to
+the toolkit.
 
 ## Citation
 

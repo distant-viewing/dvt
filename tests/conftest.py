@@ -4,8 +4,7 @@ from tempfile import mkdtemp
 from cv2 import imread
 import pytest
 
-from dvt.core import DataExtraction
-from dvt.inputs import FrameInput, ImageInput
+from dvt.core import DataExtraction, FrameInput, ImageInput
 from dvt.utils import setup_tensorflow
 from dvt.annotate.cielab import CIElabAnnotator
 from dvt.annotate.diff import DiffAnnotator

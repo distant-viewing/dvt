@@ -186,37 +186,10 @@ designed such that different images of the same person will be close together
 and images of different people will be farther apart. This module is built
 around this paradigm, allowing for the specification of custom detectors and
 embeddings into the model.</p>
-<p class="rubric">Example</p>
-<p>Assuming we have an input named “input.mp4”, the following example shows
-the sample usage of FaceAnnotator over two batches of the input. A CNN
-model from dlib is used to detect the faces and the VGGFace2 algorithm is
-used to embed the faces into a 2048-dimensional space. The algorithm is
-applied to every 128 frames.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">detector</span> <span class="o">=</span> <span class="n">FaceDetectDlib</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">embedding</span> <span class="o">=</span> <span class="n">FaceEmbedVgg2</span><span class="p">()</span>
-<span class="go">&gt;&gt;&gt;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">FaceAnnotator</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">detector</span><span class="o">=</span><span class="n">detector</span><span class="p">,</span>
-<span class="gp">... </span>                  <span class="n">embedding</span><span class="o">=</span><span class="n">embedding</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Then, collect the output from the annotator and display as a pandas data
-frame.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
-<span class="go">   frame  bottom      video     ...      embed-2045  embed-2046  embed-2047</span>
-<span class="go">0    128     171  input.mp4     ...        7.355998    0.000000    0.000000</span>
-<span class="go">1    384     209  input.mp4     ...        0.128695    0.640979    0.207890</span>
-<span class="go">2    384     220  input.mp4     ...        0.187535    0.754207    0.705644</span>
-</pre></div>
-</div>
-<p>[3 rows x 2055 columns]</p>
-<p>The detector was run on four frames (0, 128, 256, and 384). It found one
-face at frame 128 and two faces at frame 384.</p>
 <dl class="class">
 <dt id="dvt.annotate.face.FaceAnnotator">
 <em class="property">class </em><code class="descclassname">dvt.annotate.face.</code><code class="descname">FaceAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/face.html#FaceAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.face.FaceAnnotator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../core.html#dvt.core.FrameAnnotator" title="dvt.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.FrameAnnotator</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.FrameAnnotator" title="dvt.abstract.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.FrameAnnotator</span></code></a></p>
 <p>Annotator for detecting faces and embedding them as a face vector.</p>
 <p>The annotator will return a list with one DictList item for every frame
 with a detected face. If an embedding is supplied, the DictList items
@@ -392,13 +365,9 @@ numpy array.</li>
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

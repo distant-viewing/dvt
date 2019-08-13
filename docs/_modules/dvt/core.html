@@ -155,118 +155,85 @@
             
   <h1>Source code for dvt.core</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;Core objects.</span>
+<span class="sd">&quot;&quot;&quot;Core objects for working with the distant viewing toolkit.</span>
+
+<span class="sd">The objects VisualInput, FrameAnnotator, and Aggregator are abstract classes.</span>
+<span class="sd">They correspond to the method for extracting visual inputs from digitized</span>
+<span class="sd">files, methods for extracting metadata from visual images, and methods for</span>
+<span class="sd">aggregating the data across a collection. The toolkit provides many ready-made</span>
+<span class="sd">implementions of these classes in order to solve common tasks.</span>
+
+<span class="sd">A DataExtraction class is constructed for each input object. Annotators and</span>
+<span class="sd">aggregators can be iteratively passed to the object to extract metadata. The</span>
+<span class="sd">FrameBatch object serves as the primary internal structure for storing visual</span>
+<span class="sd">information. Users who construct their own FrameAnnotator subclasses will need</span>
+<span class="sd">to interface with these objects and their methods for grabbing visual data</span>
+<span class="sd">inputs. See the example in DataExtraction for the basic usage of the classes.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">abc</span> <span class="k">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
 <span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">OrderedDict</span>
+<span class="kn">from</span> <span class="nn">glob</span> <span class="k">import</span> <span class="n">glob</span>
+<span class="kn">from</span> <span class="nn">itertools</span> <span class="k">import</span> <span class="n">chain</span>
 
+<span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span> <span class="p">(</span>
+  <span class="n">COLOR_BGR2RGB</span><span class="p">,</span>
+  <span class="n">cvtColor</span><span class="p">,</span>
+  <span class="n">imread</span><span class="p">,</span>
+  <span class="n">VideoCapture</span><span class="p">,</span>
+  <span class="n">CAP_PROP_FPS</span><span class="p">,</span>
+  <span class="n">CAP_PROP_FRAME_COUNT</span><span class="p">,</span>
+  <span class="n">CAP_PROP_FRAME_HEIGHT</span><span class="p">,</span>
+  <span class="n">CAP_PROP_FRAME_WIDTH</span><span class="p">,</span>
+  <span class="n">CAP_PROP_POS_MSEC</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">zeros</span><span class="p">,</span> <span class="n">uint8</span><span class="p">,</span> <span class="n">stack</span><span class="p">,</span> <span class="n">zeros_like</span>
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">concat</span><span class="p">,</span> <span class="n">DataFrame</span>
 
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">process_output_values</span>
-
-<span class="c1"># Abstract Classes that must be implemented</span>
-
-
-<div class="viewcode-block" id="VisualInput"><a class="viewcode-back" href="../../core.html#dvt.core.VisualInput">[docs]</a><span class="k">class</span> <span class="nc">VisualInput</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>     <span class="c1"># pragma: no cover</span>
-    <span class="sd">&quot;&quot;&quot;Base class for producing batches of visual input.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a new input object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span>
-
-<div class="viewcode-block" id="VisualInput.open_input"><a class="viewcode-back" href="../../core.html#dvt.core.VisualInput.open_input">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">open_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Restart and initialize the input feed.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span></div>
-
-<div class="viewcode-block" id="VisualInput.next_batch"><a class="viewcode-back" href="../../core.html#dvt.core.VisualInput.next_batch">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">next_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Move forward one batch and return the current FrameBatch object.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span></div>
-
-<div class="viewcode-block" id="VisualInput.get_metadata"><a class="viewcode-back" href="../../core.html#dvt.core.VisualInput.get_metadata">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Provide metadata from the input connection.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span></div></div>
-
-
-<div class="viewcode-block" id="FrameAnnotator"><a class="viewcode-back" href="../../core.html#dvt.core.FrameAnnotator">[docs]</a><span class="k">class</span> <span class="nc">FrameAnnotator</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>   <span class="c1"># pragma: no cover</span>
-    <span class="sd">&quot;&quot;&quot;Base class for annotating a batch of frames.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name (str): A description of the annotator, used as a key in the output</span>
-<span class="sd">            returned by a FrameProcessor.</span>
-<span class="sd">        cache (dict): Holds internal state of the annotator. Used for passing</span>
-<span class="sd">            data between batches, which should be avoided whenever possible.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a new empty FrameAnnotator.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span>
-
-<div class="viewcode-block" id="FrameAnnotator.annotate"><a class="viewcode-back" href="../../core.html#dvt.core.FrameAnnotator.annotate">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Annotate a batch of frames and return the resulting annotations.</span>
-
-<span class="sd">        This method contains the core functionality of an annotator. It takes</span>
-<span class="sd">        a batch of frames and returns the annotated output as a list object.</span>
-<span class="sd">        Lists from batch to batch will be appended together and collected by</span>
-<span class="sd">        calling stack_dict_frames.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            batch (FrameBatch): A batch of images to annotate.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            The method should return a list of item(s) that can be combined</span>
-<span class="sd">            into a DictFrame. Specifically, the items should be dictionaries</span>
-<span class="sd">            with a consistent set of keys where all items have the same length</span>
-<span class="sd">            (or first shape value, in the case of numpy array). Can also return</span>
-<span class="sd">            None, in which case nothing is added to the current output.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span></div></div>
-
-
-<div class="viewcode-block" id="Aggregator"><a class="viewcode-back" href="../../core.html#dvt.core.Aggregator">[docs]</a><span class="k">class</span> <span class="nc">Aggregator</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>    <span class="c1"># pragma: no cover</span>
-    <span class="sd">&quot;&quot;&quot;Base class for aggregating the output from a pipeline of processors.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        name (str): A description of the aggregator.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Create a new empty Aggregator.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span>
-
-<div class="viewcode-block" id="Aggregator.aggregate"><a class="viewcode-back" href="../../core.html#dvt.core.Aggregator.aggregate">[docs]</a>    <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Aggregate annotations.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            ldframe (dict): A dictionary of data pased from a DataExtraction</span>
-<span class="sd">                object.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            An object that can be processed by process_output_values.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span></div></div>
-
-
-<span class="c1"># Core Objects that have a single implementation</span>
+<span class="kn">from</span> <span class="nn">.abstract</span> <span class="k">import</span> <span class="n">VisualInput</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">process_output_values</span><span class="p">,</span> <span class="n">_expand_path</span>
 
 
 <div class="viewcode-block" id="DataExtraction"><a class="viewcode-back" href="../../core.html#dvt.core.DataExtraction">[docs]</a><span class="k">class</span> <span class="nc">DataExtraction</span><span class="p">:</span>
-    <span class="sd">&quot;&quot;&quot;Contains all the metadata extracted from an input object.</span>
+    <span class="sd">&quot;&quot;&quot;The core class of the toolkit. Used to pass algorithms to visual data.</span>
+
+<span class="sd">    Each instance of a data extraction is tied to a particular input object.</span>
+<span class="sd">    Collections of annotators or individual aggregators can be passed to the</span>
+<span class="sd">    relevant methods to extract metadata from the associated input.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        vinput (VisualInput): The input object associated with the dataset.</span>
+<span class="sd">        data (OrderedDict): Each key in the ordered dictionary is associated</span>
+<span class="sd">            with an aggregator and annotator and contains a pandas DataFrame</span>
+<span class="sd">            with all of the extracted metadata.</span>
+
+<span class="sd">    Example:</span>
+<span class="sd">        Assuming we have an input named &quot;input.mp4&quot;, the following example</span>
+<span class="sd">        shows a straightforward usage of DataExtraction. We create an</span>
+<span class="sd">        extraction object, pass through a difference annotator, and then</span>
+<span class="sd">        aggregate use the cut detector. Finally, the output from the cut</span>
+<span class="sd">        aggregator is obtained by calling the get_data method and grabbing</span>
+<span class="sd">        the relevant key (&quot;cut&quot;).</span>
+
+<span class="sd">        &gt;&gt;&gt; from dvt.core import DataExtraction, FrameInput</span>
+<span class="sd">        &gt;&gt;&gt; from dvt.annotate.diff import DiffAnnotator</span>
+<span class="sd">        &gt;&gt;&gt; from dvt.aggregate.cut import CutAggregator</span>
+
+<span class="sd">        &gt;&gt;&gt; dextra = DataExtraction(FrameInput(input_path=&quot;input.mp4&quot;))</span>
+<span class="sd">        &gt;&gt;&gt; dextra.run_annotators([DiffAnnotator(quantiles=[40])])</span>
+<span class="sd">        &gt;&gt;&gt; dextra.run_aggregator(CutAggregator(cut_vals={&#39;q40&#39;: 3}))</span>
+
+<span class="sd">        &gt;&gt;&gt; dextra.get_data()[&#39;cut&#39;]</span>
+
+<span class="sd">        Using the input file in the Distant Viewing Toolkit test directory</span>
+<span class="sd">        yields the following output:</span>
+
+<span class="sd">        &gt;&gt;&gt; dextra.get_data()[&#39;cut&#39;]</span>
+<span class="sd">           frame_start  frame_end</span>
+<span class="sd">        0            0         74</span>
+<span class="sd">        1           75        154</span>
+<span class="sd">        2          155        299</span>
+<span class="sd">        3          300        511</span>
+
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">vinput</span><span class="p">):</span>
@@ -274,7 +241,18 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">OrderedDict</span><span class="p">()</span>
 
 <div class="viewcode-block" id="DataExtraction.run_annotators"><a class="viewcode-back" href="../../core.html#dvt.core.DataExtraction.run_annotators">[docs]</a>    <span class="k">def</span> <span class="nf">run_annotators</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">annotators</span><span class="p">,</span> <span class="n">max_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run the extraction.</span>
+        <span class="sd">&quot;&quot;&quot;Run a collection of annotators over the input material.</span>
+
+<span class="sd">        Batches of inputs are grabbed from vinput and passed to the annotators.</span>
+<span class="sd">        Output is collapsed into one DataFrame per annotator, and stored as</span>
+<span class="sd">        keys in the data attribute. An additional key is included (&quot;meta&quot;)</span>
+<span class="sd">        that contains metadata about the collection.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            annotators (list): A list of annotator objects.</span>
+<span class="sd">            max_batch (int): The maximum number of batches to process. Useful</span>
+<span class="sd">                for testing and debugging. Set to None (default) to process</span>
+<span class="sd">                all available frames.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vinput</span><span class="o">.</span><span class="n">open_input</span><span class="p">()</span>
 
@@ -305,7 +283,11 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="DataExtraction.run_aggregator"><a class="viewcode-back" href="../../core.html#dvt.core.DataExtraction.run_aggregator">[docs]</a>    <span class="k">def</span> <span class="nf">run_aggregator</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">aggregator</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run an aggregator.</span>
+        <span class="sd">&quot;&quot;&quot;Run an aggregator over the extracted annotations.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            aggregator (Aggregator): Aggregator object use for processing the</span>
+<span class="sd">                input data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="n">value</span> <span class="o">=</span> <span class="n">process_output_values</span><span class="p">(</span><span class="n">aggregator</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">))</span>
@@ -316,6 +298,10 @@
 
 <div class="viewcode-block" id="DataExtraction.get_data"><a class="viewcode-back" href="../../core.html#dvt.core.DataExtraction.get_data">[docs]</a>    <span class="k">def</span> <span class="nf">get_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get dataset from the object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            An ordered dictionary where each key corresponds to an annotator</span>
+<span class="sd">            or aggregator and the values are all pandas DataFrame objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div></div>
@@ -339,9 +325,8 @@
 <span class="sd">        continue_read (bool): Indicates whether there more frames to read from</span>
 <span class="sd">            the input.</span>
 <span class="sd">        fnames (list): Names of frames in the batch.</span>
-<span class="sd">        bsize (int): Number of frames in a batch.</span>
 <span class="sd">        bnum (int): The batch number.</span>
-
+<span class="sd">        bsize (int): Number of frames in a batch.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
@@ -375,7 +360,7 @@
 <span class="sd">            A four-dimensional array containing pixels from the current batch</span>
 <span class="sd">            of images.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="p">[:</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">img</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span></div>
 
 <div class="viewcode-block" id="FrameBatch.get_frame_names"><a class="viewcode-back" href="../../core.html#dvt.core.FrameBatch.get_frame_names">[docs]</a>    <span class="k">def</span> <span class="nf">get_frame_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return frame names for the current batch of data.</span>
@@ -384,6 +369,231 @@
 <span class="sd">            A list of names of length equal to the batch size.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fnames</span></div></div>
+
+
+
+<span class="k">class</span> <span class="nc">FrameInput</span><span class="p">(</span><span class="n">VisualInput</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An input object for extracting batches of images from an input video.</span>
+
+<span class="sd">    Once initialized, subsequent calls to the next_batch method should be</span>
+<span class="sd">    called to cycle through batches of frames. The continue_read flag will be</span>
+<span class="sd">    turn false when all of data from the source has been returned within a</span>
+<span class="sd">    batch. Note that this does not include the look-ahead region. The final</span>
+<span class="sd">    batch will include padding by zeros (black) in this region.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        bsize (int): Number of frames in a batch.</span>
+<span class="sd">        fcount (int): Frame counter for the first frame in the current batch.</span>
+<span class="sd">        vname (str): Name of the video file.</span>
+<span class="sd">        continue_read (bool): Indicates whether there more frames to read from</span>
+<span class="sd">            the input.</span>
+<span class="sd">        start (float): Time code at the start of the current batch.</span>
+<span class="sd">        end (float): Time code at the end of the current batch.</span>
+<span class="sd">        meta (dict): A dictionary containing additional metadata about the</span>
+<span class="sd">            video file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a new input from a video file.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_path (str): Path to the video file. Can be any file readable</span>
+<span class="sd">                by the OpenCV function VideoCapture.</span>
+<span class="sd">            bsize (int): Number of frames to include in a batch. Defaults to</span>
+<span class="sd">                256.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">input_path</span> <span class="o">=</span> <span class="n">_expand_path</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;input_path&quot;</span><span class="p">])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;bsize&quot;</span><span class="p">,</span> <span class="mi">256</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_continue</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">open_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Open connection to the video file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># start settings to</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span> <span class="o">=</span> <span class="n">VideoCapture</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_img</span> <span class="o">=</span> <span class="n">zeros</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bsize</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;height&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span><span class="p">[</span><span class="s2">&quot;width&quot;</span><span class="p">],</span> <span class="mi">3</span><span class="p">),</span>
+            <span class="n">dtype</span><span class="o">=</span><span class="n">uint8</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_bandwidth</span><span class="p">()</span>  <span class="c1"># fill the buffer with the first batch</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_continue</span> <span class="o">=</span> <span class="kc">True</span>   <span class="c1"># is there any more input left in the video</span>
+
+    <span class="k">def</span> <span class="nf">next_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move forward one batch and return the current FrameBatch object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A FrameBatch object that contains the next set of frames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span><span class="p">,</span> <span class="s2">&quot;No more input to read.&quot;</span>
+
+        <span class="c1"># shift window over by one bandwidth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[:</span><span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span>
+
+        <span class="c1"># fill up the bandwidth; with zeros at and of video input</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_continue</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fill_bandwidth</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_continue</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">:,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># update counters</span>
+        <span class="n">frame_start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CAP_PROP_POS_MSEC</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span>
+
+        <span class="c1"># get frame names</span>
+        <span class="n">fnames</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">frame_start</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">frame_start</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">)))</span>
+
+        <span class="c1"># return batch of frames.</span>
+        <span class="k">return</span> <span class="n">FrameBatch</span><span class="p">(</span>
+            <span class="n">img</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">start</span><span class="p">,</span>
+            <span class="n">end</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">end</span><span class="p">,</span>
+            <span class="n">continue_read</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span><span class="p">,</span>
+            <span class="n">fnames</span><span class="o">=</span><span class="n">fnames</span><span class="p">,</span>
+            <span class="n">bnum</span><span class="o">=</span><span class="p">(</span><span class="n">frame_start</span> <span class="o">//</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span>
+
+    <span class="k">def</span> <span class="nf">_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fill metadata attribute using metadata from the video source.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">path</span><span class="p">,</span> <span class="n">bname</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">file_extension</span> <span class="o">=</span> <span class="n">_expand_path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;video&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;fps&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CAP_PROP_FPS</span><span class="p">),</span>
+            <span class="s2">&quot;frames&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CAP_PROP_FRAME_COUNT</span><span class="p">)),</span>
+            <span class="s2">&quot;height&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CAP_PROP_FRAME_HEIGHT</span><span class="p">)),</span>
+            <span class="s2">&quot;width&quot;</span><span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">CAP_PROP_FRAME_WIDTH</span><span class="p">)),</span>
+            <span class="s2">&quot;input_path&quot;</span><span class="p">:</span> <span class="n">path</span><span class="p">,</span>
+            <span class="s2">&quot;input_bname&quot;</span><span class="p">:</span> <span class="n">bname</span><span class="p">,</span>
+            <span class="s2">&quot;input_filename&quot;</span><span class="p">:</span> <span class="n">filename</span><span class="p">,</span>
+            <span class="s2">&quot;input_file_extension&quot;</span><span class="p">:</span> <span class="n">file_extension</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">_fill_bandwidth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read in the next set of frames from disk and store results.</span>
+
+<span class="sd">        This should not be called directly, but only through the next_batch</span>
+<span class="sd">        method. Otherwise the internal counters will become inconsistent.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_continue</span><span class="p">,</span> <span class="n">frame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_continue</span><span class="p">:</span>
+                <span class="n">rgb_id</span> <span class="o">=</span> <span class="n">COLOR_BGR2RGB</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span>
+                    <span class="n">frame</span><span class="p">,</span> <span class="n">rgb_id</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_img</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">bsize</span><span class="p">,</span> <span class="p">:,</span> <span class="p">:,</span> <span class="p">:]</span> <span class="o">=</span> <span class="mi">0</span>
+
+
+<span class="k">class</span> <span class="nc">ImageInput</span><span class="p">(</span><span class="n">VisualInput</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;An input object for create batches of images from input images.</span>
+
+<span class="sd">    Once initialized, subsequent calls to the next_batch method should be</span>
+<span class="sd">    called to cycle through batches of frames. The continue_read flag will be</span>
+<span class="sd">    turn false when all of data from the sources has been returned. Note that</span>
+<span class="sd">    the batch will always be of size 1 and include a look-ahead region of all</span>
+<span class="sd">    black pixels. This is needed because not all images will be the same size.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        bsize (int): Number of frames in a batch. Always 1.</span>
+<span class="sd">        vname (str): Name of the video file.</span>
+<span class="sd">        continue_read (bool): Indicates whether there more frames to read from</span>
+<span class="sd">            the input.</span>
+<span class="sd">        fcount (int): Pointer to the next image to return.</span>
+<span class="sd">        meta (dict): A dictionary containing additional metadata about the</span>
+<span class="sd">            input images.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Construct a new input from a set of paths.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            input_paths (str or list): Paths the images. Will use glob</span>
+<span class="sd">                expansion on the elements.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="c1"># find input paths</span>
+        <span class="n">input_paths</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;input_paths&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">input_paths</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">input_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">input_paths</span><span class="p">]</span>
+
+        <span class="n">input_paths</span> <span class="o">=</span> <span class="p">[</span><span class="n">glob</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">input_paths</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">paths</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">chain</span><span class="o">.</span><span class="n">from_iterable</span><span class="p">(</span><span class="n">input_paths</span><span class="p">))</span>
+
+        <span class="c1"># fill in attribute defaults</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">end</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_video_cap</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># create metadata</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;image&quot;</span><span class="p">,</span> <span class="s2">&quot;paths&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">}</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">open_input</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="nf">next_batch</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move forward one batch and return the current FrameBatch object.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            A FrameBatch object that contains the next set of frames.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span><span class="p">,</span> <span class="s2">&quot;No more input to read.&quot;</span>
+
+        <span class="n">this_index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span>
+
+        <span class="c1"># read the next image and create buffer</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="n">this_index</span><span class="p">])</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">cvtColor</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">COLOR_BGR2RGB</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">stack</span><span class="p">([</span><span class="n">img</span><span class="p">,</span> <span class="n">zeros_like</span><span class="p">(</span><span class="n">img</span><span class="p">)])</span>
+
+        <span class="c1"># is this the last image?</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fcount</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># return batch of frames.</span>
+        <span class="k">return</span> <span class="n">FrameBatch</span><span class="p">(</span>
+            <span class="n">img</span><span class="o">=</span><span class="n">img</span><span class="p">,</span>
+            <span class="n">start</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">this_index</span><span class="p">),</span>
+            <span class="n">end</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">this_index</span><span class="p">),</span>
+            <span class="n">continue_read</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">continue_read</span><span class="p">,</span>
+            <span class="n">fnames</span><span class="o">=</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">paths</span><span class="p">[</span><span class="n">this_index</span><span class="p">]],</span>
+            <span class="n">bnum</span><span class="o">=</span><span class="n">this_index</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">get_metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">meta</span>
 </pre></div>
 
            </div>
@@ -400,13 +610,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

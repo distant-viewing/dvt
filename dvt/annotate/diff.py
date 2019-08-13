@@ -1,37 +1,15 @@
 # -*- coding: utf-8 -*-
 """Annotators for finding difference between subsequent frames.
 
-The annotators here detect differences from one frame to the next. They all
-collect basic summaries of the overall brightness and saturation of a frame.
+The annotator implemented here detects differences from one frame to the next.
+It also collects summaries of the overall brightness and saturation of a frame.
 These are all useful for detecting shot boundaries and scene breaks.
-
-Example:
-    Assuming we have an input named "input.mp4", the following example shows
-    the a sample usage of the DiffAnnotator over two batches of the input.
-
-    >>> fp = FrameProcessor()
-    >>> fp.load_annotator(DiffAnnotator(quantiles=[40]))
-    >>> fp.process(FrameInput("input.mp4"), max_batch=2)
-
-    Then, collect the output from the annotator and display as a pandas data
-    frame. Here, just the head of the data is shown for brevity.
-
-    >>> fp.collect("diff").todf().head()
-       q40      video  frame  h40  avg_value
-    0  0.0  input.mp4      0  0.0   2.552584
-    1  0.0  input.mp4      1  0.0   2.921136
-    2  0.0  input.mp4      2  0.0   2.697502
-    3  0.0  input.mp4      3  0.0   2.830626
-    4  0.0  input.mp4      4  0.0   2.560596
-
-    The output can be further processed with related aggregator classes to
-    detect shot breaks.
 """
 
 from cv2 import calcHist, cvtColor, resize, COLOR_RGB2HSV
 from numpy import abs as npabs, mean, percentile, prod, zeros
 
-from ..core import FrameAnnotator
+from ..abstract import FrameAnnotator
 
 
 class DiffAnnotator(FrameAnnotator):

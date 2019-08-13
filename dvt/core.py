@@ -1,116 +1,83 @@
 # -*- coding: utf-8 -*-
-"""Core objects.
+"""Core objects for working with the distant viewing toolkit.
+
+The objects VisualInput, FrameAnnotator, and Aggregator are abstract classes.
+They correspond to the method for extracting visual inputs from digitized
+files, methods for extracting metadata from visual images, and methods for
+aggregating the data across a collection. The toolkit provides many ready-made
+implementions of these classes in order to solve common tasks.
+
+A DataExtraction class is constructed for each input object. Annotators and
+aggregators can be iteratively passed to the object to extract metadata. The
+FrameBatch object serves as the primary internal structure for storing visual
+information. Users who construct their own FrameAnnotator subclasses will need
+to interface with these objects and their methods for grabbing visual data
+inputs. See the example in DataExtraction for the basic usage of the classes.
 """
 
-from abc import ABC, abstractmethod
 from collections import OrderedDict
+from glob import glob
+from itertools import chain
 
+from cv2 import (
+  COLOR_BGR2RGB,
+  cvtColor,
+  imread,
+  VideoCapture,
+  CAP_PROP_FPS,
+  CAP_PROP_FRAME_COUNT,
+  CAP_PROP_FRAME_HEIGHT,
+  CAP_PROP_FRAME_WIDTH,
+  CAP_PROP_POS_MSEC
+)
+from numpy import zeros, uint8, stack, zeros_like
 from pandas import concat, DataFrame
 
-from .utils import process_output_values
-
-# Abstract Classes that must be implemented
-
-
-class VisualInput(ABC):     # pragma: no cover
-    """Base class for producing batches of visual input.
-    """
-
-    @abstractmethod
-    def __init__(self, **kwargs):
-        """Create a new input object.
-        """
-        return
-
-    @abstractmethod
-    def open_input(self):
-        """Restart and initialize the input feed.
-        """
-        return
-
-    @abstractmethod
-    def next_batch(self):
-        """Move forward one batch and return the current FrameBatch object.
-        """
-        return
-
-    @abstractmethod
-    def get_metadata(self):
-        """Provide metadata from the input connection.
-        """
-        return
-
-
-class FrameAnnotator(ABC):   # pragma: no cover
-    """Base class for annotating a batch of frames.
-
-    Attributes:
-        name (str): A description of the annotator, used as a key in the output
-            returned by a FrameProcessor.
-        cache (dict): Holds internal state of the annotator. Used for passing
-            data between batches, which should be avoided whenever possible.
-    """
-
-    @abstractmethod
-    def __init__(self, **kwargs):
-        """Create a new empty FrameAnnotator.
-        """
-        return
-
-    @abstractmethod
-    def annotate(self, batch):
-        """Annotate a batch of frames and return the resulting annotations.
-
-        This method contains the core functionality of an annotator. It takes
-        a batch of frames and returns the annotated output as a list object.
-        Lists from batch to batch will be appended together and collected by
-        calling stack_dict_frames.
-
-        Args:
-            batch (FrameBatch): A batch of images to annotate.
-
-        Returns:
-            The method should return a list of item(s) that can be combined
-            into a DictFrame. Specifically, the items should be dictionaries
-            with a consistent set of keys where all items have the same length
-            (or first shape value, in the case of numpy array). Can also return
-            None, in which case nothing is added to the current output.
-        """
-        return
-
-
-class Aggregator(ABC):    # pragma: no cover
-    """Base class for aggregating the output from a pipeline of processors.
-
-    Attributes:
-        name (str): A description of the aggregator.
-    """
-
-    @abstractmethod
-    def __init__(self, **kargs):
-        """Create a new empty Aggregator.
-        """
-        return
-
-    @abstractmethod
-    def aggregate(self, ldframe, **kwargs):
-        """Aggregate annotations.
-
-        Args:
-            ldframe (dict): A dictionary of data pased from a DataExtraction
-                object.
-
-        Returns:
-            An object that can be processed by process_output_values.
-        """
-        return
-
-
-# Core Objects that have a single implementation
+from .abstract import VisualInput
+from .utils import process_output_values, _expand_path
 
 
 class DataExtraction:
-    """Contains all the metadata extracted from an input object.
+    """The core class of the toolkit. Used to pass algorithms to visual data.
+
+    Each instance of a data extraction is tied to a particular input object.
+    Collections of annotators or individual aggregators can be passed to the
+    relevant methods to extract metadata from the associated input.
+
+    Attributes:
+        vinput (VisualInput): The input object associated with the dataset.
+        data (OrderedDict): Each key in the ordered dictionary is associated
+            with an aggregator and annotator and contains a pandas DataFrame
+            with all of the extracted metadata.
+
+    Example:
+        Assuming we have an input named "input.mp4", the following example
+        shows a straightforward usage of DataExtraction. We create an
+        extraction object, pass through a difference annotator, and then
+        aggregate use the cut detector. Finally, the output from the cut
+        aggregator is obtained by calling the get_data method and grabbing
+        the relevant key ("cut").
+
+        >>> from dvt.core import DataExtraction, FrameInput
+        >>> from dvt.annotate.diff import DiffAnnotator
+        >>> from dvt.aggregate.cut import CutAggregator
+
+        >>> dextra = DataExtraction(FrameInput(input_path="input.mp4"))
+        >>> dextra.run_annotators([DiffAnnotator(quantiles=[40])])
+        >>> dextra.run_aggregator(CutAggregator(cut_vals={'q40': 3}))
+
+        >>> dextra.get_data()['cut']
+
+        Using the input file in the Distant Viewing Toolkit test directory
+        yields the following output:
+
+        >>> dextra.get_data()['cut']
+           frame_start  frame_end
+        0            0         74
+        1           75        154
+        2          155        299
+        3          300        511
+
     """
 
     def __init__(self, vinput):
@@ -118,7 +85,18 @@ class DataExtraction:
         self.data = OrderedDict()
 
     def run_annotators(self, annotators, max_batch=None):
-        """Run the extraction.
+        """Run a collection of annotators over the input material.
+
+        Batches of inputs are grabbed from vinput and passed to the annotators.
+        Output is collapsed into one DataFrame per annotator, and stored as
+        keys in the data attribute. An additional key is included ("meta")
+        that contains metadata about the collection.
+
+        Args:
+            annotators (list): A list of annotator objects.
+            max_batch (int): The maximum number of batches to process. Useful
+                for testing and debugging. Set to None (default) to process
+                all available frames.
         """
         self.vinput.open_input()
 
@@ -149,7 +127,11 @@ class DataExtraction:
                 self.data[key] = DataFrame()
 
     def run_aggregator(self, aggregator):
-        """Run an aggregator.
+        """Run an aggregator over the extracted annotations.
+
+        Args:
+            aggregator (Aggregator): Aggregator object use for processing the
+                input data.
         """
 
         value = process_output_values(aggregator.aggregate(self.data))
@@ -160,6 +142,10 @@ class DataExtraction:
 
     def get_data(self):
         """Get dataset from the object.
+
+        Returns:
+            An ordered dictionary where each key corresponds to an annotator
+            or aggregator and the values are all pandas DataFrame objects.
         """
 
         return self.data
@@ -183,9 +169,8 @@ class FrameBatch:
         continue_read (bool): Indicates whether there more frames to read from
             the input.
         fnames (list): Names of frames in the batch.
-        bsize (int): Number of frames in a batch.
         bnum (int): The batch number.
-
+        bsize (int): Number of frames in a batch.
     """
 
     def __init__(self, **kwargs):
@@ -219,7 +204,7 @@ class FrameBatch:
             A four-dimensional array containing pixels from the current batch
             of images.
         """
-        return self.img[: self.bsize, :, :, :]
+        return self.img[:self.bsize, :, :, :]
 
     def get_frame_names(self):
         """Return frame names for the current batch of data.
@@ -228,3 +213,228 @@ class FrameBatch:
             A list of names of length equal to the batch size.
         """
         return self.fnames
+
+
+
+class FrameInput(VisualInput):
+    """An input object for extracting batches of images from an input video.
+
+    Once initialized, subsequent calls to the next_batch method should be
+    called to cycle through batches of frames. The continue_read flag will be
+    turn false when all of data from the source has been returned within a
+    batch. Note that this does not include the look-ahead region. The final
+    batch will include padding by zeros (black) in this region.
+
+    Attributes:
+        bsize (int): Number of frames in a batch.
+        fcount (int): Frame counter for the first frame in the current batch.
+        vname (str): Name of the video file.
+        continue_read (bool): Indicates whether there more frames to read from
+            the input.
+        start (float): Time code at the start of the current batch.
+        end (float): Time code at the end of the current batch.
+        meta (dict): A dictionary containing additional metadata about the
+            video file.
+    """
+
+    def __init__(self, **kwargs):
+        """Construct a new input from a video file.
+
+        Args:
+            input_path (str): Path to the video file. Can be any file readable
+                by the OpenCV function VideoCapture.
+            bsize (int): Number of frames to include in a batch. Defaults to
+                256.
+        """
+        self.input_path = _expand_path(kwargs["input_path"])[0]
+        self.bsize = kwargs.get("bsize", 256)
+        self.meta = None
+        self.fcount = 0
+        self.continue_read = True
+        self.start = 0
+        self.end = 0
+        self._video_cap = None
+        self._img = None
+        self._continue = True
+
+        super().__init__()
+
+    def open_input(self):
+        """Open connection to the video file.
+        """
+        # start settings to
+        self.fcount = 0
+        self.continue_read = True
+        self.start = 0
+        self.end = 0
+        self._video_cap = VideoCapture(self.input_path)
+        self.meta = self._metadata()
+
+        self._img = zeros(
+            (self.bsize * 2, self.meta["height"], self.meta["width"], 3),
+            dtype=uint8,
+        )
+        self._fill_bandwidth()  # fill the buffer with the first batch
+        self._continue = True   # is there any more input left in the video
+
+    def next_batch(self):
+        """Move forward one batch and return the current FrameBatch object.
+
+        Returns:
+            A FrameBatch object that contains the next set of frames.
+        """
+
+        assert self.continue_read, "No more input to read."
+
+        # shift window over by one bandwidth
+        self._img[:self.bsize, :, :, :] = self._img[self.bsize:, :, :, :]
+
+        # fill up the bandwidth; with zeros at and of video input
+        if self._continue:
+            self._fill_bandwidth()
+        else:
+            self.continue_read = self._continue
+            self._img[self.bsize:, :, :, :] = 0
+
+        # update counters
+        frame_start = self.fcount
+        self.start = self.end
+        self.end = self._video_cap.get(CAP_PROP_POS_MSEC)
+        self.fcount = self.fcount + self.bsize
+
+        # get frame names
+        fnames = list(range(int(frame_start), int(frame_start + self.bsize)))
+
+        # return batch of frames.
+        return FrameBatch(
+            img=self._img,
+            start=self.start,
+            end=self.end,
+            continue_read=self.continue_read,
+            fnames=fnames,
+            bnum=(frame_start // self.bsize),
+        )
+
+    def get_metadata(self):
+        return self.meta
+
+    def _metadata(self):
+        """Fill metadata attribute using metadata from the video source.
+        """
+        path, bname, filename, file_extension = _expand_path(self.input_path)
+        return {
+            "type": "video",
+            "fps": self._video_cap.get(CAP_PROP_FPS),
+            "frames": int(self._video_cap.get(CAP_PROP_FRAME_COUNT)),
+            "height": int(self._video_cap.get(CAP_PROP_FRAME_HEIGHT)),
+            "width": int(self._video_cap.get(CAP_PROP_FRAME_WIDTH)),
+            "input_path": path,
+            "input_bname": bname,
+            "input_filename": filename,
+            "input_file_extension": file_extension,
+        }
+
+    def _fill_bandwidth(self):
+        """Read in the next set of frames from disk and store results.
+
+        This should not be called directly, but only through the next_batch
+        method. Otherwise the internal counters will become inconsistent.
+        """
+        for idx in range(self.bsize):
+            self._continue, frame = self._video_cap.read()
+            if self._continue:
+                rgb_id = COLOR_BGR2RGB
+                self._img[idx + self.bsize, :, :, :] = cvtColor(
+                    frame, rgb_id
+                )
+            else:
+                self._img[idx + self.bsize, :, :, :] = 0
+
+
+class ImageInput(VisualInput):
+    """An input object for create batches of images from input images.
+
+    Once initialized, subsequent calls to the next_batch method should be
+    called to cycle through batches of frames. The continue_read flag will be
+    turn false when all of data from the sources has been returned. Note that
+    the batch will always be of size 1 and include a look-ahead region of all
+    black pixels. This is needed because not all images will be the same size.
+
+    Attributes:
+        bsize (int): Number of frames in a batch. Always 1.
+        vname (str): Name of the video file.
+        continue_read (bool): Indicates whether there more frames to read from
+            the input.
+        fcount (int): Pointer to the next image to return.
+        meta (dict): A dictionary containing additional metadata about the
+            input images.
+    """
+
+    def __init__(self, **kwargs):
+        """Construct a new input from a set of paths.
+
+        Args:
+            input_paths (str or list): Paths the images. Will use glob
+                expansion on the elements.
+        """
+        self.continue_read = True
+        self.fcount = 0
+
+        # find input paths
+        input_paths = kwargs.get("input_paths")
+        if not isinstance(input_paths, list):
+            input_paths = [input_paths]
+
+        input_paths = [glob(x, recursive=True) for x in input_paths]
+        self.paths = list(chain.from_iterable(input_paths))
+
+        # fill in attribute defaults
+        self.meta = None
+        self.fcount = 0
+        self.continue_read = True
+        self.start = 0
+        self.end = 0
+        self._video_cap = None
+
+        # create metadata
+        self.meta = {"type": "image", "paths": self.paths}
+
+        super().__init__()
+
+    def open_input(self):
+        self.fcount = 0
+        self.continue_read = True
+
+    def next_batch(self):
+        """Move forward one batch and return the current FrameBatch object.
+
+        Returns:
+            A FrameBatch object that contains the next set of frames.
+        """
+
+        assert self.continue_read, "No more input to read."
+
+        this_index = self.fcount
+
+        # read the next image and create buffer
+        img = imread(self.paths[this_index])
+        img = cvtColor(img, COLOR_BGR2RGB)
+        img = stack([img, zeros_like(img)])
+
+        # is this the last image?
+        self.fcount += 1
+        if self.fcount >= len(self.paths):
+            self.continue_read = False
+
+        # return batch of frames.
+        return FrameBatch(
+            img=img,
+            start=float(this_index),
+            end=float(this_index),
+            continue_read=self.continue_read,
+            fnames=[self.paths[this_index]],
+            bnum=this_index
+        )
+
+    def get_metadata(self):
+        return self.meta

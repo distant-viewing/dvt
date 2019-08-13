@@ -3,6 +3,6 @@ Cut Aggregators
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.aggregate.cut
-    :members:
+    :members: CutAggregator
     :undoc-members:
     :show-inheritance:

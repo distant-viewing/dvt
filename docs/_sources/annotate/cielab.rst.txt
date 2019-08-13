@@ -3,6 +3,6 @@ CieLAB Annotators
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.annotate.cielab
-    :members:
+    :members: CIElabAnnotator
     :undoc-members:
     :show-inheritance:

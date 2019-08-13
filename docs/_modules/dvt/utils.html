@@ -155,7 +155,10 @@
             
   <h1>Source code for dvt.utils</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;Core objects.</span>
+<span class="sd">&quot;&quot;&quot;Utility functions used across the toolkit.</span>
+
+<span class="sd">Public methods may be useful in producing new annotators, aggregators, and</span>
+<span class="sd">pipeline methods.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">abspath</span><span class="p">,</span> <span class="n">expanduser</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">splitext</span>
@@ -169,7 +172,18 @@
 <div class="viewcode-block" id="process_output_values"><a class="viewcode-back" href="../../utils.html#dvt.utils.process_output_values">[docs]</a><span class="k">def</span> <span class="nf">process_output_values</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Take input and create pandas data frame.</span>
 
-<span class="sd">    Input can be a DataFrame (just return) or a dictionary.</span>
+<span class="sd">    This function standardizes the output from annotators and aggregators in</span>
+<span class="sd">    order to create the output stored in a DataExtraction object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        values: Either a DataFrame object, None, or dictionary object. If a</span>
+<span class="sd">            dictionary object, the key should contain lists or ndarrays that</span>
+<span class="sd">            have the same (leading) dimension. It is also possible to pass a</span>
+<span class="sd">            dictionary of all scalar values.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A list of length one, containing a single DataFrame object or a value</span>
+<span class="sd">        of None (returned if and only if the input is None).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="n">DataFrame</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">values</span><span class="p">]</span>
@@ -240,7 +254,10 @@
     <span class="sd">&quot;&quot;&quot;Setup options for TensorFlow.</span>
 
 <span class="sd">    These options should allow most users to run TensorFlow with either a</span>
-<span class="sd">    GPU or CPU.</span>
+<span class="sd">    GPU or CPU. It sets several options to avoid keras taking up too much</span>
+<span class="sd">    memory space and ignore a common warnings about library conflicts that</span>
+<span class="sd">    can occur on macOS. It also silences verbose warnings from TensorFlow</span>
+<span class="sd">    that most users can safely ignore.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span> <span class="nn">keras.backend.tensorflow_backend</span> <span class="k">import</span> <span class="n">set_session</span>
     <span class="kn">from</span> <span class="nn">tensorflow</span> <span class="k">import</span> <span class="n">logging</span><span class="p">,</span> <span class="n">ConfigProto</span><span class="p">,</span> <span class="n">Session</span>
@@ -262,6 +279,15 @@
 
 <div class="viewcode-block" id="pd_col_asarray"><a class="viewcode-back" href="../../utils.html#dvt.utils.pd_col_asarray">[docs]</a><span class="k">def</span> <span class="nf">pd_col_asarray</span><span class="p">(</span><span class="n">pdf</span><span class="p">,</span> <span class="n">column</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Takes a pandas dataframe and column name returns a numpy array.</span>
+
+<span class="sd">    Pandas DataFrame columns cannot store numpy array with more than</span>
+<span class="sd">    one dimension. This is a problem for objects such as image embeddings. We</span>
+<span class="sd">    instead store these multidimensional arrays a an array of objects. This</span>
+<span class="sd">    function reconstructs the original array.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        pdf (DatFrame): the pandas DataFrame from which to extract the column.</span>
+<span class="sd">        column (str): Name of the column to extract as a numpy array.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">vstack</span><span class="p">(</span><span class="n">pdf</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">to_list</span><span class="p">())</span></div>
 
@@ -335,13 +361,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

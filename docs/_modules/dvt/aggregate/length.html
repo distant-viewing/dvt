@@ -160,43 +160,11 @@
 <span class="sd">The aggregator functions here takes detected faces and objects to estimate the</span>
 <span class="sd">shot length. It also provides aggregated information about the detected faces</span>
 <span class="sd">and objects for each frame.</span>
-
-<span class="sd">Example:</span>
-<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
-<span class="sd">    the a sample usage of a ShotLengthAggregator over two batches of the input.</span>
-<span class="sd">    First we need to collect the face embeddings:</span>
-
-<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
-<span class="sd">    &gt;&gt;&gt; fp.load_annotator(MetaAnnotator())</span>
-<span class="sd">    &gt;&gt;&gt; fp.load_annotator(</span>
-<span class="sd">    ...     FaceAnnotator(detector=FaceDetectDlib(), freq=128)</span>
-<span class="sd">    ... )</span>
-<span class="sd">    &gt;&gt;&gt; fp.load_annotator(</span>
-<span class="sd">    ...     ObjectAnnotator(detector=ObjectDetectRetinaNet(), freq=128)</span>
-<span class="sd">    ... )</span>
-<span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
-<span class="sd">    &gt;&gt;&gt; obj = fp.collect_all()</span>
-
-<span class="sd">    Then, construct a ShotLengthAggregator:</span>
-
-<span class="sd">    &gt;&gt;&gt; sla = ShotLengthAggregator()</span>
-<span class="sd">    &gt;&gt;&gt; sla.aggregate(obj).todf()</span>
-<span class="sd">       frame  num_faces  num_people  ...  shot_length  objects</span>
-<span class="sd">    0      0          2           2  ...        5-MCU  oven; person</span>
-<span class="sd">    1    128          4           5  ...        3-MLS        person</span>
-<span class="sd">    2    256          2           1  ...        5-MCU  oven; person</span>
-
-<span class="sd">    [3 rows x 7 columns]</span>
-
-<span class="sd">    In this example, we see that the first and last frames contains two people</span>
-<span class="sd">    in a  medium close-up (MCU) and the middle frame contains five people</span>
-<span class="sd">    (there are actually 6, but one person is too obscured) in a medium long</span>
-<span class="sd">    shot (MLS).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">argmax</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="nb">max</span> <span class="k">as</span> <span class="n">npmax</span><span class="p">,</span> <span class="n">nonzero</span>
 
-<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">Aggregator</span>
+<span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">Aggregator</span>
 
 
 <div class="viewcode-block" id="ShotLengthAggregator"><a class="viewcode-back" href="../../../aggregate/length.html#dvt.aggregate.length.ShotLengthAggregator">[docs]</a><span class="k">class</span> <span class="nc">ShotLengthAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
@@ -346,13 +314,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

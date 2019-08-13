@@ -159,36 +159,9 @@
 
 <span class="sd">The aggregator functions here take local information about frames and estimates</span>
 <span class="sd">where cuts in the video occur.</span>
-
-<span class="sd">Example:</span>
-<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
-<span class="sd">    the a sample usage of a CutAggregator over two batches of the input. First</span>
-<span class="sd">    we need to collect differences between successive frames:</span>
-
-<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
-<span class="sd">    &gt;&gt;&gt; fp.load_annotator(DiffAnnotator(quantiles=[40]))</span>
-<span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
-<span class="sd">    &gt;&gt;&gt; obj = fp.collect_all()</span>
-
-<span class="sd">    Then, construct a cut aggregator with a cut-off score for both histograms</span>
-<span class="sd">    (0.2) and pixels ()</span>
-
-<span class="sd">    &gt;&gt;&gt; ca = CutAggregator(cut_vals={&#39;h40&#39;: 0.2, &#39;q40&#39;: 3})</span>
-<span class="sd">    &gt;&gt;&gt; ca.aggregate(obj).todf()</span>
-<span class="sd">           video  frame_start  frame_end</span>
-<span class="sd">    0  input.mp4            0         92</span>
-<span class="sd">    1  input.mp4           93        176</span>
-<span class="sd">    2  input.mp4          177        212</span>
-<span class="sd">    3  input.mp4          213        247</span>
-<span class="sd">    4  input.mp4          248        293</span>
-<span class="sd">    5  input.mp4          294        402</span>
-<span class="sd">    6  input.mp4          403        511</span>
-
-<span class="sd">    Additional options allow for ignoring frames that are too dark, have a cut</span>
-<span class="sd">    that is too close to another, or include additional cut-off values.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">Aggregator</span>
+<span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">Aggregator</span>
 
 
 <div class="viewcode-block" id="CutAggregator"><a class="viewcode-back" href="../../../aggregate/cut.html#dvt.aggregate.cut.CutAggregator">[docs]</a><span class="k">class</span> <span class="nc">CutAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
@@ -301,13 +274,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

@@ -3,6 +3,6 @@ Histograms of Optical Flow
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.annotate.hofm
-    :members:
+    :members: HOFMAnnotator
     :undoc-members:
     :show-inheritance:

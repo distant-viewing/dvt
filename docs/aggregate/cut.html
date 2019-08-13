@@ -176,36 +176,10 @@
 <p>Aggregate frame level information to detect cuts.</p>
 <p>The aggregator functions here take local information about frames and estimates
 where cuts in the video occur.</p>
-<p class="rubric">Example</p>
-<p>Assuming we have an input named “input.mp4”, the following example shows
-the a sample usage of a CutAggregator over two batches of the input. First
-we need to collect differences between successive frames:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">DiffAnnotator</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">]))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">collect_all</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Then, construct a cut aggregator with a cut-off score for both histograms
-(0.2) and pixels ()</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ca</span> <span class="o">=</span> <span class="n">CutAggregator</span><span class="p">(</span><span class="n">cut_vals</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;h40&#39;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span> <span class="s1">&#39;q40&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">})</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ca</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
-<span class="go">       video  frame_start  frame_end</span>
-<span class="go">0  input.mp4            0         92</span>
-<span class="go">1  input.mp4           93        176</span>
-<span class="go">2  input.mp4          177        212</span>
-<span class="go">3  input.mp4          213        247</span>
-<span class="go">4  input.mp4          248        293</span>
-<span class="go">5  input.mp4          294        402</span>
-<span class="go">6  input.mp4          403        511</span>
-</pre></div>
-</div>
-<p>Additional options allow for ignoring frames that are too dark, have a cut
-that is too close to another, or include additional cut-off values.</p>
 <dl class="class">
 <dt id="dvt.aggregate.cut.CutAggregator">
 <em class="property">class </em><code class="descclassname">dvt.aggregate.cut.</code><code class="descname">CutAggregator</code><span class="sig-paren">(</span><em>**kargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/cut.html#CutAggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.cut.CutAggregator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../core.html#dvt.core.Aggregator" title="dvt.core.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.Aggregator</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.Aggregator" title="dvt.abstract.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.Aggregator</span></code></a></p>
 <p>Uses difference between successive frames to detect cuts.</p>
 <p>This aggregator uses information from the difference annotator to detect
 the cuts.</p>
@@ -310,13 +284,9 @@ annotation.</td>
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

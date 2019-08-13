@@ -162,44 +162,13 @@
 <span class="sd">to which a specific object detector can be inserted. The module also supplies</span>
 <span class="sd">a direct wrapper to the RetinaNet algorithm, which includes 80 classes of</span>
 <span class="sd">common objects.</span>
-
-<span class="sd">Example:</span>
-<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
-<span class="sd">    the a sample usage of the ObjectDetectRetinaNet over two batches of the</span>
-<span class="sd">    input. The embedding is applied to every 128 frames.</span>
-
-<span class="sd">    &gt;&gt;&gt; detector = ObjectDetectRetinaNet()</span>
-<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
-<span class="sd">    &gt;&gt;&gt; fp.load_annotator(ObjectAnnotator(freq=128, detector=detector))</span>
-<span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
-
-<span class="sd">    Then, collect the output from the annotator and display as a pandas data</span>
-<span class="sd">    frame.</span>
-
-<span class="sd">    &gt;&gt;&gt; fp.collect(&quot;obj&quot;).todf()</span>
-<span class="sd">        frame     score      video  left  right  bottom  top   class</span>
-<span class="sd">    0     128  0.984119  input.mp4   181    466     474   75  person</span>
-<span class="sd">    1     256  0.934686  input.mp4     0    304     480  136  person</span>
-<span class="sd">    2     256  0.750618  input.mp4   367    469     306  186  person</span>
-<span class="sd">    3     256  0.726257  input.mp4   540    708     420  224  person</span>
-<span class="sd">    4     256  0.683815  input.mp4   112    298     368   49  person</span>
-<span class="sd">    5     256  0.643473  input.mp4   517    666     355  207  person</span>
-<span class="sd">    6     256  0.618098  input.mp4   496    618     314  180  person</span>
-<span class="sd">    7     256  0.503872  input.mp4   143    275     279   11  person</span>
-<span class="sd">    8     384  0.911823  input.mp4     0    326     479   89  person</span>
-<span class="sd">    9     384  0.837799  input.mp4   345    708     476   56  person</span>
-<span class="sd">    10    384  0.511585  input.mp4   141    708     470  183   couch</span>
-<span class="sd">    11    384  0.500984  input.mp4    52    687     480   91  person</span>
-
-<span class="sd">    The detector was run on four frames (0, 128, 256, and 384). Here, it found</span>
-<span class="sd">    a total of 11 people and one couch.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">warnings</span> <span class="k">import</span> <span class="n">catch_warnings</span><span class="p">,</span> <span class="n">simplefilter</span>
 
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">expand_dims</span>
 
-<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span><span class="p">,</span> <span class="n">process_output_values</span>
 
 
@@ -419,13 +388,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

@@ -160,24 +160,13 @@
 <span class="sd">This module supplies an annotator that saves individual frames to some</span>
 <span class="sd">location specified on the local machine. It is only useful for its side effects</span>
 <span class="sd">as no information is returned to the FrameProcessor.</span>
-
-<span class="sd">Example:</span>
-<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
-<span class="sd">    the a sample usage of the PngAnnotator over two batches of the input.</span>
-
-<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
-<span class="sd">    &gt;&gt;&gt; fp.load_annotator(PngAnnotator(output_dir=&quot;my-frames&quot;))</span>
-<span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
-
-<span class="sd">    There will now be 512 (256 * 2) frames stored in the directory &quot;my-frames&quot;.</span>
-<span class="sd">    They images named according following the format &quot;frame-000255.png&quot;.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">basename</span><span class="p">,</span> <span class="n">join</span><span class="p">,</span> <span class="n">splitext</span>
 
 <span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span> <span class="n">cvtColor</span><span class="p">,</span> <span class="n">imwrite</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">COLOR_RGB2BGR</span>
 
-<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span><span class="p">,</span> <span class="n">_check_out_dir</span>
 
 
@@ -251,13 +240,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

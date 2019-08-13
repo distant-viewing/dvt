@@ -21,7 +21,7 @@ from cv2 import (
 )
 from numpy import array, nonzero
 
-from ..core import Aggregator
+from ..abstract import Aggregator
 from ..utils import _check_out_dir
 
 

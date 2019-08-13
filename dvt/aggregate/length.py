@@ -4,43 +4,11 @@
 The aggregator functions here takes detected faces and objects to estimate the
 shot length. It also provides aggregated information about the detected faces
 and objects for each frame.
-
-Example:
-    Assuming we have an input named "input.mp4", the following example shows
-    the a sample usage of a ShotLengthAggregator over two batches of the input.
-    First we need to collect the face embeddings:
-
-    >>> fp = FrameProcessor()
-    >>> fp.load_annotator(MetaAnnotator())
-    >>> fp.load_annotator(
-    ...     FaceAnnotator(detector=FaceDetectDlib(), freq=128)
-    ... )
-    >>> fp.load_annotator(
-    ...     ObjectAnnotator(detector=ObjectDetectRetinaNet(), freq=128)
-    ... )
-    >>> fp.process(FrameInput("input.mp4"), max_batch=2)
-    >>> obj = fp.collect_all()
-
-    Then, construct a ShotLengthAggregator:
-
-    >>> sla = ShotLengthAggregator()
-    >>> sla.aggregate(obj).todf()
-       frame  num_faces  num_people  ...  shot_length  objects
-    0      0          2           2  ...        5-MCU  oven; person
-    1    128          4           5  ...        3-MLS        person
-    2    256          2           1  ...        5-MCU  oven; person
-
-    [3 rows x 7 columns]
-
-    In this example, we see that the first and last frames contains two people
-    in a  medium close-up (MCU) and the middle frame contains five people
-    (there are actually 6, but one person is too obscured) in a medium long
-    shot (MLS).
 """
 
 from numpy import argmax, array, max as npmax, nonzero
 
-from ..core import Aggregator
+from ..abstract import Aggregator
 
 
 class ShotLengthAggregator(Aggregator):

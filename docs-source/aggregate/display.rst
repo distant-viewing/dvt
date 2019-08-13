@@ -3,6 +3,6 @@ Display Aggregators
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.aggregate.display
-    :members:
+    :members: DisplayAggregator
     :undoc-members:
     :show-inheritance:

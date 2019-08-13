@@ -36,7 +36,7 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Utility Pipeline Functions" href="../pipeline/utils.html" />
+    <link rel="next" title="Pipeline for Working with Video Inputs" href="../pipeline/video.html" />
     <link rel="prev" title="Length Aggregators" href="length.html" /> 
 </head>
 
@@ -176,40 +176,10 @@
 <p>Aggregate frame level information to detect people in shots.</p>
 <p>The aggregator functions here take face embeddings and tries to predict the
 identity of people within each shot.</p>
-<p class="rubric">Example</p>
-<p>Assuming we have an input named “input.mp4”, the following example shows
-the a sample usage of a PeopleAggregator over two batches of the input.
-First we need to collect the face embeddings:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">anno</span> <span class="o">=</span> <span class="n">FaceAnnotator</span><span class="p">(</span><span class="n">detector</span><span class="o">=</span><span class="n">FaceDetectDlib</span><span class="p">(),</span>
-<span class="gp">... </span>                     <span class="n">embedding</span><span class="o">=</span><span class="n">FaceEmbedVgg2</span><span class="p">(),</span> <span class="n">freq</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">anno</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">collect_all</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Then, construct a PeopleAggregator using the first two detected faces as
-default faces:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">pa</span> <span class="o">=</span> <span class="n">PeopleAggregator</span><span class="p">(</span><span class="n">face_names</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;person 1&#39;</span><span class="p">,</span> <span class="s1">&#39;person 2&#39;</span><span class="p">],</span>
-<span class="gp">... </span>                      <span class="n">fprint</span><span class="o">=</span><span class="n">obj</span><span class="p">[</span><span class="s1">&#39;face&#39;</span><span class="p">][</span><span class="s1">&#39;embed&#39;</span><span class="p">][[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]])</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">pa</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
-<span class="go">            video  frame  top  left  ...  confidence    person person-dist</span>
-<span class="go">0  video-clip.mp4      0  101   451  ...    1.048362  person 1    0.000000</span>
-<span class="go">1  video-clip.mp4      0  105   136  ...    1.014278  person 2    0.000000</span>
-<span class="go">2  video-clip.mp4      4  101   441  ...    1.051648  person 1   20.011372</span>
-<span class="go">3  video-clip.mp4      4  105   136  ...    1.024614  person 2   46.463203</span>
-<span class="go">4  video-clip.mp4      8  101   441  ...    1.066064  person 1   21.747568</span>
-<span class="go">5  video-clip.mp4      8  105   136  ...    1.024315  person 2   49.413498</span>
-<span class="go">6  video-clip.mp4     12  101   441  ...    1.063129  person 1   23.384321</span>
-<span class="go">7  video-clip.mp4     12  105   136  ...    1.020311  person 2   53.846676</span>
-</pre></div>
-</div>
-<p>In this part of the clip, every shot contains two characters that are
-sitting next to one another.</p>
 <dl class="class">
 <dt id="dvt.aggregate.people.PeopleAggregator">
 <em class="property">class </em><code class="descclassname">dvt.aggregate.people.</code><code class="descname">PeopleAggregator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/people.html#PeopleAggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../core.html#dvt.core.Aggregator" title="dvt.core.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.Aggregator</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.Aggregator" title="dvt.abstract.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.Aggregator</span></code></a></p>
 <p>Uses face embeddings to identify the identity of people in the frame.</p>
 <p>You will need to provide baseline faces for the annotator to compare to.
 Note that the annotator returns the nearest faces along with the distance
@@ -304,7 +274,7 @@ names of the people in the images.</td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../pipeline/utils.html" class="btn btn-neutral float-right" title="Utility Pipeline Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../pipeline/video.html" class="btn btn-neutral float-right" title="Pipeline for Working with Video Inputs" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="length.html" class="btn btn-neutral float-left" title="Length Aggregators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
@@ -320,13 +290,9 @@ names of the people in the images.</td>
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

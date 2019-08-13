@@ -37,7 +37,7 @@
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="CieLAB Annotators" href="annotate/cielab.html" />
-    <link rel="prev" title="Input Classes" href="inputs.html" /> 
+    <link rel="prev" title="Abstract Classes" href="abstract.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -94,8 +94,8 @@
 <li class="toctree-l1 current"><a class="reference internal" href="dvt.html"> API Documentation</a><ul class="current">
 <li class="toctree-l2 current"><a class="reference internal" href="dvt.html#core-functions">Core Functions</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
-<li class="toctree-l3"><a class="reference internal" href="core.html">Generic Classes</a></li>
-<li class="toctree-l3"><a class="reference internal" href="inputs.html">Input Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html">Core Objects</a></li>
+<li class="toctree-l3"><a class="reference internal" href="abstract.html">Abstract Classes</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Utility Functions</a></li>
 </ul>
 </li>
@@ -173,64 +173,62 @@
             
   <div class="section" id="module-dvt.utils">
 <span id="utility-functions"></span><h1>Utility Functions<a class="headerlink" href="#module-dvt.utils" title="Permalink to this headline">¶</a></h1>
-<p>Core objects.</p>
+<p>Utility functions used across the toolkit.</p>
+<p>Public methods may be useful in producing new annotators, aggregators, and
+pipeline methods.</p>
 <dl class="function">
-<dt id="dvt.utils.pd_col_asarray">
-<code class="descclassname">dvt.utils.</code><code class="descname">pd_col_asarray</code><span class="sig-paren">(</span><em>pdf</em>, <em>column</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#pd_col_asarray"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.pd_col_asarray" title="Permalink to this definition">¶</a></dt>
-<dd><p>Takes a pandas dataframe and column name returns a numpy array.</p>
+<dt id="dvt.utils.setup_tensorflow">
+<code class="descclassname">dvt.utils.</code><code class="descname">setup_tensorflow</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#setup_tensorflow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.setup_tensorflow" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup options for TensorFlow.</p>
+<p>These options should allow most users to run TensorFlow with either a
+GPU or CPU. It sets several options to avoid keras taking up too much
+memory space and ignore a common warnings about library conflicts that
+can occur on macOS. It also silences verbose warnings from TensorFlow
+that most users can safely ignore.</p>
 </dd></dl>
 
 <dl class="function">
 <dt id="dvt.utils.process_output_values">
 <code class="descclassname">dvt.utils.</code><code class="descname">process_output_values</code><span class="sig-paren">(</span><em>values</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#process_output_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.process_output_values" title="Permalink to this definition">¶</a></dt>
 <dd><p>Take input and create pandas data frame.</p>
-<p>Input can be a DataFrame (just return) or a dictionary.</p>
+<p>This function standardizes the output from annotators and aggregators in
+order to create the output stored in a DataExtraction object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>values</strong> – Either a DataFrame object, None, or dictionary object. If a
+dictionary object, the key should contain lists or ndarrays that
+have the same (leading) dimension. It is also possible to pass a
+dictionary of all scalar values.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of length one, containing a single DataFrame object or a value
+of None (returned if and only if the input is None).</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
-<dt id="dvt.utils.resize">
-<code class="descclassname">dvt.utils.</code><code class="descname">resize</code><span class="sig-paren">(</span><em>src</em>, <em>dsize</em><span class="optional">[</span>, <em>dst</em><span class="optional">[</span>, <em>fx</em><span class="optional">[</span>, <em>fy</em><span class="optional">[</span>, <em>interpolation</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; dst<a class="headerlink" href="#dvt.utils.resize" title="Permalink to this definition">¶</a></dt>
-<dd><p>.   &#64;brief Resizes an image.
-.
-.   The function resize resizes the image src down to or up to the specified size. Note that the
-.   initial dst type or size are not taken into account. Instead, the size and type are derived from
-.   the <cite>src</cite>,`dsize`,`fx`, and <cite>fy</cite>. If you want to resize src so that it fits the pre-created dst,
-.   you may call the function as follows:
-.   &#64;code
-.   // explicitly specify dsize=dst.size(); fx and fy will be computed from that.
-.   resize(src, dst, dst.size(), 0, 0, interpolation);
-.   &#64;endcode
-.   If you want to decimate the image by factor of 2 in each direction, you can call the function this
-.   way:
-.   &#64;code
-.   // specify fx and fy and let the function compute the destination image size.
-.   resize(src, dst, Size(), 0.5, 0.5, interpolation);
-.   &#64;endcode
-.   To shrink an image, it will generally look best with #INTER_AREA interpolation, whereas to
-.   enlarge an image, it will generally look best with c#INTER_CUBIC (slow) or #INTER_LINEAR
-.   (faster but still looks OK).
-.
-.   &#64;param src input image.
-.   &#64;param dst output image; it has the size dsize (when it is non-zero) or the size computed from
-.   src.size(), fx, and fy; the type of dst is the same as of src.
-.   &#64;param dsize output image size; if it equals zero, it is computed as:
-.   f[texttt{dsize = Size(round(fx*src.cols), round(fy*src.rows))}f]
-.   Either dsize or both fx and fy must be non-zero.
-.   &#64;param fx scale factor along the horizontal axis; when it equals 0, it is computed as
-.   f[texttt{(double)dsize.width/src.cols}f]
-.   &#64;param fy scale factor along the vertical axis; when it equals 0, it is computed as
-.   f[texttt{(double)dsize.height/src.rows}f]
-.   &#64;param interpolation interpolation method, see #InterpolationFlags
-.
-.   &#64;sa  warpAffine, warpPerspective, remap</p>
-</dd></dl>
-
-<dl class="function">
-<dt id="dvt.utils.setup_tensorflow">
-<code class="descclassname">dvt.utils.</code><code class="descname">setup_tensorflow</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#setup_tensorflow"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.setup_tensorflow" title="Permalink to this definition">¶</a></dt>
-<dd><p>Setup options for TensorFlow.</p>
-<p>These options should allow most users to run TensorFlow with either a
-GPU or CPU.</p>
+<dt id="dvt.utils.pd_col_asarray">
+<code class="descclassname">dvt.utils.</code><code class="descname">pd_col_asarray</code><span class="sig-paren">(</span><em>pdf</em>, <em>column</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/utils.html#pd_col_asarray"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.utils.pd_col_asarray" title="Permalink to this definition">¶</a></dt>
+<dd><p>Takes a pandas dataframe and column name returns a numpy array.</p>
+<p>Pandas DataFrame columns cannot store numpy array with more than
+one dimension. This is a problem for objects such as image embeddings. We
+instead store these multidimensional arrays a an array of objects. This
+function reconstructs the original array.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>pdf</strong> (<em>DatFrame</em>) – the pandas DataFrame from which to extract the column.</li>
+<li><strong>column</strong> (<em>str</em>) – Name of the column to extract as a numpy array.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -274,7 +272,7 @@ to None (default) to keep the native resolution.</li>
         <a href="annotate/cielab.html" class="btn btn-neutral float-right" title="CieLAB Annotators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="inputs.html" class="btn btn-neutral float-left" title="Input Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="abstract.html" class="btn btn-neutral float-left" title="Abstract Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -287,13 +285,9 @@ to None (default) to keep the native resolution.</li>
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

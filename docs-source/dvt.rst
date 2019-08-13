@@ -9,7 +9,7 @@ Core Functions
 
    cli
    core
-   inputs
+   abstract
    utils
 
 Annotations
@@ -44,5 +44,4 @@ Pipelines
 .. toctree::
    :maxdepth: 4
 
-   pipeline/utils
    pipeline/video

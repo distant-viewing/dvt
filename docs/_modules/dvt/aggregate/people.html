@@ -159,37 +159,6 @@
 
 <span class="sd">The aggregator functions here take face embeddings and tries to predict the</span>
 <span class="sd">identity of people within each shot.</span>
-
-<span class="sd">Example:</span>
-<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
-<span class="sd">    the a sample usage of a PeopleAggregator over two batches of the input.</span>
-<span class="sd">    First we need to collect the face embeddings:</span>
-
-<span class="sd">    &gt;&gt;&gt; anno = FaceAnnotator(detector=FaceDetectDlib(),</span>
-<span class="sd">    ...                      embedding=FaceEmbedVgg2(), freq=4)</span>
-<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
-<span class="sd">    &gt;&gt;&gt; fp.load_annotator(anno)</span>
-<span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
-<span class="sd">    &gt;&gt;&gt; obj = fp.collect_all()</span>
-
-<span class="sd">    Then, construct a PeopleAggregator using the first two detected faces as</span>
-<span class="sd">    default faces:</span>
-
-<span class="sd">    &gt;&gt;&gt; pa = PeopleAggregator(face_names=[&#39;person 1&#39;, &#39;person 2&#39;],</span>
-<span class="sd">    ...                       fprint=obj[&#39;face&#39;][&#39;embed&#39;][[0, 1]])</span>
-<span class="sd">    &gt;&gt;&gt; pa.aggregate(obj).todf()</span>
-<span class="sd">                video  frame  top  left  ...  confidence    person person-dist</span>
-<span class="sd">    0  video-clip.mp4      0  101   451  ...    1.048362  person 1    0.000000</span>
-<span class="sd">    1  video-clip.mp4      0  105   136  ...    1.014278  person 2    0.000000</span>
-<span class="sd">    2  video-clip.mp4      4  101   441  ...    1.051648  person 1   20.011372</span>
-<span class="sd">    3  video-clip.mp4      4  105   136  ...    1.024614  person 2   46.463203</span>
-<span class="sd">    4  video-clip.mp4      8  101   441  ...    1.066064  person 1   21.747568</span>
-<span class="sd">    5  video-clip.mp4      8  105   136  ...    1.024315  person 2   49.413498</span>
-<span class="sd">    6  video-clip.mp4     12  101   441  ...    1.063129  person 1   23.384321</span>
-<span class="sd">    7  video-clip.mp4     12  105   136  ...    1.020311  person 2   53.846676</span>
-
-<span class="sd">    In this part of the clip, every shot contains two characters that are</span>
-<span class="sd">    sitting next to one another.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span><span class="p">,</span> <span class="n">basename</span><span class="p">,</span> <span class="n">splitext</span>
@@ -197,9 +166,9 @@
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">argmin</span><span class="p">,</span> <span class="nb">min</span> <span class="k">as</span> <span class="n">npmin</span><span class="p">,</span> <span class="n">vstack</span>
 <span class="kn">from</span> <span class="nn">numpy.linalg</span> <span class="k">import</span> <span class="n">norm</span>
 
+<span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">Aggregator</span>
 <span class="kn">from</span> <span class="nn">..annotate.face</span> <span class="k">import</span> <span class="n">FaceAnnotator</span><span class="p">,</span> <span class="n">FaceDetectMtcnn</span><span class="p">,</span> <span class="n">FaceEmbedVgg2</span>
-<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">Aggregator</span><span class="p">,</span> <span class="n">DataExtraction</span>
-<span class="kn">from</span> <span class="nn">..inputs</span> <span class="k">import</span> <span class="n">ImageInput</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">DataExtraction</span><span class="p">,</span> <span class="n">ImageInput</span>
 
 
 <div class="viewcode-block" id="PeopleAggregator"><a class="viewcode-back" href="../../../aggregate/people.html#dvt.aggregate.people.PeopleAggregator">[docs]</a><span class="k">class</span> <span class="nc">PeopleAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
@@ -308,13 +277,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

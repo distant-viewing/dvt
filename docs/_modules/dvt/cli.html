@@ -159,6 +159,22 @@
 
 <span class="sd">This tool allows users to quickly apply pre-build pipelines to one or more</span>
 <span class="sd">media files.</span>
+
+<span class="sd">Example:</span>
+<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
+<span class="sd">    the default usage of the command line interface:</span>
+
+<span class="sd">    &gt; python3 -m dvt video-clip.mp4</span>
+
+<span class="sd">    This may take several minutes to complete. Some minimal logging information</span>
+<span class="sd">    should display the annotators progress in your terminal. Once finished, you</span>
+<span class="sd">    should have a new directory dvt-output-data that contains extracted</span>
+<span class="sd">    metadata and frames from the source material. You can view the extracted</span>
+<span class="sd">    information by starting a local http server:</span>
+
+<span class="sd">    &gt; python3 -m http.server --directory dvt-output-data</span>
+
+<span class="sd">    And opening the following: http://0.0.0.0:8000/.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">argparse</span> <span class="k">import</span> <span class="n">ArgumentParser</span>
@@ -264,7 +280,7 @@
 
 
 <span class="k">def</span> <span class="nf">_expand_path_and_check</span><span class="p">(</span><span class="n">fnames</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Expand paths from the input and ensure that all files exist</span>
+    <span class="sd">&quot;&quot;&quot;Expand paths from the input and ensure that all files exist.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">video_files</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">this_name</span> <span class="ow">in</span> <span class="n">fnames</span><span class="p">:</span>
@@ -298,13 +314,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

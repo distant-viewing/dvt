@@ -155,10 +155,10 @@
             
   <h1>Source code for dvt.annotate.hofm</h1><div class="highlight"><pre>
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
-<span class="sd">&quot;&quot;&quot;Annotator to extract dense Optical Flow using the opencv</span>
-<span class="sd">Gunnar Farneback’s algorithm and represent it as a</span>
-<span class="sd">histogram of optical flow orientation and magnitude (HOFM),</span>
-<span class="sd">as described in https://doi.org/10.1109/SIBGRAPI.2015.21</span>
+<span class="sd">&quot;&quot;&quot;Annotator to extract dense Optical Flow.</span>
+
+<span class="sd">Uses the opencv Gunnar Farneback’s algorithm and represent it as a</span>
+<span class="sd">histogram of optical flow orientation and magnitude (HOFM).</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">importlib</span> <span class="k">import</span> <span class="n">import_module</span>
@@ -166,7 +166,7 @@
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">digitize</span><span class="p">,</span> <span class="n">stack</span><span class="p">,</span> <span class="n">zeros</span>
 <span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span> <span class="n">cartToPolar</span>
 
-<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
 <span class="kn">from</span> <span class="nn">.opticalflow</span> <span class="k">import</span> <span class="n">_get_optical_flow</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span>
 
@@ -174,8 +174,7 @@
 <div class="viewcode-block" id="HOFMAnnotator"><a class="viewcode-back" href="../../../annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator">[docs]</a><span class="k">class</span> <span class="nc">HOFMAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Annotator to extract dense Optical Flow using the opencv</span>
 <span class="sd">    Gunnar Farneback’s algorithm and represent it as a</span>
-<span class="sd">    histogram of optical flow orientation and magnitude (HOFM),</span>
-<span class="sd">    as described in https://doi.org/10.1109/SIBGRAPI.2015.21</span>
+<span class="sd">    histogram of optical flow orientation and magnitude (HOFM).</span>
 
 <span class="sd">    The annotator will return the optical flow describing the motion in</span>
 <span class="sd">    two subsequent frames as a HOFM feature.</span>
@@ -289,13 +288,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

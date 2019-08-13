@@ -6,37 +6,12 @@ embedding into the penultimate layer (or some other internal layer) gives a
 useful embedding that can be used similar to word vectors. This module returns
 an embedding over a (possible subset) of the frames in an input. The module
 can also be used when the embedding corresponds to a concrete supervised task.
-
-Example:
-    Assuming we have an input named "input.mp4", the following example shows
-    the a sample usage of the EmbedFrameKerasResNet50 over two batches of the
-    input. The embedding is applied to every 128 frames.
-
-    >>> embed = EmbedFrameKerasResNet50()
-    >>> fp = FrameProcessor()
-    >>> fp.load_annotator(EmbedAnnotator(freq=128, embedding=embed))
-    >>> fp.process(FrameInput("input.mp4"), max_batch=2)
-
-    Then, collect the output from the annotator and display as a pandas data
-    frame.
-
-    >>> fp.collect("embed").todf()
-           video  frame   embed-0     ...      embed-2046  embed-2047
-    0  input.mp4      0  0.000000     ...        0.004976    0.000000
-    1  input.mp4    128  0.534926     ...        0.379687    0.016144
-    2  input.mp4    256  0.259463     ...        0.002361    0.168496
-    3  input.mp4    384  0.079264     ...        0.025871    0.189005
-
-    [4 rows x 2050 columns]
-
-    Notice that there are 4 rows because we embedded once every 128 frames and
-    ran two batches, each with 256 frames.
 """
 
 from cv2 import resize
 from numpy import array, zeros
 
-from ..core import FrameAnnotator
+from ..abstract import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames
 
 

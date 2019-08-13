@@ -3,6 +3,22 @@
 
 This tool allows users to quickly apply pre-build pipelines to one or more
 media files.
+
+Example:
+    Assuming we have an input named "input.mp4", the following example shows
+    the default usage of the command line interface:
+
+    > python3 -m dvt video-clip.mp4
+
+    This may take several minutes to complete. Some minimal logging information
+    should display the annotators progress in your terminal. Once finished, you
+    should have a new directory dvt-output-data that contains extracted
+    metadata and frames from the source material. You can view the extracted
+    information by starting a local http server:
+
+    > python3 -m http.server --directory dvt-output-data
+
+    And opening the following: http://0.0.0.0:8000/.
 """
 
 from argparse import ArgumentParser
@@ -108,7 +124,7 @@ def _get_arg_parse():
 
 
 def _expand_path_and_check(fnames):
-    """Expand paths from the input and ensure that all files exist
+    """Expand paths from the input and ensure that all files exist.
     """
     video_files = []
     for this_name in fnames:

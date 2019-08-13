@@ -3,6 +3,6 @@ Input Classes
 ======================
 
 .. automodule:: dvt.inputs
-    :members:
+    :members: FrameInput, ImageInput
     :undoc-members:
     :show-inheritance:

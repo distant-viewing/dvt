@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Core objects.
+"""Utility functions used across the toolkit.
+
+Public methods may be useful in producing new annotators, aggregators, and
+pipeline methods.
 """
 
 from os.path import abspath, expanduser, isdir, basename, splitext
@@ -13,7 +16,18 @@ from cv2 import resize
 def process_output_values(values):
     """Take input and create pandas data frame.
 
-    Input can be a DataFrame (just return) or a dictionary.
+    This function standardizes the output from annotators and aggregators in
+    order to create the output stored in a DataExtraction object.
+
+    Args:
+        values: Either a DataFrame object, None, or dictionary object. If a
+            dictionary object, the key should contain lists or ndarrays that
+            have the same (leading) dimension. It is also possible to pass a
+            dictionary of all scalar values.
+
+    Returns:
+        A list of length one, containing a single DataFrame object or a value
+        of None (returned if and only if the input is None).
     """
     if isinstance(values, DataFrame):
         return [values]
@@ -84,7 +98,10 @@ def setup_tensorflow():
     """Setup options for TensorFlow.
 
     These options should allow most users to run TensorFlow with either a
-    GPU or CPU.
+    GPU or CPU. It sets several options to avoid keras taking up too much
+    memory space and ignore a common warnings about library conflicts that
+    can occur on macOS. It also silences verbose warnings from TensorFlow
+    that most users can safely ignore.
     """
     from keras.backend.tensorflow_backend import set_session
     from tensorflow import logging, ConfigProto, Session
@@ -106,6 +123,15 @@ def setup_tensorflow():
 
 def pd_col_asarray(pdf, column):
     """Takes a pandas dataframe and column name returns a numpy array.
+
+    Pandas DataFrame columns cannot store numpy array with more than
+    one dimension. This is a problem for objects such as image embeddings. We
+    instead store these multidimensional arrays a an array of objects. This
+    function reconstructs the original array.
+
+    Args:
+        pdf (DatFrame): the pandas DataFrame from which to extract the column.
+        column (str): Name of the column to extract as a numpy array.
     """
     return vstack(pdf[column].to_list())
 

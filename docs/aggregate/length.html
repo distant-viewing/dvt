@@ -177,40 +177,10 @@
 <p>The aggregator functions here takes detected faces and objects to estimate the
 shot length. It also provides aggregated information about the detected faces
 and objects for each frame.</p>
-<p class="rubric">Example</p>
-<p>Assuming we have an input named “input.mp4”, the following example shows
-the a sample usage of a ShotLengthAggregator over two batches of the input.
-First we need to collect the face embeddings:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">MetaAnnotator</span><span class="p">())</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">FaceAnnotator</span><span class="p">(</span><span class="n">detector</span><span class="o">=</span><span class="n">FaceDetectDlib</span><span class="p">(),</span> <span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
-<span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span>
-<span class="gp">... </span>    <span class="n">ObjectAnnotator</span><span class="p">(</span><span class="n">detector</span><span class="o">=</span><span class="n">ObjectDetectRetinaNet</span><span class="p">(),</span> <span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">)</span>
-<span class="gp">... </span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">obj</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">collect_all</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>Then, construct a ShotLengthAggregator:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">sla</span> <span class="o">=</span> <span class="n">ShotLengthAggregator</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">sla</span><span class="o">.</span><span class="n">aggregate</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
-<span class="go">   frame  num_faces  num_people  ...  shot_length  objects</span>
-<span class="go">0      0          2           2  ...        5-MCU  oven; person</span>
-<span class="go">1    128          4           5  ...        3-MLS        person</span>
-<span class="go">2    256          2           1  ...        5-MCU  oven; person</span>
-</pre></div>
-</div>
-<p>[3 rows x 7 columns]</p>
-<p>In this example, we see that the first and last frames contains two people
-in a  medium close-up (MCU) and the middle frame contains five people
-(there are actually 6, but one person is too obscured) in a medium long
-shot (MLS).</p>
 <dl class="class">
 <dt id="dvt.aggregate.length.ShotLengthAggregator">
 <em class="property">class </em><code class="descclassname">dvt.aggregate.length.</code><code class="descname">ShotLengthAggregator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/aggregate/length.html#ShotLengthAggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.aggregate.length.ShotLengthAggregator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../core.html#dvt.core.Aggregator" title="dvt.core.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.Aggregator</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.Aggregator" title="dvt.abstract.Aggregator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.Aggregator</span></code></a></p>
 <p>Uses detected faces and objects to estimate shot length.</p>
 <p>You can change the cut-offs and names of the face types.</p>
 <dl class="attribute">
@@ -348,13 +318,9 @@ frame in the original input.</p>
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

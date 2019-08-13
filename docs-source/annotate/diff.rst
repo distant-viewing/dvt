@@ -2,7 +2,6 @@ Frame Difference Annotations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.annotate.diff
-    :members:
+    :members: DiffAnnotator
     :undoc-members:
     :show-inheritance:
-

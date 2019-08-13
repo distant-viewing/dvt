@@ -157,23 +157,7 @@
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;A pipeline for building an interactive website from a video file.</span>
 
-<span class="sd">Example:</span>
-<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
-<span class="sd">    the a sample usage of the VideoPipeline.</span>
-
-<span class="sd">    &gt;&gt;&gt; wp = VideoPipeline(&quot;video-clip.mp4&quot;, dname)</span>
-<span class="sd">    &gt;&gt;&gt; wp.make_breaks()</span>
-<span class="sd">    &gt;&gt;&gt; wp.run()</span>
-
-<span class="sd">    After running there will be a new directory names &quot;dvt-output-data&quot; in the</span>
-<span class="sd">    working directory. It contains a JSON file with extracted metadata, the</span>
-<span class="sd">    extracted frames, annotated frames, and visualizations of the dense optical</span>
-<span class="sd">    annotator. If you start a web browser on your machine:</span>
-
-<span class="sd">    python3 -m http.server --directory dvt-output-data</span>
-
-<span class="sd">    An interactive visualization of the output will be available by navigating</span>
-<span class="sd">    to http://0.0.0.0:8000/ in your browser.</span>
+<span class="sd">Offers similar functionality to the command line interface from within Python.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">json</span> <span class="k">import</span> <span class="n">dump</span><span class="p">,</span> <span class="n">load</span>
@@ -183,8 +167,7 @@
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">append</span><span class="p">,</span> <span class="n">int32</span>
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">DataFrame</span>
 
-<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">DataExtraction</span>
-<span class="kn">from</span> <span class="nn">..inputs</span> <span class="k">import</span> <span class="n">FrameInput</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">DataExtraction</span><span class="p">,</span> <span class="n">FrameInput</span>
 <span class="kn">from</span> <span class="nn">..annotate.cielab</span> <span class="k">import</span> <span class="n">CIElabAnnotator</span>
 <span class="kn">from</span> <span class="nn">..annotate.face</span> <span class="k">import</span> <span class="n">FaceAnnotator</span><span class="p">,</span> <span class="n">FaceDetectMtcnn</span><span class="p">,</span> <span class="n">FaceEmbedVgg2</span>
 <span class="kn">from</span> <span class="nn">..annotate.obj</span> <span class="k">import</span> <span class="n">ObjectAnnotator</span><span class="p">,</span> <span class="n">ObjectDetectRetinaNet</span>
@@ -452,13 +435,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

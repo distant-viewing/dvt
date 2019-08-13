@@ -8,3 +8,4 @@ Tutorials
    :maxdepth: 1
 
    annotators
+   custom

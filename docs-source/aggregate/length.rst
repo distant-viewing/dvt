@@ -3,6 +3,6 @@ Length Aggregators
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.aggregate.length
-    :members:
+    :members: ShotLengthAggregator
     :undoc-members:
     :show-inheritance:

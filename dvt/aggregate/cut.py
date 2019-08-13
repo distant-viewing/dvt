@@ -3,36 +3,9 @@
 
 The aggregator functions here take local information about frames and estimates
 where cuts in the video occur.
-
-Example:
-    Assuming we have an input named "input.mp4", the following example shows
-    the a sample usage of a CutAggregator over two batches of the input. First
-    we need to collect differences between successive frames:
-
-    >>> fp = FrameProcessor()
-    >>> fp.load_annotator(DiffAnnotator(quantiles=[40]))
-    >>> fp.process(FrameInput("input.mp4"), max_batch=2)
-    >>> obj = fp.collect_all()
-
-    Then, construct a cut aggregator with a cut-off score for both histograms
-    (0.2) and pixels ()
-
-    >>> ca = CutAggregator(cut_vals={'h40': 0.2, 'q40': 3})
-    >>> ca.aggregate(obj).todf()
-           video  frame_start  frame_end
-    0  input.mp4            0         92
-    1  input.mp4           93        176
-    2  input.mp4          177        212
-    3  input.mp4          213        247
-    4  input.mp4          248        293
-    5  input.mp4          294        402
-    6  input.mp4          403        511
-
-    Additional options allow for ignoring frames that are too dark, have a cut
-    that is too close to another, or include additional cut-off values.
 """
 
-from ..core import Aggregator
+from ..abstract import Aggregator
 
 
 class CutAggregator(Aggregator):

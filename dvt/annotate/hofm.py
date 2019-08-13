@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Annotator to extract dense Optical Flow using the opencv
-Gunnar Farneback’s algorithm and represent it as a
-histogram of optical flow orientation and magnitude (HOFM),
-as described in https://doi.org/10.1109/SIBGRAPI.2015.21
+"""Annotator to extract dense Optical Flow.
+
+Uses the opencv Gunnar Farneback’s algorithm and represent it as a
+histogram of optical flow orientation and magnitude (HOFM).
 """
 
 from importlib import import_module
@@ -10,7 +10,7 @@ from importlib import import_module
 from numpy import array, digitize, stack, zeros
 from cv2 import cartToPolar
 
-from ..core import FrameAnnotator
+from ..abstract import FrameAnnotator
 from .opticalflow import _get_optical_flow
 from ..utils import _proc_frame_list, _which_frames
 
@@ -18,8 +18,7 @@ from ..utils import _proc_frame_list, _which_frames
 class HOFMAnnotator(FrameAnnotator):
     """Annotator to extract dense Optical Flow using the opencv
     Gunnar Farneback’s algorithm and represent it as a
-    histogram of optical flow orientation and magnitude (HOFM),
-    as described in https://doi.org/10.1109/SIBGRAPI.2015.21
+    histogram of optical flow orientation and magnitude (HOFM).
 
     The annotator will return the optical flow describing the motion in
     two subsequent frames as a HOFM feature.

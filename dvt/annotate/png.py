@@ -4,24 +4,13 @@
 This module supplies an annotator that saves individual frames to some
 location specified on the local machine. It is only useful for its side effects
 as no information is returned to the FrameProcessor.
-
-Example:
-    Assuming we have an input named "input.mp4", the following example shows
-    the a sample usage of the PngAnnotator over two batches of the input.
-
-    >>> fp = FrameProcessor()
-    >>> fp.load_annotator(PngAnnotator(output_dir="my-frames"))
-    >>> fp.process(FrameInput("input.mp4"), max_batch=2)
-
-    There will now be 512 (256 * 2) frames stored in the directory "my-frames".
-    They images named according following the format "frame-000255.png".
 """
 
 from os.path import basename, join, splitext
 
 from cv2 import cvtColor, imwrite, resize, COLOR_RGB2BGR
 
-from ..core import FrameAnnotator
+from ..abstract import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames, _check_out_dir
 
 

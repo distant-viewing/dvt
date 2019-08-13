@@ -6,7 +6,7 @@ from numpy import vstack, stack, dtype, full, zeros, uint8, array, float32
 from cv2 import calcHist, cvtColor, COLOR_LAB2RGB, COLOR_RGB2LAB
 from scipy.cluster.vq import kmeans
 
-from ..core import FrameAnnotator
+from ..abstract import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames
 
 

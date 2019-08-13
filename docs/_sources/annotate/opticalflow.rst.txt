@@ -3,6 +3,6 @@ Dense Optical Flow Annotations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.annotate.opticalflow
-    :members:
+    :members: OpticalFlowAnnotator
     :undoc-members:
     :show-inheritance:

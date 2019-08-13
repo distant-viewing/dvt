@@ -1,23 +1,7 @@
 # -*- coding: utf-8 -*-
 """A pipeline for building an interactive website from a video file.
 
-Example:
-    Assuming we have an input named "input.mp4", the following example shows
-    the a sample usage of the VideoPipeline.
-
-    >>> wp = VideoPipeline("video-clip.mp4", dname)
-    >>> wp.make_breaks()
-    >>> wp.run()
-
-    After running there will be a new directory names "dvt-output-data" in the
-    working directory. It contains a JSON file with extracted metadata, the
-    extracted frames, annotated frames, and visualizations of the dense optical
-    annotator. If you start a web browser on your machine:
-
-    python3 -m http.server --directory dvt-output-data
-
-    An interactive visualization of the output will be available by navigating
-    to http://0.0.0.0:8000/ in your browser.
+Offers similar functionality to the command line interface from within Python.
 """
 
 from json import dump, load
@@ -27,8 +11,7 @@ from os.path import abspath, basename, dirname, exists, isdir, join, splitext
 from numpy import array, append, int32
 from pandas import DataFrame
 
-from ..core import DataExtraction
-from ..inputs import FrameInput
+from ..core import DataExtraction, FrameInput
 from ..annotate.cielab import CIElabAnnotator
 from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
 from ..annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet

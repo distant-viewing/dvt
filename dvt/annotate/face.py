@@ -9,42 +9,13 @@ designed such that different images of the same person will be close together
 and images of different people will be farther apart. This module is built
 around this paradigm, allowing for the specification of custom detectors and
 embeddings into the model.
-
-Example:
-    Assuming we have an input named "input.mp4", the following example shows
-    the sample usage of FaceAnnotator over two batches of the input. A CNN
-    model from dlib is used to detect the faces and the VGGFace2 algorithm is
-    used to embed the faces into a 2048-dimensional space. The algorithm is
-    applied to every 128 frames.
-
-    >>> detector = FaceDetectDlib()
-    >>> embedding = FaceEmbedVgg2()
-    >>>
-    >>> fp = FrameProcessor()
-    >>> fp.load_annotator(FaceAnnotator(freq=128, detector=detector,
-    ...                   embedding=embedding))
-    >>> fp.process(FrameInput("input.mp4"), max_batch=2)
-
-    Then, collect the output from the annotator and display as a pandas data
-    frame.
-
-    >>> fp.collect("face").todf()
-       frame  bottom      video     ...      embed-2045  embed-2046  embed-2047
-    0    128     171  input.mp4     ...        7.355998    0.000000    0.000000
-    1    384     209  input.mp4     ...        0.128695    0.640979    0.207890
-    2    384     220  input.mp4     ...        0.187535    0.754207    0.705644
-
-    [3 rows x 2055 columns]
-
-    The detector was run on four frames (0, 128, 256, and 384). It found one
-    face at frame 128 and two faces at frame 384.
 """
 
 from importlib import import_module
 
 from numpy import float32, expand_dims
 
-from ..core import FrameAnnotator
+from ..abstract import FrameAnnotator
 from ..utils import (
     process_output_values,
     sub_image,

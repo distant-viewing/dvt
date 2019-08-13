@@ -36,7 +36,7 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="prev" title="Utility Pipeline Functions" href="utils.html" /> 
+    <link rel="prev" title="People Aggregators" href="../aggregate/people.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -95,7 +95,6 @@
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#annotations">Annotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#pipelines">Pipelines</a><ul class="current">
-<li class="toctree-l3"><a class="reference internal" href="utils.html">Utility Pipeline Functions</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">Pipeline for Working with Video Inputs</a></li>
 </ul>
 </li>
@@ -171,21 +170,7 @@
   <div class="section" id="module-dvt.pipeline.video">
 <span id="pipeline-for-working-with-video-inputs"></span><h1>Pipeline for Working with Video Inputs<a class="headerlink" href="#module-dvt.pipeline.video" title="Permalink to this headline">¶</a></h1>
 <p>A pipeline for building an interactive website from a video file.</p>
-<p class="rubric">Example</p>
-<p>Assuming we have an input named “input.mp4”, the following example shows
-the a sample usage of the VideoPipeline.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">wp</span> <span class="o">=</span> <span class="n">VideoPipeline</span><span class="p">(</span><span class="s2">&quot;video-clip.mp4&quot;</span><span class="p">,</span> <span class="n">dname</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">wp</span><span class="o">.</span><span class="n">make_breaks</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">wp</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
-</pre></div>
-</div>
-<p>After running there will be a new directory names “dvt-output-data” in the
-working directory. It contains a JSON file with extracted metadata, the
-extracted frames, annotated frames, and visualizations of the dense optical
-annotator. If you start a web browser on your machine:</p>
-<p>python3 -m http.server –directory dvt-output-data</p>
-<p>An interactive visualization of the output will be available by navigating
-to <a class="reference external" href="http://0.0.0.0:8000/">http://0.0.0.0:8000/</a> in your browser.</p>
+<p>Offers similar functionality to the command line interface from within Python.</p>
 <dl class="class">
 <dt id="dvt.pipeline.video.VideoPipeline">
 <em class="property">class </em><code class="descclassname">dvt.pipeline.video.</code><code class="descname">VideoPipeline</code><span class="sig-paren">(</span><em>finput</em>, <em>doutput=None</em>, <em>diff_co=10</em>, <em>cut_min_length=30</em>, <em>path_to_faces=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/video.html#VideoPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.video.VideoPipeline" title="Permalink to this definition">¶</a></dt>
@@ -315,7 +300,7 @@ of the sampling</td>
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
       
-        <a href="utils.html" class="btn btn-neutral float-left" title="Utility Pipeline Functions" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="../aggregate/people.html" class="btn btn-neutral float-left" title="People Aggregators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -328,13 +313,9 @@ of the sampling</td>
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

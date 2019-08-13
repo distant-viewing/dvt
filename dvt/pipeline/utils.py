@@ -2,8 +2,7 @@
 """Utility functions for working with data pipelines.
 """
 
-from ..core import DataExtraction
-from ..inputs import FrameInput
+from ..core import DataExtraction, FrameInput
 from ..annotate.diff import DiffAnnotator
 from ..aggregate.cut import CutAggregator
 

@@ -1,0 +1,353 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Abstract Classes &mdash; dvt 0.0.9 documentation</title>
+  
+
+  
+  
+  
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script type="text/javascript" src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Utility Functions" href="utils.html" />
+    <link rel="prev" title="Core Objects" href="core.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="index.html" class="icon icon-home" alt="Documentation Home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.9
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo.html"> Minimal Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="dvt.html"> API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="dvt.html#core-functions">Core Functions</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="cli.html">Command Line Interface</a></li>
+<li class="toctree-l3"><a class="reference internal" href="core.html">Core Objects</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Abstract Classes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils.html">Utility Functions</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="dvt.html#annotations">Annotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dvt.html#aggregators">Aggregators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dvt.html#pipelines">Pipelines</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
+        
+      <li>Abstract Classes</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/abstract.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-dvt.abstract">
+<span id="abstract-classes"></span><h1>Abstract Classes<a class="headerlink" href="#module-dvt.abstract" title="Permalink to this headline">¶</a></h1>
+<p>Abstract classes for running the Distant Viewing Toolkit.</p>
+<p>The objects VisualInput, FrameAnnotator, and Aggregator are abstract classes.
+They correspond to the method for extracting visual inputs from digitized
+files, methods for extracting metadata from visual images, and methods for
+aggregating the data across a collection. The toolkit provides many ready-made
+implementions of these classes in order to solve common tasks.</p>
+<dl class="class">
+<dt id="dvt.abstract.VisualInput">
+<em class="property">class </em><code class="descclassname">dvt.abstract.</code><code class="descname">VisualInput</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/abstract.html#VisualInput"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.abstract.VisualInput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Base class for producing batches of visual input.</p>
+<p>Implementations in the toolkit provide inputs for video files and
+collections of still images. Users can further implement additional
+input types if needed.</p>
+<dl class="method">
+<dt id="dvt.abstract.VisualInput.get_metadata">
+<code class="descname">get_metadata</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/abstract.html#VisualInput.get_metadata"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.abstract.VisualInput.get_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><p>Provide metadata from the input connection.</p>
+<p>Returns an object that can be processed with the process_output_values
+utility function. The output is stored as a phantom metadata
+annotator.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.abstract.VisualInput.next_batch">
+<code class="descname">next_batch</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/abstract.html#VisualInput.next_batch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.abstract.VisualInput.next_batch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move forward one batch and return the current FrameBatch object.</p>
+<p>When called, this should return a FrameBatch object. It will be
+iteratively called until a batch is returned with the continue_read
+flag is set to false.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.abstract.VisualInput.open_input">
+<code class="descname">open_input</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/abstract.html#VisualInput.open_input"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.abstract.VisualInput.open_input" title="Permalink to this definition">¶</a></dt>
+<dd><p>Restart and initialize the input feed.</p>
+<p>This method is called once before passing data through a collection of
+annotators.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.abstract.FrameAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.abstract.</code><code class="descname">FrameAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/abstract.html#FrameAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.abstract.FrameAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Base class for annotating a batch of frames.</p>
+<p>Subclasses of this abstract class take subsets of frames, composed as
+FrameBatch objects, and return annotated data. Several common annotations
+are implemented in the toolkit. Users can create their own annotations
+by implementing the __init__ and annotate methods. Note that the annotator
+must contain a name attribute; the name is used as the key in the output
+annotation object.</p>
+<dl class="method">
+<dt id="dvt.abstract.FrameAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/abstract.html#FrameAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.abstract.FrameAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate a batch of frames and return the resulting annotations.</p>
+<p>This method contains the core functionality of an annotator. It takes
+a batch of frames and returns the annotated output in a format that
+can be processed by process_output_values.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="core.html#dvt.core.FrameBatch" title="dvt.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">The method should return item that can be processed by the
+utility function process_output_values.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.abstract.FrameAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'abstract'</em><a class="headerlink" href="#dvt.abstract.FrameAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.abstract.Aggregator">
+<em class="property">class </em><code class="descclassname">dvt.abstract.</code><code class="descname">Aggregator</code><span class="sig-paren">(</span><em>**kargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/abstract.html#Aggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.abstract.Aggregator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">abc.ABC</span></code></p>
+<p>Base class for aggregating the output from a pipeline of processors.</p>
+<p>Aggregators take all of the information contained in a set of annotators
+and produce new metadata. The aggregators do not have access to the
+original visual material.</p>
+<dl class="attribute">
+<dt id="dvt.abstract.Aggregator.name">
+<code class="descname">name</code><a class="headerlink" href="#dvt.abstract.Aggregator.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>A description of the aggregator. Used as a key in the
+output data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.abstract.Aggregator.aggregate">
+<code class="descname">aggregate</code><span class="sig-paren">(</span><em>ldframe</em>, <em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/abstract.html#Aggregator.aggregate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.abstract.Aggregator.aggregate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Aggregate annotations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ldframe</strong> (<em>dict</em>) – A dictionary of data pased from a DataExtraction
+object.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An object that can be processed by process_output_values.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">name</code><em class="property"> = 'abstract'</em></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="utils.html" class="btn btn-neutral float-right" title="Utility Functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="core.html" class="btn btn-neutral float-left" title="Core Objects" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

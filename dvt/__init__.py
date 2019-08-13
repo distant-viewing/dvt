@@ -12,9 +12,9 @@ patterns across a corpus.
 
 from __future__ import absolute_import
 
+from . import abstract
 from . import annotate
 from . import core
-from . import inputs
 from . import utils
 from . import aggregate
 

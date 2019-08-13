@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Annotator to extract dense Optical Flow using the opencv
-Gunnar Farneback’s algorithm.
+"""Annotator to extract dense Optical Flow using Gunnar Farneback’s algorithm.
 """
 
 import os
@@ -21,7 +20,7 @@ from numpy import(
 )
 from cv2 import calcOpticalFlowFarneback, cvtColor, imwrite, COLOR_RGB2GRAY
 
-from ..core import FrameAnnotator
+from ..abstract import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames, _check_out_dir
 
 

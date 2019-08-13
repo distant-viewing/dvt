@@ -183,33 +183,10 @@ embedding into the penultimate layer (or some other internal layer) gives a
 useful embedding that can be used similar to word vectors. This module returns
 an embedding over a (possible subset) of the frames in an input. The module
 can also be used when the embedding corresponds to a concrete supervised task.</p>
-<p class="rubric">Example</p>
-<p>Assuming we have an input named “input.mp4”, the following example shows
-the a sample usage of the EmbedFrameKerasResNet50 over two batches of the
-input. The embedding is applied to every 128 frames.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">embed</span> <span class="o">=</span> <span class="n">EmbedFrameKerasResNet50</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span> <span class="o">=</span> <span class="n">FrameProcessor</span><span class="p">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">load_annotator</span><span class="p">(</span><span class="n">EmbedAnnotator</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">128</span><span class="p">,</span> <span class="n">embedding</span><span class="o">=</span><span class="n">embed</span><span class="p">))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">process</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span><span class="s2">&quot;input.mp4&quot;</span><span class="p">),</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-</pre></div>
-</div>
-<p>Then, collect the output from the annotator and display as a pandas data
-frame.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fp</span><span class="o">.</span><span class="n">collect</span><span class="p">(</span><span class="s2">&quot;embed&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">todf</span><span class="p">()</span>
-<span class="go">       video  frame   embed-0     ...      embed-2046  embed-2047</span>
-<span class="go">0  input.mp4      0  0.000000     ...        0.004976    0.000000</span>
-<span class="go">1  input.mp4    128  0.534926     ...        0.379687    0.016144</span>
-<span class="go">2  input.mp4    256  0.259463     ...        0.002361    0.168496</span>
-<span class="go">3  input.mp4    384  0.079264     ...        0.025871    0.189005</span>
-</pre></div>
-</div>
-<p>[4 rows x 2050 columns]</p>
-<p>Notice that there are 4 rows because we embedded once every 128 frames and
-ran two batches, each with 256 frames.</p>
 <dl class="class">
 <dt id="dvt.annotate.embed.EmbedAnnotator">
 <em class="property">class </em><code class="descclassname">dvt.annotate.embed.</code><code class="descname">EmbedAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/embed.html#EmbedAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.embed.EmbedAnnotator" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../core.html#dvt.core.FrameAnnotator" title="dvt.core.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.core.FrameAnnotator</span></code></a></p>
+<dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.FrameAnnotator" title="dvt.abstract.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.FrameAnnotator</span></code></a></p>
 <p>Annotator for embedding frames into an ambient space.</p>
 <p>The annotator will return a numpy array, with one row per processed frame.
 Control how frequently the annotator runs by setting the frequency
@@ -356,44 +333,6 @@ an array in RGB format.</p>
 
 </dd></dl>
 
-<dl class="function">
-<dt id="dvt.annotate.embed.resize">
-<code class="descclassname">dvt.annotate.embed.</code><code class="descname">resize</code><span class="sig-paren">(</span><em>src</em>, <em>dsize</em><span class="optional">[</span>, <em>dst</em><span class="optional">[</span>, <em>fx</em><span class="optional">[</span>, <em>fy</em><span class="optional">[</span>, <em>interpolation</em><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; dst<a class="headerlink" href="#dvt.annotate.embed.resize" title="Permalink to this definition">¶</a></dt>
-<dd><p>.   &#64;brief Resizes an image.
-.
-.   The function resize resizes the image src down to or up to the specified size. Note that the
-.   initial dst type or size are not taken into account. Instead, the size and type are derived from
-.   the <cite>src</cite>,`dsize`,`fx`, and <cite>fy</cite>. If you want to resize src so that it fits the pre-created dst,
-.   you may call the function as follows:
-.   &#64;code
-.   // explicitly specify dsize=dst.size(); fx and fy will be computed from that.
-.   resize(src, dst, dst.size(), 0, 0, interpolation);
-.   &#64;endcode
-.   If you want to decimate the image by factor of 2 in each direction, you can call the function this
-.   way:
-.   &#64;code
-.   // specify fx and fy and let the function compute the destination image size.
-.   resize(src, dst, Size(), 0.5, 0.5, interpolation);
-.   &#64;endcode
-.   To shrink an image, it will generally look best with #INTER_AREA interpolation, whereas to
-.   enlarge an image, it will generally look best with c#INTER_CUBIC (slow) or #INTER_LINEAR
-.   (faster but still looks OK).
-.
-.   &#64;param src input image.
-.   &#64;param dst output image; it has the size dsize (when it is non-zero) or the size computed from
-.   src.size(), fx, and fy; the type of dst is the same as of src.
-.   &#64;param dsize output image size; if it equals zero, it is computed as:
-.   f[texttt{dsize = Size(round(fx*src.cols), round(fy*src.rows))}f]
-.   Either dsize or both fx and fy must be non-zero.
-.   &#64;param fx scale factor along the horizontal axis; when it equals 0, it is computed as
-.   f[texttt{(double)dsize.width/src.cols}f]
-.   &#64;param fy scale factor along the vertical axis; when it equals 0, it is computed as
-.   f[texttt{(double)dsize.height/src.rows}f]
-.   &#64;param interpolation interpolation method, see #InterpolationFlags
-.
-.   &#64;sa  warpAffine, warpPerspective, remap</p>
-</dd></dl>
-
 </div>
 
 
@@ -420,13 +359,9 @@ an array in RGB format.</p>
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 

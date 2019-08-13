@@ -157,37 +157,15 @@
 <span></span><span class="c1"># -*- coding: utf-8 -*-</span>
 <span class="sd">&quot;&quot;&quot;Annotators for finding difference between subsequent frames.</span>
 
-<span class="sd">The annotators here detect differences from one frame to the next. They all</span>
-<span class="sd">collect basic summaries of the overall brightness and saturation of a frame.</span>
+<span class="sd">The annotator implemented here detects differences from one frame to the next.</span>
+<span class="sd">It also collects summaries of the overall brightness and saturation of a frame.</span>
 <span class="sd">These are all useful for detecting shot boundaries and scene breaks.</span>
-
-<span class="sd">Example:</span>
-<span class="sd">    Assuming we have an input named &quot;input.mp4&quot;, the following example shows</span>
-<span class="sd">    the a sample usage of the DiffAnnotator over two batches of the input.</span>
-
-<span class="sd">    &gt;&gt;&gt; fp = FrameProcessor()</span>
-<span class="sd">    &gt;&gt;&gt; fp.load_annotator(DiffAnnotator(quantiles=[40]))</span>
-<span class="sd">    &gt;&gt;&gt; fp.process(FrameInput(&quot;input.mp4&quot;), max_batch=2)</span>
-
-<span class="sd">    Then, collect the output from the annotator and display as a pandas data</span>
-<span class="sd">    frame. Here, just the head of the data is shown for brevity.</span>
-
-<span class="sd">    &gt;&gt;&gt; fp.collect(&quot;diff&quot;).todf().head()</span>
-<span class="sd">       q40      video  frame  h40  avg_value</span>
-<span class="sd">    0  0.0  input.mp4      0  0.0   2.552584</span>
-<span class="sd">    1  0.0  input.mp4      1  0.0   2.921136</span>
-<span class="sd">    2  0.0  input.mp4      2  0.0   2.697502</span>
-<span class="sd">    3  0.0  input.mp4      3  0.0   2.830626</span>
-<span class="sd">    4  0.0  input.mp4      4  0.0   2.560596</span>
-
-<span class="sd">    The output can be further processed with related aggregator classes to</span>
-<span class="sd">    detect shot breaks.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span> <span class="n">calcHist</span><span class="p">,</span> <span class="n">cvtColor</span><span class="p">,</span> <span class="n">resize</span><span class="p">,</span> <span class="n">COLOR_RGB2HSV</span>
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="nb">abs</span> <span class="k">as</span> <span class="n">npabs</span><span class="p">,</span> <span class="n">mean</span><span class="p">,</span> <span class="n">percentile</span><span class="p">,</span> <span class="n">prod</span><span class="p">,</span> <span class="n">zeros</span>
 
-<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
+<span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
 
 
 <div class="viewcode-block" id="DiffAnnotator"><a class="viewcode-back" href="../../../annotate/diff.html#dvt.annotate.diff.DiffAnnotator">[docs]</a><span class="k">class</span> <span class="nc">DiffAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
@@ -317,13 +295,9 @@
         &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
 
     </p>
-  </div>
-    
-    
-      Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+  </div> 
 
 </footer>
-
         </div>
       </div>
 
