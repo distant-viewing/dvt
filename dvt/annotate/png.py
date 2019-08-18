@@ -25,9 +25,10 @@ class PngAnnotator(FrameAnnotator):
             created if the location does not yet exist.
         freq (int): How often to save the image. For example, setting
             the frequency to 2 will save every other frame in the batch.
-        size (tuple): What should the size of the output images be? Set to
+        size (int): What should the size of the output images be? Set to
             None, the default, to preserve the size as given in the input file.
-            Given as a tuple of (width, height).
+            Given as the desired height; the width will be scaled to keep the
+            aspect ratio.
         frames (array of ints): An optional list of frames to process. This
             should be a list of integers or a 1D numpy array of integers. If
             set to something other than None, the freq input is ignored.
@@ -64,7 +65,9 @@ class PngAnnotator(FrameAnnotator):
 
             opath = join(self.output_dir, opath)
             if self.size is not None:
-                img_resize = resize(img, self.size)
+                scale = batch.img.shape[1] / self.size
+                new_size = (int(batch.img.shape[2] // scale), int(self.size))
+                img_resize = resize(img, new_size)
                 imwrite(filename=opath, img=img_resize)
             else:
                 imwrite(filename=opath, img=img)

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Command Line Interface &mdash; dvt 0.0.9 documentation</title>
+  <title>Command Line Options &mdash; dvt 0.0.9 documentation</title>
   
 
   
@@ -35,7 +35,9 @@
 
   
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Building a data extraction pipeline" href="annotators.html" />
+    <link rel="prev" title="Tutorials" href="index.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -84,11 +86,16 @@
               
             
             
-              <ul>
+              <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../index.html"> Home</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../install.html"> Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../demo.html"> Minimal Demo</a></li>
-<li class="toctree-l1"><a class="reference internal" href="index.html"> Tutorials</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html"> Tutorials</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Command Line Options</a></li>
+<li class="toctree-l2"><a class="reference internal" href="annotators.html">Building a data extraction pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="custom.html">Custom Annotators and Aggregators</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../dvt.html"> API Documentation</a></li>
 </ul>
 
@@ -136,7 +143,9 @@
     
       <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
         
-      <li>Command Line Interface</li>
+          <li><a href="index.html">Tutorials</a> &raquo;</li>
+        
+      <li>Command Line Options</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -155,13 +164,72 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="command-line-interface">
-<h1>Command Line Interface<a class="headerlink" href="#command-line-interface" title="Permalink to this headline">¶</a></h1>
-<p>This tutorial shows some of the options available when using the command line
-interface.
-The following commands assume that you have installed the dvt toolkit, are
-in a running Python environment, and have a video file [video-clip.mp4](<a class="reference external" href="https://github.com/distant-viewing/dvt/raw/master/tests/test-data/video-clip.mp4">https://github.com/distant-viewing/dvt/raw/master/tests/test-data/video-clip.mp4</a>)
+  <div class="section" id="command-line-options">
+<h1>Command Line Options<a class="headerlink" href="#command-line-options" title="Permalink to this headline">¶</a></h1>
+<p>The minimal demo shows how to use the command line interface to produce a
+visualization of a video file. While the default options in the command line
+tool often produce reasonable outputs, is can be useful to modify some of
+these values. This tutorial introduces some of the most common options and
+explains how to work with them. As with the minimal demo, the code here
+assumes that you have installed the dvt toolkit and have
+the video file
+<a class="reference external" href="https://github.com/distant-viewing/dvt/raw/master/tests/test-data/video-clip.mp4/">video-clip.mp4</a>
 in your working directory.</p>
+<p>To run the command line tool with the default settings on the video-clip.mp4
+file, one can execute the following code in a terminal:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">dvt</span> <span class="n">video</span><span class="o">-</span><span class="n">clip</span><span class="o">.</span><span class="n">mp4</span>
+</pre></div>
+</div>
+<p>Alternatively, all of the default values can be explicitly set using the
+following:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">dvt</span> <span class="n">video</span><span class="o">-</span><span class="n">clip</span><span class="o">.</span><span class="n">mp4</span> \
+    <span class="o">--</span><span class="n">dirout</span><span class="o">=</span><span class="n">dvt</span><span class="o">-</span><span class="n">output</span><span class="o">-</span><span class="n">data</span> \
+    <span class="o">--</span><span class="n">pipeline</span><span class="o">-</span><span class="n">level</span><span class="o">=</span><span class="mi">2</span> \
+    <span class="o">--</span><span class="n">diff</span><span class="o">-</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">10</span> \
+    <span class="o">--</span><span class="n">cut</span><span class="o">-</span><span class="nb">min</span><span class="o">-</span><span class="n">length</span><span class="o">=</span><span class="mi">30</span> \
+    <span class="o">--</span><span class="n">frequency</span><span class="o">=</span><span class="mi">0</span>
+</pre></div>
+</div>
+<p>What does changing these options do? By default, the output data is places in
+a directory called “dvt-output-data” inside of the current working directory.
+You can change this in the call above to place the input anywhere on your
+machine. The pipeline level determines how much output is constructed. Setting
+this value to 0 produces only a JSON metadata file for the video clip;
+making it 1 also creates the output images (frames, annotated frames, and
+visualizations of the optical flow). Finally, setting it to 2 (the default)
+also creates all of the extra files needed to run a local website to visualize
+the results.</p>
+<p>The last three default options above control how the cuts are determined from
+the video file. Making the “diff-cutoff” lower causes the algorithm to be more
+aggressive (it makes more cuts) when determining whether a cut occurs; higher
+values produce fewer cuts. The minimum cut length determine the minimal length
+in frames that a cut can occur for. Finally, the frequency value provides a
+different way of determining which frames to annotate. When set to a positive
+integer, the command line tool will forgo determining cut breaks and simply
+extract one out of every “frequency” frames. The reason for including so many
+options for cut detection is that, while the defaults work reasonably well for
+recent, high-definition films and scripted television, they can be quite
+unreliable when working with other sources. Manipulating the cut-off scores
+(or, if that fails, just setting a frequency) allows users to still make use of
+the command line interface.</p>
+<p>One final option in the command line tool is to do facial recognition for known
+people in the input video. To start, create a directory on your machine with
+one image per person that you would like to detect. Name the files with the
+desired name of the person; for example, if you want to detect images of
+Oprah Winfrey, you may add an image titled “oprah-winfrey.png”. Then, assuming
+your images are in a file in the working directory called “face-images”,
+you can include these in the pipeline as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">dvt</span> <span class="n">video</span><span class="o">-</span><span class="n">clip</span><span class="o">.</span><span class="n">mp4</span> \
+    <span class="o">--</span><span class="n">dirout</span><span class="o">=</span><span class="n">dvt</span><span class="o">-</span><span class="n">output</span><span class="o">-</span><span class="n">data</span> \
+    <span class="o">--</span><span class="n">pipeline</span><span class="o">-</span><span class="n">level</span><span class="o">=</span><span class="mi">2</span> \
+    <span class="o">--</span><span class="n">diff</span><span class="o">-</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">10</span> \
+    <span class="o">--</span><span class="n">cut</span><span class="o">-</span><span class="nb">min</span><span class="o">-</span><span class="n">length</span><span class="o">=</span><span class="mi">30</span> \
+    <span class="o">--</span><span class="n">frequency</span><span class="o">=</span><span class="mi">0</span> \
+    <span class="o">--</span><span class="n">path</span><span class="o">-</span><span class="n">to</span><span class="o">-</span><span class="n">faces</span><span class="o">=</span><span class="n">face</span><span class="o">-</span><span class="n">images</span>
+</pre></div>
+</div>
+<p>Note that the annotation process will take slightly longer when detecting
+faces, but you will (potentially) have more rich data included in the output.</p>
 </div>
 
 
@@ -169,6 +237,15 @@ in your working directory.</p>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="annotators.html" class="btn btn-neutral float-right" title="Building a data extraction pipeline" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral float-left" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

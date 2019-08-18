@@ -18,7 +18,8 @@ class TestCli:
 
         assert exists(join(dname, "video-clip"))
         assert exists(join(dname, "video-clip", "img"))
-        assert exists(join(dname, "video-clip", "img-anno"))
+        assert exists(join(dname, "video-clip", "img-display"))
+        assert exists(join(dname, "video-clip", "img-thumb"))
         assert exists(join(dname, "video-clip", "img-flow"))
         assert exists(join(dname, "video-clip", "data.json"))
 

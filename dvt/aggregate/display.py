@@ -15,6 +15,7 @@ from cv2 import (
     imwrite,
     putText,
     rectangle,
+    resize,
     FILLED,
     FONT_HERSHEY_SIMPLEX,
     LINE_AA
@@ -39,6 +40,10 @@ class DisplayAggregator(Aggregator):
             (vertical) of face size to the entire shot. Should be an increasing
             list starting at zero and the same length as shot_names. Set to
             None to use the default settings.
+        size (int): What should the size of the output images be? Set to
+            None, the default, to preserve the size as given in the input file.
+            Given as the desired height; the width will be scaled to keep the
+            aspect ratio.
     """
 
     name = "display"
@@ -48,6 +53,7 @@ class DisplayAggregator(Aggregator):
         self.input_dir = _check_out_dir(kwargs.get("input_dir"), True)
         self.output_dir = _check_out_dir(kwargs.get("output_dir"))
         self.frames = kwargs.get('frames', None)
+        self.size = kwargs.get('size', None)
 
         super().__init__()
 
@@ -71,40 +77,43 @@ class DisplayAggregator(Aggregator):
         frames = sorted(frames)
 
         for frame in frames:
-            print(frame)
-            _add_annotations_to_image(
-                self.input_dir, self.output_dir, frame, ldframe
+            self._add_annotations_to_image(frame, ldframe)
+
+    def _add_annotations_to_image(self, frame, pipeline_data):
+
+        # get input and file paths
+        input_file = join(self.input_dir, "frame-{0:06d}.png".format(frame))
+        output_file = join(self.output_dir, "frame-{0:06d}.png".format(frame))
+
+        # define colours
+        box_color = (255, 165, 0)
+        face_color = (22, 75, 203)
+        white_color = (255, 255, 255)
+
+        img = imread(input_file)
+
+        if pipeline_data.get("obj") is not None:
+            img = _add_bbox(img, frame, pipeline_data["obj"], box_color, 2)
+            img = _add_box_text(
+                img,
+                frame,
+                pipeline_data["obj"],
+                "category",
+                color=white_color,
+                bgc=box_color,
+                size=0.5,
             )
 
+        if pipeline_data.get("face") is not None:
+            img = _add_bbox(img, frame, pipeline_data["face"], face_color, 1)
 
-def _add_annotations_to_image(input_dir, output_dir, frame, pipeline_data):
-    # get input and file paths
-    input_file = join(input_dir, "frame-{0:06d}.png".format(frame))
-    output_file = join(output_dir, "frame-{0:06d}.png".format(frame))
-
-    # define colours
-    box_color = (255, 165, 0)
-    face_color = (22, 75, 203)
-    white_color = (255, 255, 255)
-
-    img = imread(input_file)
-
-    if pipeline_data.get("obj") is not None:
-        img = _add_bbox(img, frame, pipeline_data["obj"], box_color, 2)
-        img = _add_box_text(
-            img,
-            frame,
-            pipeline_data["obj"],
-            "category",
-            color=white_color,
-            bgc=box_color,
-            size=0.5,
-        )
-
-    if pipeline_data.get("face") is not None:
-        img = _add_bbox(img, frame, pipeline_data["face"], face_color, 1)
-
-    _ = imwrite(output_file, img)
+        if self.size is not None:
+            scale = img.shape[0] / self.size
+            new_size = (int(img.shape[1] // scale), int(self.size))
+            img_resize = resize(img, new_size)
+            _ = imwrite(filename=output_file, img=img_resize)
+        else:
+            _ = imwrite(output_file, img)
 
 
 def _add_bbox(img, frame, pdf, color=(255, 255, 255), thickness=2):

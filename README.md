@@ -110,7 +110,7 @@ straightforward, error-free code. It closely mirrors the theory of
 > visual material—a code system in semiotics  or,  similarly,  a  metadata
 > schema  in  informatics—must  be  constructed.  Algorithms  capable  of
 > automatically  converting  raw  images  into the  established  representation
-> are  then  needed  t oapply  the  approach  at  scale.
+> are  then  needed  to apply  the  approach  at  scale.
 
 The annotator algorithms conduct the process of 'viewing' the material whereas
 the aggregator algorithms perform a 'distant' (e.g., separated from the raw

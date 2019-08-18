@@ -204,10 +204,11 @@
             <span class="n">doutput</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">dirout</span><span class="p">,</span>
             <span class="n">diff_co</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">diff_cutoff</span><span class="p">,</span>
             <span class="n">cut_min_length</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">cut_min_length</span><span class="p">,</span>
-            <span class="n">path_to_faces</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">path_to_faces</span>
+            <span class="n">path_to_faces</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">path_to_faces</span><span class="p">,</span>
+            <span class="n">freq</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">frequency</span><span class="p">,</span>
+            <span class="n">level</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">pipeline_level</span>
         <span class="p">)</span>
-        <span class="n">vpipe</span><span class="o">.</span><span class="n">make_breaks</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">frequency</span><span class="p">)</span>
-        <span class="n">vpipe</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">pipeline_level</span><span class="p">)</span></div>
+        <span class="n">vpipe</span><span class="o">.</span><span class="n">run</span><span class="p">()</span></div>
 
 
 <span class="k">def</span> <span class="nf">_get_arg_parse</span><span class="p">():</span>

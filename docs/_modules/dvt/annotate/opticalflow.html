@@ -174,7 +174,13 @@
     <span class="n">uint8</span><span class="p">,</span>
     <span class="n">zeros</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span> <span class="n">calcOpticalFlowFarneback</span><span class="p">,</span> <span class="n">cvtColor</span><span class="p">,</span> <span class="n">imwrite</span><span class="p">,</span> <span class="n">COLOR_RGB2GRAY</span>
+<span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span><span class="p">(</span>
+    <span class="n">calcOpticalFlowFarneback</span><span class="p">,</span>
+    <span class="n">cvtColor</span><span class="p">,</span>
+    <span class="n">imwrite</span><span class="p">,</span>
+    <span class="n">resize</span><span class="p">,</span>
+    <span class="n">COLOR_RGB2GRAY</span>
+<span class="p">)</span>
 
 <span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">FrameAnnotator</span>
 <span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_proc_frame_list</span><span class="p">,</span> <span class="n">_which_frames</span><span class="p">,</span> <span class="n">_check_out_dir</span>
@@ -197,6 +203,10 @@
 <span class="sd">            set to something other than None, the freq input is ignored.</span>
 <span class="sd">        output_dir (string): optional location to store the computed images.</span>
 <span class="sd">            Only used if raw is set to False.</span>
+<span class="sd">        size (int): What should the size of the output images be? Set to</span>
+<span class="sd">            None, the default, to preserve the size as given in the input file.</span>
+<span class="sd">            Given as the desired height; the width will be scaled to keep the</span>
+<span class="sd">            aspect ratio.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;opticalflow&quot;</span>
@@ -206,6 +216,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">raw</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;raw&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;frames&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">_check_out_dir</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output_dir&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -238,7 +249,16 @@
                         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span>
                         <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame_names</span><span class="p">[</span><span class="n">fnum</span><span class="p">]),</span>
                     <span class="p">)</span>
-                    <span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">opath</span><span class="p">,</span> <span class="n">img</span><span class="o">=</span><span class="n">flow</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">:</span>
+                        <span class="n">scale</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+                        <span class="n">new_size</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="nb">int</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">//</span> <span class="n">scale</span><span class="p">),</span>
+                            <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                        <span class="p">)</span>
+                        <span class="n">img_resize</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">flow</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">new_size</span><span class="p">)</span>
+                        <span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">opath</span><span class="p">,</span> <span class="n">img</span><span class="o">=</span><span class="n">img_resize</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">opath</span><span class="p">,</span> <span class="n">img</span><span class="o">=</span><span class="n">flow</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="n">obj</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;opticalflow&quot;</span><span class="p">:</span> <span class="n">stack</span><span class="p">(</span><span class="n">flow</span><span class="p">)}</span>
 

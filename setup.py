@@ -64,5 +64,8 @@ setup(
         "Topic :: Multimedia :: Video",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
+    package_data={
+          'dvt': ['data/*/*'],
+     },
     packages=find_packages(),
 )

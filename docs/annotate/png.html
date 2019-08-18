@@ -223,12 +223,13 @@ the frequency to 2 will save every other frame in the batch.</p>
 <code class="descname">size</code><a class="headerlink" href="#dvt.annotate.png.PngAnnotator.size" title="Permalink to this definition">¶</a></dt>
 <dd><p>What should the size of the output images be? Set to
 None, the default, to preserve the size as given in the input file.
-Given as a tuple of (width, height).</p>
+Given as the desired height; the width will be scaled to keep the
+aspect ratio.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">tuple</td>
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
 </tr>
 </tbody>
 </table>

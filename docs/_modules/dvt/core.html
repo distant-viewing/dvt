@@ -190,7 +190,7 @@
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">concat</span><span class="p">,</span> <span class="n">DataFrame</span>
 
 <span class="kn">from</span> <span class="nn">.abstract</span> <span class="k">import</span> <span class="n">VisualInput</span>
-<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">process_output_values</span><span class="p">,</span> <span class="n">_expand_path</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="k">import</span> <span class="n">process_output_values</span><span class="p">,</span> <span class="n">_expand_path</span><span class="p">,</span> <span class="n">_data_to_json</span>
 
 
 <div class="viewcode-block" id="DataExtraction"><a class="viewcode-back" href="../../core.html#dvt.core.DataExtraction">[docs]</a><span class="k">class</span> <span class="nc">DataExtraction</span><span class="p">:</span>
@@ -304,7 +304,21 @@
 <span class="sd">            or aggregator and the values are all pandas DataFrame objects.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div></div>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data</span></div>
+
+<div class="viewcode-block" id="DataExtraction.get_json"><a class="viewcode-back" href="../../core.html#dvt.core.DataExtraction.get_json">[docs]</a>    <span class="k">def</span> <span class="nf">get_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Get dataset as a JSON object.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            path_or_buf: Location to store the output. If set to None, return</span>
+<span class="sd">                as a string.</span>
+<span class="sd">            exclude_set: Set of dataset names to ignore when creating the</span>
+<span class="sd">                output. None, the default, includes all data in the output.</span>
+<span class="sd">            exclude_key: Set of column names to ignore when creating the</span>
+<span class="sd">                output. None, the default, includes all keys in the output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">_data_to_json</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">exclude_set</span><span class="p">,</span> <span class="n">exclude_key</span><span class="p">)</span></div></div>
 
 
 <div class="viewcode-block" id="FrameBatch"><a class="viewcode-back" href="../../core.html#dvt.core.FrameBatch">[docs]</a><span class="k">class</span> <span class="nc">FrameBatch</span><span class="p">:</span>

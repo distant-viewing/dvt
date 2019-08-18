@@ -269,6 +269,28 @@ or aggregator and the values are all pandas DataFrame objects.</td>
 </dd></dl>
 
 <dl class="method">
+<dt id="dvt.core.DataExtraction.get_json">
+<code class="descname">get_json</code><span class="sig-paren">(</span><em>path=None</em>, <em>exclude_set=None</em>, <em>exclude_key=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/core.html#DataExtraction.get_json"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.core.DataExtraction.get_json" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get dataset as a JSON object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>path_or_buf</strong> – Location to store the output. If set to None, return
+as a string.</li>
+<li><strong>exclude_set</strong> – Set of dataset names to ignore when creating the
+output. None, the default, includes all data in the output.</li>
+<li><strong>exclude_key</strong> – Set of column names to ignore when creating the
+output. None, the default, includes all keys in the output.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
 <dt id="dvt.core.DataExtraction.run_aggregator">
 <code class="descname">run_aggregator</code><span class="sig-paren">(</span><em>aggregator</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/core.html#DataExtraction.run_aggregator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.core.DataExtraction.run_aggregator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run an aggregator over the extracted annotations.</p>

@@ -171,6 +171,7 @@
     <span class="n">imwrite</span><span class="p">,</span>
     <span class="n">putText</span><span class="p">,</span>
     <span class="n">rectangle</span><span class="p">,</span>
+    <span class="n">resize</span><span class="p">,</span>
     <span class="n">FILLED</span><span class="p">,</span>
     <span class="n">FONT_HERSHEY_SIMPLEX</span><span class="p">,</span>
     <span class="n">LINE_AA</span>
@@ -195,6 +196,10 @@
 <span class="sd">            (vertical) of face size to the entire shot. Should be an increasing</span>
 <span class="sd">            list starting at zero and the same length as shot_names. Set to</span>
 <span class="sd">            None to use the default settings.</span>
+<span class="sd">        size (int): What should the size of the output images be? Set to</span>
+<span class="sd">            None, the default, to preserve the size as given in the input file.</span>
+<span class="sd">            Given as the desired height; the width will be scaled to keep the</span>
+<span class="sd">            aspect ratio.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;display&quot;</span>
@@ -204,6 +209,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">input_dir</span> <span class="o">=</span> <span class="n">_check_out_dir</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;input_dir&quot;</span><span class="p">),</span> <span class="kc">True</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">_check_out_dir</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output_dir&quot;</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;frames&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
 
@@ -227,40 +233,43 @@
         <span class="n">frames</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">frames</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">frames</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">frame</span><span class="p">)</span>
-            <span class="n">_add_annotations_to_image</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">input_dir</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">ldframe</span>
-            <span class="p">)</span></div></div>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_annotations_to_image</span><span class="p">(</span><span class="n">frame</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">)</span></div>
 
+    <span class="k">def</span> <span class="nf">_add_annotations_to_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pipeline_data</span><span class="p">):</span>
 
-<span class="k">def</span> <span class="nf">_add_annotations_to_image</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pipeline_data</span><span class="p">):</span>
-    <span class="c1"># get input and file paths</span>
-    <span class="n">input_file</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">input_dir</span><span class="p">,</span> <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
-    <span class="n">output_file</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
+        <span class="c1"># get input and file paths</span>
+        <span class="n">input_file</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">input_dir</span><span class="p">,</span> <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame</span><span class="p">))</span>
 
-    <span class="c1"># define colours</span>
-    <span class="n">box_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">165</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="n">face_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">203</span><span class="p">)</span>
-    <span class="n">white_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
+        <span class="c1"># define colours</span>
+        <span class="n">box_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">165</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">face_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">22</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">203</span><span class="p">)</span>
+        <span class="n">white_color</span> <span class="o">=</span> <span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">)</span>
 
-    <span class="n">img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
+        <span class="n">img</span> <span class="o">=</span> <span class="n">imread</span><span class="p">(</span><span class="n">input_file</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">pipeline_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;obj&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">_add_bbox</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pipeline_data</span><span class="p">[</span><span class="s2">&quot;obj&quot;</span><span class="p">],</span> <span class="n">box_color</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">_add_box_text</span><span class="p">(</span>
-            <span class="n">img</span><span class="p">,</span>
-            <span class="n">frame</span><span class="p">,</span>
-            <span class="n">pipeline_data</span><span class="p">[</span><span class="s2">&quot;obj&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;category&quot;</span><span class="p">,</span>
-            <span class="n">color</span><span class="o">=</span><span class="n">white_color</span><span class="p">,</span>
-            <span class="n">bgc</span><span class="o">=</span><span class="n">box_color</span><span class="p">,</span>
-            <span class="n">size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">pipeline_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;obj&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">_add_bbox</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pipeline_data</span><span class="p">[</span><span class="s2">&quot;obj&quot;</span><span class="p">],</span> <span class="n">box_color</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">_add_box_text</span><span class="p">(</span>
+                <span class="n">img</span><span class="p">,</span>
+                <span class="n">frame</span><span class="p">,</span>
+                <span class="n">pipeline_data</span><span class="p">[</span><span class="s2">&quot;obj&quot;</span><span class="p">],</span>
+                <span class="s2">&quot;category&quot;</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">white_color</span><span class="p">,</span>
+                <span class="n">bgc</span><span class="o">=</span><span class="n">box_color</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+            <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">pipeline_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">img</span> <span class="o">=</span> <span class="n">_add_bbox</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pipeline_data</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">],</span> <span class="n">face_color</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pipeline_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;face&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">img</span> <span class="o">=</span> <span class="n">_add_bbox</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pipeline_data</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">],</span> <span class="n">face_color</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-    <span class="n">_</span> <span class="o">=</span> <span class="n">imwrite</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">scale</span> <span class="o">=</span> <span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+            <span class="n">new_size</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">//</span> <span class="n">scale</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+            <span class="n">img_resize</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">new_size</span><span class="p">)</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">output_file</span><span class="p">,</span> <span class="n">img</span><span class="o">=</span><span class="n">img_resize</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_</span> <span class="o">=</span> <span class="n">imwrite</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="n">img</span><span class="p">)</span></div>
 
 
 <span class="k">def</span> <span class="nf">_add_bbox</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">frame</span><span class="p">,</span> <span class="n">pdf</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="p">(</span><span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">,</span> <span class="mi">255</span><span class="p">),</span> <span class="n">thickness</span><span class="o">=</span><span class="mi">2</span><span class="p">):</span>

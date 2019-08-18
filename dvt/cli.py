@@ -48,10 +48,11 @@ def run_cli():
             doutput=args.dirout,
             diff_co=args.diff_cutoff,
             cut_min_length=args.cut_min_length,
-            path_to_faces=args.path_to_faces
+            path_to_faces=args.path_to_faces,
+            freq=args.frequency,
+            level=args.pipeline_level
         )
-        vpipe.make_breaks(freq=args.frequency)
-        vpipe.run(level=args.pipeline_level)
+        vpipe.run()
 
 
 def _get_arg_parse():

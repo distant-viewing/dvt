@@ -181,9 +181,10 @@
 <span class="sd">            created if the location does not yet exist.</span>
 <span class="sd">        freq (int): How often to save the image. For example, setting</span>
 <span class="sd">            the frequency to 2 will save every other frame in the batch.</span>
-<span class="sd">        size (tuple): What should the size of the output images be? Set to</span>
+<span class="sd">        size (int): What should the size of the output images be? Set to</span>
 <span class="sd">            None, the default, to preserve the size as given in the input file.</span>
-<span class="sd">            Given as a tuple of (width, height).</span>
+<span class="sd">            Given as the desired height; the width will be scaled to keep the</span>
+<span class="sd">            aspect ratio.</span>
 <span class="sd">        frames (array of ints): An optional list of frames to process. This</span>
 <span class="sd">            should be a list of integers or a 1D numpy array of integers. If</span>
 <span class="sd">            set to something other than None, the freq input is ignored.</span>
@@ -220,7 +221,9 @@
 
             <span class="n">opath</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="n">opath</span><span class="p">)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="n">img_resize</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">)</span>
+                <span class="n">scale</span> <span class="o">=</span> <span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">size</span>
+                <span class="n">new_size</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">batch</span><span class="o">.</span><span class="n">img</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">//</span> <span class="n">scale</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">size</span><span class="p">))</span>
+                <span class="n">img_resize</span> <span class="o">=</span> <span class="n">resize</span><span class="p">(</span><span class="n">img</span><span class="p">,</span> <span class="n">new_size</span><span class="p">)</span>
                 <span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">opath</span><span class="p">,</span> <span class="n">img</span><span class="o">=</span><span class="n">img_resize</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">imwrite</span><span class="p">(</span><span class="n">filename</span><span class="o">=</span><span class="n">opath</span><span class="p">,</span> <span class="n">img</span><span class="o">=</span><span class="n">img</span><span class="p">)</span></div></div>

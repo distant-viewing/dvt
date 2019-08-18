@@ -18,7 +18,13 @@ from numpy import(
     uint8,
     zeros,
 )
-from cv2 import calcOpticalFlowFarneback, cvtColor, imwrite, COLOR_RGB2GRAY
+from cv2 import(
+    calcOpticalFlowFarneback,
+    cvtColor,
+    imwrite,
+    resize,
+    COLOR_RGB2GRAY
+)
 
 from ..abstract import FrameAnnotator
 from ..utils import _proc_frame_list, _which_frames, _check_out_dir
@@ -41,6 +47,10 @@ class OpticalFlowAnnotator(FrameAnnotator):
             set to something other than None, the freq input is ignored.
         output_dir (string): optional location to store the computed images.
             Only used if raw is set to False.
+        size (int): What should the size of the output images be? Set to
+            None, the default, to preserve the size as given in the input file.
+            Given as the desired height; the width will be scaled to keep the
+            aspect ratio.
     """
 
     name = "opticalflow"
@@ -50,6 +60,7 @@ class OpticalFlowAnnotator(FrameAnnotator):
         self.raw = kwargs.get("raw", False)
         self.frames = _proc_frame_list(kwargs.get("frames", None))
         self.output_dir = _check_out_dir(kwargs.get("output_dir", None))
+        self.size = kwargs.get('size', None)
 
         super().__init__()
 
@@ -82,7 +93,16 @@ class OpticalFlowAnnotator(FrameAnnotator):
                         self.output_dir,
                         "frame-{0:06d}.png".format(frame_names[fnum]),
                     )
-                    imwrite(filename=opath, img=flow[-1])
+                    if self.size:
+                        scale = batch.img.shape[1] / self.size
+                        new_size = (
+                            int(batch.img.shape[2] // scale),
+                            int(self.size)
+                        )
+                        img_resize = resize(flow[-1], new_size)
+                        imwrite(filename=opath, img=img_resize)
+                    else:
+                        imwrite(filename=opath, img=flow[-1])
 
         obj = {"opticalflow": stack(flow)}
 

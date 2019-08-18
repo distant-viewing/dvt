@@ -107,7 +107,7 @@ def get_image_annotation():
             embedding=FaceEmbedVgg2()
         ),
         ObjectAnnotator(detector=ObjectDetectRetinaNet()),
-        PngAnnotator(output_dir=png_output, size=(229, 229))
+        PngAnnotator(output_dir=png_output, size=229)
     ])
 
     return de, output_dir

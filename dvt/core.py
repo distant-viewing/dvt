@@ -34,7 +34,7 @@ from numpy import zeros, uint8, stack, zeros_like
 from pandas import concat, DataFrame
 
 from .abstract import VisualInput
-from .utils import process_output_values, _expand_path
+from .utils import process_output_values, _expand_path, _data_to_json
 
 
 class DataExtraction:
@@ -149,6 +149,20 @@ class DataExtraction:
         """
 
         return self.data
+
+    def get_json(self, path=None, exclude_set=None, exclude_key=None):
+        """Get dataset as a JSON object.
+
+        Args:
+            path_or_buf: Location to store the output. If set to None, return
+                as a string.
+            exclude_set: Set of dataset names to ignore when creating the
+                output. None, the default, includes all data in the output.
+            exclude_key: Set of column names to ignore when creating the
+                output. None, the default, includes all keys in the output.
+        """
+
+        return _data_to_json(self.data, path, exclude_set, exclude_key)
 
 
 class FrameBatch:

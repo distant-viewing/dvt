@@ -12,10 +12,11 @@ class TestVideoPipeline:
         dname = tempfile.mkdtemp()  # creates directory
 
         wp = VideoPipeline(finput, dname)
-        wp.make_breaks()
         wp.run()
 
-        assert (wp.cuts["mpoint"] == [37, 114, 227, 341]).all()
+        assert (
+            wp.dextra.get_data()["cut"]["mpoint"] == [37, 114, 227, 341]
+        ).all()
         assert exists(dname)
         assert exists(join(dname, "toc.json"))
         assert exists(join(dname, "video-clip"))
@@ -28,8 +29,7 @@ class TestVideoPipeline:
         # test two things: frequency argument works and we can redo a video
         # and it works correctly
         finput = abspath(join("test-data", "video-clip.mp4"))
-        wp = VideoPipeline(finput, dname)
-        wp.make_breaks(freq=256)
+        wp = VideoPipeline(finput, dname, freq=256)
         wp.run()
 
         assert exists(join(dname, "video-clip", "img", "frame-000128.png"))
