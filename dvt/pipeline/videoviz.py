@@ -4,14 +4,16 @@
 Offers similar functionality to the command line interface from within Python.
 """
 
+from argparse import ArgumentParser
 from json import dump, load
 from os import getcwd, makedirs
-from os.path import abspath, basename, dirname, exists, isdir, join, splitext
+from os.path import dirname, exists, isdir, join
 from shutil import copyfile
 
 from numpy import array, append, int32
 from pandas import DataFrame
 
+from ..abstract import Pipeline
 from ..core import DataExtraction, FrameInput
 from ..annotate.diff import DiffAnnotator
 from ..annotate.cielab import CIElabAnnotator
@@ -23,25 +25,29 @@ from ..aggregate.cut import CutAggregator
 from ..aggregate.display import DisplayAggregator
 from ..aggregate.people import PeopleAggregator, make_fprint_from_images
 from ..aggregate.length import ShotLengthAggregator
-from ..utils import setup_tensorflow, get_data_location, _expand_path
-from .data import INDEX_MAIN, INDEX_PAGE, DVT_CSS, DVT_JS, DVT_MAIN_JS
+from ..utils import(
+    setup_tensorflow,
+    get_data_location,
+    _expand_path,
+    _check_exists
+)
 
 
-class VideoPipeline:
+class VideoVizPipeline(Pipeline):
     """Contains a predefined annotators to process an input video file.
 
     Attributes:
         finput (str): path to the input video file
-        doutput (str): output directory. If set to None (default), will be
+        dirout (str): output directory. If set to None (default), will be
             a directory named "dvt-output-data" in the current working
             directory
-        diff_co (int): difference cutoff value; integer from 0-256; higher
+        pipeline_level (int): interger code (0, 1, or 2) describing how much
+            data to parse. 0 creates just metadata, 1 creates just images and
+            metadata, 2 or more creates the interactive website
+        diff_cutoff (int): difference cutoff value; integer from 0-256; higher
             values produce fewer cuts.
         cut_min_length (int): minimum length of a detected cut in frames;
             higher values produce few cuts.
-        level (int): interger code (0, 1, or 2) describing how much data
-            to parse. 0 creates just metadata, 1 creates just images and
-            metadata, 2 or more creates the interactive website
         freq (int): set to a positive integer to select images based on
             frequency rather than detecting cuts; integer gives frequency
             of the sampling
@@ -53,11 +59,11 @@ class VideoPipeline:
     def __init__(
         self,
         finput,
-        doutput=None,
-        diff_co=10,
+        dirout=None,
+        pipeline_level=2,
+        diff_cutoff=10,
         cut_min_length=30,
-        level=2,
-        freq=0,
+        frequency=0,
         path_to_faces=None
     ):
 
@@ -70,25 +76,27 @@ class VideoPipeline:
             bsize=128
         ))
         self.dextra.run_annotators([], max_batch=1)
-        self.level = level
+        self.pipeline_level = pipeline_level
 
         # process and prepare the output directory
-        if doutput is None:
-            doutput = join(getcwd(), "dvt-output-data")
+        if dirout is None:
+            dirout = join(getcwd(), "dvt-output-data")
 
-        if not exists(doutput):
-            makedirs(doutput)
+        if not exists(dirout):
+            makedirs(dirout)
 
         # grab parameters and store as class attribute
         self.attrib = {
-            "finput": finput,
+            "finput": _check_exists(finput),
             "fname": fname,
-            "doutput": join(doutput, fname),
-            "diff_co": diff_co,
+            "dirout": join(dirout, fname),
+            "diff_cutoff": diff_cutoff,
             "cut_min_length": cut_min_length,
             "path_to_faces": path_to_faces,
-            "freq": freq,
+            "frequency": frequency,
         }
+
+        super().__init__()
 
     def run(self):
         """Run the pipeline over the input video object.
@@ -106,37 +114,105 @@ class VideoPipeline:
         ))
 
         self.dextra.run_aggregator(DisplayAggregator(
-            input_dir=join(self.attrib['doutput'], "img"),
-            output_dir=join(self.attrib['doutput'], "img-display"),
+            input_dir=join(self.attrib['dirout'], "img"),
+            output_dir=join(self.attrib['dirout'], "img-display"),
             frames=self.dextra.data['cut']['mpoint'],
             size=250
         ))
 
         # output dataset as a JSON file
         self.dextra.get_json(
-            join(self.attrib['doutput'], "data.json"),
+            join(self.attrib['dirout'], "data.json"),
             exclude_set=["opticalflow"]
         )
         self._json_toc()
 
         # if desired, push web-specific files
-        if self.level >= 2:
+        if self.pipeline_level >= 2:
             self._copy_web()
+
+    @staticmethod
+    def get_argparser():
+        parser = ArgumentParser(
+            prog="python3 -m dvt video-viz",
+            description=
+            "Given a single video file, this pipeline selects a set of frames "
+            "(by default, one frame in each shot) and extracts various "
+            "metadata using the toolkit's annotators and aggregators. "
+            "The output is stored locally as JSON and PNG files that can be "
+            "viewed locally using the interactive web interface.",
+        )
+        parser.add_argument(
+            "finput", type=str, help="path to the video file to process"
+        )
+        parser.add_argument(
+            "--dirout",
+            "-d",
+            type=str,
+            help="base directory in which to store the output",
+            default="dvt-output-data",
+        )
+        parser.add_argument(
+            "--pipeline-level",
+            "-l",
+            type=int,
+            help="interger code (0, 1, or 2) describing how much data to "
+            "parse; 0 creates just metadata, 1 creates just images and "
+            "metadata, 2 or more creates the interactive website "
+            "(default: 2)",
+            default=2,
+        )
+        parser.add_argument(
+            "--diff-cutoff",
+            "-dc",
+            type=int,
+            help="difference cutoff value; integer from 0-256; higher values "
+            "produce fewer cuts (default: 10)",
+            default=10,
+        )
+        parser.add_argument(
+            "--cut-min-length",
+            "-cml",
+            type=int,
+            help="minimum length of a detected cut, frames; higher values "
+            "produce fewer cuts (default: 30)",
+            default=30,
+        )
+        parser.add_argument(
+            "--frequency",
+            "-f",
+            type=int,
+            help="set to a positive integer to select images based on "
+            "frequency rather than detecting cuts; integer gives frequency of "
+            "the sampling (default: 0)",
+            default=0,
+        )
+        parser.add_argument(
+            "--path-to-faces",
+            type=str,
+            default=None,
+            help="Path to directory containing protype faces (optional). See "
+            "tutorial on the commandline interface for more details.",
+        )
+
+        return parser
 
     def _make_breaks(self):
         """Determine what frames to include in the output.
         """
 
-        if self.attrib['freq'] <= 0:
+        if self.attrib['frequency'] <= 0:
             self.dextra.run_annotators([DiffAnnotator(quantiles=[40])])
             self.dextra.run_aggregator(
                 CutAggregator(
-                    cut_vals={"q40": self.attrib['diff_co']},
+                    cut_vals={"q40": self.attrib['diff_cutoff']},
                     min_len=self.attrib['cut_min_length'])
             )
         else:
             nframes = self.dextra.get_data()["meta"]['frames'].values[0]
-            frame_start = array(range(0, nframes - 1, self.attrib['freq']))
+            frame_start = array(range(
+                0, nframes - 1, self.attrib['frequency']
+            ))
             frame_end = append(frame_start[1:] + 1, nframes - 1)
 
             self.dextra.data['cut'] = DataFrame({
@@ -144,11 +220,11 @@ class VideoPipeline:
                 "frame_end": frame_end
             })
 
-        fs = self.dextra.data['cut'].frame_start.values
-        fe = self.dextra.data['cut'].frame_end.values
+        fstart = self.dextra.data['cut'].frame_start.values
+        fend = self.dextra.data['cut'].frame_end.values
 
         self.dextra.data['cut']['mpoint'] = int32(
-            fs + (fe - fs) // 2
+            fstart + (fend - fstart) // 2
         )
 
     def _run_annotation(self):
@@ -159,19 +235,19 @@ class VideoPipeline:
             ObjectAnnotator(detector=ObjectDetectRetinaNet(), frames=frames)
         ]
 
-        if self.level >= 1:
+        if self.pipeline_level >= 1:
             annotators.append(PngAnnotator(
-                output_dir=join(self.attrib['doutput'], "img"), frames=frames
+                output_dir=join(self.attrib['dirout'], "img"), frames=frames
             ))
             thumb = PngAnnotator(
-                output_dir=join(self.attrib['doutput'], "img-thumb"),
+                output_dir=join(self.attrib['dirout'], "img-thumb"),
                 frames=frames,
                 size=150
             )
             thumb.name = "thumb"
             annotators.append(thumb)
             annotators.append(OpticalFlowAnnotator(
-                output_dir=join(self.attrib['doutput'], "img-flow"),
+                output_dir=join(self.attrib['dirout'], "img-flow"),
                 frames=frames,
                 size=150
             ))
@@ -200,7 +276,7 @@ class VideoPipeline:
         ))
 
     def _json_toc(self):
-        toc_path = join(dirname(self.attrib['doutput']), "toc.json")
+        toc_path = join(dirname(self.attrib['dirout']), "toc.json")
 
         data = []
         if exists(toc_path):
@@ -230,7 +306,7 @@ class VideoPipeline:
 
     def _copy_web(self):
         data_dir = get_data_location()
-        toc_level = dirname(self.attrib['doutput'])
+        toc_level = dirname(self.attrib['dirout'])
 
         if not isdir(join(toc_level, "js")):
             makedirs(join(toc_level, "js"))
@@ -242,7 +318,7 @@ class VideoPipeline:
                  join(toc_level, "index.html"))
 
         copyfile(join(data_dir, "html", "index-video.html"),
-                 join(self.attrib['doutput'], "index.html"))
+                 join(self.attrib['dirout'], "index.html"))
 
         copyfile(join(data_dir, "css", "dvt.css"),
                  join(toc_level, "css", "dvt.css"))

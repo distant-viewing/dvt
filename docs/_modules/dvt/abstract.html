@@ -224,7 +224,7 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;abstract&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>    <span class="c1"># pylint: disable=W0613</span>
         <span class="sd">&quot;&quot;&quot;Create a new annotator object, with possible keyword arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span>
@@ -261,7 +261,7 @@
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;abstract&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>     <span class="c1"># pylint: disable=W0613</span>
         <span class="sd">&quot;&quot;&quot;Create a new empty Aggregator.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span>
@@ -278,6 +278,47 @@
 <span class="sd">            An object that can be processed by process_output_values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">Pipeline</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>    <span class="c1"># pragma: no cover</span>
+    <span class="sd">&quot;&quot;&quot;Base class for producing a pipeline, callable from the command line.</span>
+
+<span class="sd">    Pipelines provide common, pre-constructed sequences of annotators and</span>
+<span class="sd">    aggregators for processing input datasets. The abstract methods describe</span>
+<span class="sd">    a consistent method for calling the command line interface.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        name (str): A description of the aggregator. Used as a key in the</span>
+<span class="sd">            output data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create a new Pipeline object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">create_from_cli</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Create pipeline object from the command line intrface.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            args (list): List of strings to parse.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            a new pipeline object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="o">**</span><span class="nb">vars</span><span class="p">(</span><span class="bp">cls</span><span class="o">.</span><span class="n">get_argparser</span><span class="p">()</span><span class="o">.</span><span class="n">parse_args</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="n">args</span><span class="p">)))</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run the pipeline with the desired properties.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_argparser</span><span class="p">():</span>
+        <span class="k">pass</span>
 </pre></div>
 
            </div>

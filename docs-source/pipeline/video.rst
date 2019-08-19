@@ -2,7 +2,7 @@
 Pipeline for Working with Video Inputs
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-.. automodule:: dvt.pipeline.video
-    :members: VideoPipeline
+.. automodule:: dvt.pipeline.videoviz
+    :members: VideoVizPipeline
     :undoc-members:
     :show-inheritance:

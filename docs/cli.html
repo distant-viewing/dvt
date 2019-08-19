@@ -179,7 +179,7 @@ media files.</p>
 <p class="rubric">Example</p>
 <p>Assuming we have an input named “input.mp4”, the following example shows
 the default usage of the command line interface:</p>
-<p>&gt; python3 -m dvt video-clip.mp4</p>
+<p>&gt; python3 -m dvt video-viz video-clip.mp4</p>
 <p>This may take several minutes to complete. Some minimal logging information
 should display the annotators progress in your terminal. Once finished, you
 should have a new directory dvt-output-data that contains extracted
@@ -188,10 +188,16 @@ information by starting a local http server:</p>
 <p>&gt; python3 -m http.server –directory dvt-output-data</p>
 <p>And opening the following: <a class="reference external" href="http://0.0.0.0:8000/">http://0.0.0.0:8000/</a>.</p>
 <dl class="function">
+<dt id="dvt.cli.print_help">
+<code class="descclassname">dvt.cli.</code><code class="descname">print_help</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/cli.html#print_help"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.cli.print_help" title="Permalink to this definition">¶</a></dt>
+<dd><p>Print useful help message for the toolkit commandline interface.</p>
+</dd></dl>
+
+<dl class="function">
 <dt id="dvt.cli.run_cli">
-<code class="descclassname">dvt.cli.</code><code class="descname">run_cli</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/cli.html#run_cli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.cli.run_cli" title="Permalink to this definition">¶</a></dt>
+<code class="descclassname">dvt.cli.</code><code class="descname">run_cli</code><span class="sig-paren">(</span><em>args=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/cli.html#run_cli"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.cli.run_cli" title="Permalink to this definition">¶</a></dt>
 <dd><p>Command line tool for evoking the toolkit.</p>
-<p>This functions is not intended to be called directly from an external
+<p>This function is not intended to be called directly from an external
 program. Run with caution.</p>
 </dd></dl>
 

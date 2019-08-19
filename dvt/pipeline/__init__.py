@@ -4,4 +4,4 @@
 
 from __future__ import absolute_import
 
-from . import video
+from . import videoviz

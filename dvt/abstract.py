@@ -68,7 +68,7 @@ class FrameAnnotator(ABC):   # pragma: no cover
 
     name = "abstract"
 
-    def __init__(self, **kwargs):
+    def __init__(self, **kwargs):    # pylint: disable=W0613
         """Create a new annotator object, with possible keyword arguments.
         """
         return
@@ -105,7 +105,7 @@ class Aggregator(ABC):    # pragma: no cover
 
     name = "abstract"
 
-    def __init__(self, **kargs):
+    def __init__(self, **kwargs):     # pylint: disable=W0613
         """Create a new empty Aggregator.
         """
         return
@@ -120,5 +120,48 @@ class Aggregator(ABC):    # pragma: no cover
 
         Returns:
             An object that can be processed by process_output_values.
+        """
+        return
+
+
+class Pipeline(ABC):    # pragma: no cover
+    """Base class for producing a pipeline, callable from the command line.
+
+    Pipelines provide common, pre-constructed sequences of annotators and
+    aggregators for processing input datasets. The abstract methods describe
+    a consistent method for calling the command line interface.
+
+    Attributes:
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
+    """
+
+    @abstractmethod
+    def __init__(self, **kwargs):
+        """Create a new Pipeline object.
+        """
+        return
+
+    @classmethod
+    def create_from_cli(cls, args):
+        """Create pipeline object from the command line intrface.
+
+        Args:
+            args (list): List of strings to parse.
+
+        Returns:
+            a new pipeline object.
+        """
+        return cls(**vars(cls.get_argparser().parse_args(args=args)))
+
+    @abstractmethod
+    def run(self):
+        """Run the pipeline with the desired properties.
+        """
+        return
+
+    @staticmethod
+    def get_argparser():
+        """Return an argument parser class that can be used from the CLI.
         """
         return

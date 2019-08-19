@@ -5,12 +5,14 @@ Public methods may be useful in producing new annotators, aggregators, and
 pipeline methods.
 """
 
+from glob import glob
 from json import loads, dump
 from os.path import(
     abspath,
     dirname,
     expanduser,
     isdir,
+    isfile,
     basename,
     join,
     splitext
@@ -208,6 +210,34 @@ def _expand_path(path):
     bname = basename(path)
     filename, file_extension = splitext(bname)
     return path, bname, filename, file_extension
+
+
+def _check_exists(path):
+    if not isfile(path):
+        raise FileNotFoundError("No such input file found:" + path)
+
+    return path
+
+
+def _expand_path_and_check(fnames):
+    """Expand input paths and make sure
+    """
+    video_files = []
+    for this_name in fnames:
+        video_files.extend(glob(this_name, recursive=True))
+
+    video_files = sorted((abspath(x) for x in video_files))
+    base_names = [splitext(basename(x))[0] for x in video_files]
+
+    if len(set(base_names)) != len(base_names):
+        raise AssertionError(
+            "Processing input files with duplicate basenames is not supported."
+        )
+
+    if not video_files:
+        raise FileNotFoundError("No valid input files found.")
+
+    return video_files
 
 
 def _trim_bbox(css, image_shape):

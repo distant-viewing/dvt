@@ -2,7 +2,7 @@ from os import makedirs
 from os.path import exists, join, abspath
 import tempfile
 
-from dvt.pipeline.video import VideoPipeline
+from dvt.pipeline.videoviz import VideoVizPipeline
 
 
 class TestVideoPipeline:
@@ -11,7 +11,7 @@ class TestVideoPipeline:
 
         dname = tempfile.mkdtemp()  # creates directory
 
-        wp = VideoPipeline(finput, dname)
+        wp = VideoVizPipeline(finput, dname)
         wp.run()
 
         assert (
@@ -29,11 +29,11 @@ class TestVideoPipeline:
         # test two things: frequency argument works and we can redo a video
         # and it works correctly
         finput = abspath(join("test-data", "video-clip.mp4"))
-        wp = VideoPipeline(finput, dname, freq=256)
+        wp = VideoVizPipeline(finput, dname, frequency=256)
         wp.run()
 
         assert exists(join(dname, "video-clip", "img", "frame-000128.png"))
 
     def test_with_cwd(self):
         finput = abspath(join("test-data", "video-clip.mp4"))
-        wp = VideoPipeline(finput)
+        wp = VideoVizPipeline(finput)

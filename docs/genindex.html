@@ -167,7 +167,6 @@
  | <a href="#G"><strong>G</strong></a>
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
- | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
@@ -243,7 +242,7 @@
 </li>
       <li><a href="core.html#dvt.core.FrameBatch.continue_read">continue_read (dvt.core.FrameBatch attribute)</a>
 </li>
-      <li><a href="pipeline/video.html#dvt.pipeline.video.VideoPipeline.cut_min_length">cut_min_length (dvt.pipeline.video.VideoPipeline attribute)</a>
+      <li><a href="pipeline/video.html#dvt.pipeline.videoviz.VideoVizPipeline.cut_min_length">cut_min_length (dvt.pipeline.videoviz.VideoVizPipeline attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -279,13 +278,13 @@
         <li><a href="annotate/obj.html#dvt.annotate.obj.ObjectAnnotator.detector">(dvt.annotate.obj.ObjectAnnotator attribute)</a>
 </li>
       </ul></li>
-      <li><a href="pipeline/video.html#dvt.pipeline.video.VideoPipeline.diff_co">diff_co (dvt.pipeline.video.VideoPipeline attribute)</a>
+      <li><a href="pipeline/video.html#dvt.pipeline.videoviz.VideoVizPipeline.diff_cutoff">diff_cutoff (dvt.pipeline.videoviz.VideoVizPipeline attribute)</a>
 </li>
       <li><a href="annotate/diff.html#dvt.annotate.diff.DiffAnnotator">DiffAnnotator (class in dvt.annotate.diff)</a>
 </li>
-      <li><a href="aggregate/display.html#dvt.aggregate.display.DisplayAggregator">DisplayAggregator (class in dvt.aggregate.display)</a>
+      <li><a href="pipeline/video.html#dvt.pipeline.videoviz.VideoVizPipeline.dirout">dirout (dvt.pipeline.videoviz.VideoVizPipeline attribute)</a>
 </li>
-      <li><a href="pipeline/video.html#dvt.pipeline.video.VideoPipeline.doutput">doutput (dvt.pipeline.video.VideoPipeline attribute)</a>
+      <li><a href="aggregate/display.html#dvt.aggregate.display.DisplayAggregator">DisplayAggregator (class in dvt.aggregate.display)</a>
 </li>
       <li><a href="abstract.html#module-dvt.abstract">dvt.abstract (module)</a>
 </li>
@@ -319,7 +318,7 @@
 </li>
       <li><a href="core.html#module-dvt.core">dvt.core (module)</a>
 </li>
-      <li><a href="pipeline/video.html#module-dvt.pipeline.video">dvt.pipeline.video (module)</a>
+      <li><a href="pipeline/video.html#module-dvt.pipeline.videoviz">dvt.pipeline.videoviz (module)</a>
 </li>
       <li><a href="utils.html#module-dvt.utils">dvt.utils (module)</a>
 </li>
@@ -365,7 +364,7 @@
 </li>
       <li><a href="annotate/face.html#dvt.annotate.face.FaceEmbedVgg2">FaceEmbedVgg2 (class in dvt.annotate.face)</a>
 </li>
-      <li><a href="pipeline/video.html#dvt.pipeline.video.VideoPipeline.finput">finput (dvt.pipeline.video.VideoPipeline attribute)</a>
+      <li><a href="pipeline/video.html#dvt.pipeline.videoviz.VideoVizPipeline.finput">finput (dvt.pipeline.videoviz.VideoVizPipeline attribute)</a>
 </li>
       <li><a href="core.html#dvt.core.FrameBatch.fnames">fnames (dvt.core.FrameBatch attribute)</a>
 </li>
@@ -408,7 +407,7 @@
 </li>
         <li><a href="annotate/png.html#dvt.annotate.png.PngAnnotator.freq">(dvt.annotate.png.PngAnnotator attribute)</a>
 </li>
-        <li><a href="pipeline/video.html#dvt.pipeline.video.VideoPipeline.freq">(dvt.pipeline.video.VideoPipeline attribute)</a>
+        <li><a href="pipeline/video.html#dvt.pipeline.videoviz.VideoVizPipeline.freq">(dvt.pipeline.videoviz.VideoVizPipeline attribute)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -417,14 +416,16 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pipeline/video.html#dvt.pipeline.videoviz.VideoVizPipeline.get_argparser">get_argparser() (dvt.pipeline.videoviz.VideoVizPipeline static method)</a>
+</li>
       <li><a href="core.html#dvt.core.FrameBatch.get_batch">get_batch() (dvt.core.FrameBatch method)</a>
 </li>
       <li><a href="core.html#dvt.core.DataExtraction.get_data">get_data() (dvt.core.DataExtraction method)</a>
 </li>
-      <li><a href="core.html#dvt.core.FrameBatch.get_frame_names">get_frame_names() (dvt.core.FrameBatch method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core.html#dvt.core.FrameBatch.get_frame_names">get_frame_names() (dvt.core.FrameBatch method)</a>
+</li>
       <li><a href="core.html#dvt.core.FrameBatch.get_frames">get_frames() (dvt.core.FrameBatch method)</a>
 </li>
       <li><a href="core.html#dvt.core.DataExtraction.get_json">get_json() (dvt.core.DataExtraction method)</a>
@@ -450,14 +451,6 @@
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#dvt.core.FrameBatch.img">img (dvt.core.FrameBatch attribute)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="L">L</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pipeline/video.html#dvt.pipeline.video.VideoPipeline.level">level (dvt.pipeline.video.VideoPipeline attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -567,11 +560,13 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pipeline/video.html#dvt.pipeline.video.VideoPipeline.path_to_faces">path_to_faces (dvt.pipeline.video.VideoPipeline attribute)</a>
+      <li><a href="pipeline/video.html#dvt.pipeline.videoviz.VideoVizPipeline.path_to_faces">path_to_faces (dvt.pipeline.videoviz.VideoVizPipeline attribute)</a>
 </li>
       <li><a href="utils.html#dvt.utils.pd_col_asarray">pd_col_asarray() (in module dvt.utils)</a>
 </li>
       <li><a href="aggregate/people.html#dvt.aggregate.people.PeopleAggregator">PeopleAggregator (class in dvt.aggregate.people)</a>
+</li>
+      <li><a href="pipeline/video.html#dvt.pipeline.videoviz.VideoVizPipeline.pipeline_level">pipeline_level (dvt.pipeline.videoviz.VideoVizPipeline attribute)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -583,6 +578,8 @@
         <li><a href="annotate/embed.html#dvt.annotate.embed.EmbedFrameKerasResNet50.preprocess_input">(dvt.annotate.embed.EmbedFrameKerasResNet50 attribute)</a>
 </li>
       </ul></li>
+      <li><a href="cli.html#dvt.cli.print_help">print_help() (in module dvt.cli)</a>
+</li>
       <li><a href="utils.html#dvt.utils.process_output_values">process_output_values() (in module dvt.utils)</a>
 </li>
   </ul></td>
@@ -601,7 +598,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator.raw">raw (dvt.annotate.opticalflow.OpticalFlowAnnotator attribute)</a>
 </li>
-      <li><a href="pipeline/video.html#dvt.pipeline.video.VideoPipeline.run">run() (dvt.pipeline.video.VideoPipeline method)</a>
+      <li><a href="pipeline/video.html#dvt.pipeline.videoviz.VideoVizPipeline.run">run() (dvt.pipeline.videoviz.VideoVizPipeline method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -655,7 +652,7 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pipeline/video.html#dvt.pipeline.video.VideoPipeline">VideoPipeline (class in dvt.pipeline.video)</a>
+      <li><a href="pipeline/video.html#dvt.pipeline.videoviz.VideoVizPipeline">VideoVizPipeline (class in dvt.pipeline.videoviz)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
