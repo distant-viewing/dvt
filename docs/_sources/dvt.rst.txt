@@ -45,4 +45,5 @@ Pipelines
 .. toctree::
    :maxdepth: 4
 
+   pipeline/csv
    pipeline/viz

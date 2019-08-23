@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.cli &mdash; dvt 0.0.9 documentation</title>
+  <title>dvt.cli &mdash; dvt 0.0.10 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.9
+                0.0.10
               </div>
             
           
@@ -174,12 +174,13 @@
 
 <span class="sd">    &gt; python3 -m http.server --directory dvt-output-data</span>
 
-<span class="sd">    And opening the following: http://0.0.0.0:8000/.</span>
+<span class="sd">    And opening the following: http://0.0.0.0:8000/</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">sys</span> <span class="k">import</span> <span class="n">argv</span>
 
 <span class="kn">from</span> <span class="nn">.pipeline.viz</span> <span class="k">import</span> <span class="n">VideoVizPipeline</span><span class="p">,</span> <span class="n">ImageVizPipeline</span>
+<span class="kn">from</span> <span class="nn">.pipeline.csv</span> <span class="k">import</span> <span class="n">VideoCsvPipeline</span>
 
 
 <div class="viewcode-block" id="run_cli"><a class="viewcode-back" href="../../cli.html#dvt.cli.run_cli">[docs]</a><span class="k">def</span> <span class="nf">run_cli</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -198,8 +199,8 @@
             <span class="n">pipeline</span> <span class="o">=</span> <span class="n">VideoVizPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;image-viz&quot;</span><span class="p">:</span>
             <span class="n">pipeline</span> <span class="o">=</span> <span class="n">ImageVizPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
-        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;video-full&quot;</span><span class="p">:</span>
-            <span class="n">pipeline</span> <span class="o">=</span> <span class="n">VideoVizPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;video-csv&quot;</span><span class="p">:</span>
+            <span class="n">pipeline</span> <span class="o">=</span> <span class="n">VideoCsvPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Unknown pipeline: &quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">)</span>
 
@@ -231,11 +232,12 @@
 <span class="s2">                 locally as JSON and PNG files that can be viewed</span>
 <span class="s2">                 locally using the interactive web interface.</span>
 
-<span class="s2">  video-full     a compute-intensive pipeline used when extracting</span>
-<span class="s2">                 metadata for the analysis of visual style across</span>
-<span class="s2">                 a larger corpus. It processes all of the frames in</span>
-<span class="s2">                 the input. It is highly recommended that this be run</span>
-<span class="s2">                 only with a GPU.</span>
+<span class="s2">  video-csv      a pipeline used when extracting metadata for the</span>
+<span class="s2">                 analysis of visual style across a larger corpus.</span>
+<span class="s2">                 Output is stored as a collection of CSV files.</span>
+<span class="s2">                 When set to processes all of the frames in the</span>
+<span class="s2">                 input, this pipeline is very computationally</span>
+<span class="s2">                 intensive.</span>
 
 <span class="s2">Running each pipeline with no other options will display their</span>
 <span class="s2">respective help pages. For more examples, see the command line</span>

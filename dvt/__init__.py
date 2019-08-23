@@ -18,4 +18,4 @@ from . import core
 from . import utils
 from . import aggregate
 
-__version__ = "0.9.0"
+__version__ = "0.0.10"
