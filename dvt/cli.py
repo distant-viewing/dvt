@@ -18,12 +18,13 @@ Example:
 
     > python3 -m http.server --directory dvt-output-data
 
-    And opening the following: http://0.0.0.0:8000/.
+    And opening the following: http://0.0.0.0:8000/
 """
 
 from sys import argv
 
 from .pipeline.viz import VideoVizPipeline, ImageVizPipeline
+from .pipeline.csv import VideoCsvPipeline
 
 
 def run_cli(args=None):
@@ -42,8 +43,8 @@ def run_cli(args=None):
             pipeline = VideoVizPipeline.create_from_cli(args[2:])
         elif key == "image-viz":
             pipeline = ImageVizPipeline.create_from_cli(args[2:])
-        elif key == "video-full":
-            pipeline = VideoVizPipeline.create_from_cli(args[2:])
+        elif key == "video-csv":
+            pipeline = VideoCsvPipeline.create_from_cli(args[2:])
         else:
             raise IndexError("Unknown pipeline: " + key)
 
@@ -75,11 +76,12 @@ Currently available pipelines:
                  locally as JSON and PNG files that can be viewed
                  locally using the interactive web interface.
 
-  video-full     a compute-intensive pipeline used when extracting
-                 metadata for the analysis of visual style across
-                 a larger corpus. It processes all of the frames in
-                 the input. It is highly recommended that this be run
-                 only with a GPU.
+  video-csv      a pipeline used when extracting metadata for the
+                 analysis of visual style across a larger corpus.
+                 Output is stored as a collection of CSV files.
+                 When set to processes all of the frames in the
+                 input, this pipeline is very computationally
+                 intensive.
 
 Running each pipeline with no other options will display their
 respective help pages. For more examples, see the command line

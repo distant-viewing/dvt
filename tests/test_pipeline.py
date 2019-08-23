@@ -2,11 +2,12 @@ from os import makedirs
 from os.path import exists, join, abspath
 import tempfile
 
-from dvt.pipeline.viz import VideoVizPipeline
+from dvt.pipeline.csv import VideoCsvPipeline
+from dvt.pipeline.viz import VideoVizPipeline, ImageVizPipeline
 
 
-class TestVideoPipeline:
-    def test_with_default(self):
+class TestPipelines:
+    def test_video_viz(self):
         finput = abspath(join("test-data", "video-clip.mp4"))
 
         dname = tempfile.mkdtemp()  # creates directory
@@ -34,6 +35,22 @@ class TestVideoPipeline:
 
         assert exists(join(dname, "video-clip", "img", "frame-000128.png"))
 
-    def test_with_cwd(self):
+    def test_video_viz_with_cwd(self):
         finput = abspath(join("test-data", "video-clip.mp4"))
         wp = VideoVizPipeline(finput)
+
+    def test_image_viz(self):
+        finput = abspath(join("test-data", "img"))
+
+        dname = tempfile.mkdtemp()  # creates directory
+
+        wp = ImageVizPipeline(finput, dname)
+        wp.run()
+
+    def test_video_csv(self):
+        finput = abspath(join("test-data", "video-clip.mp4"))
+
+        dname = tempfile.mkdtemp()  # creates directory
+
+        wp = VideoCsvPipeline(finput, dname)
+        wp.run()

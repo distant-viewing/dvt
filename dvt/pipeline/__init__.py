@@ -4,4 +4,5 @@
 
 from __future__ import absolute_import
 
+from . import csv
 from . import viz
