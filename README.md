@@ -8,7 +8,7 @@ computational analysis of visual culture. It contains low-level architecture
 for applying state-of-the-art computer vision algorithms to still and moving
 images. The higher-level functionality of the toolkit allows users to quickly
 extract semantic metadata from digitized collections. Extracted information
-can be visualized for search and discovery or aggregated and analyzed to find
+can be visualized for search and discovery as well as aggregated and analyzed to find
 patterns across a corpus.
 
 More information about the toolkit and project is available on the following
@@ -23,7 +23,7 @@ pages:
 
 If you have any trouble using the toolkit, please open a
 [GitHub issue](https://github.com/distant-viewing/dvt/issues). If you
-have further questions or are interested in collaborating, please contact
+have additional questions or are interested in collaborating, please contact
 us at tarnold2@richmond.edu and ltilton@richmond.edu.
 
 ------------------
@@ -46,7 +46,7 @@ The package can then be installed through PyPI:
 pip install dvt
 ```
 
-Additional Python requirements should be automatically installed automatically
+Additional Python requirements should be installed automatically
 through PyPI.
 
 ## Minimal Demo
@@ -55,7 +55,7 @@ The following code assumes that you have installed the dvt toolkit and have
 the video file
 [video-clip.mp4](https://github.com/distant-viewing/dvt/raw/master/tests/test-data/video-clip.mp4/)
 in your working directory. Run the following command to run the default
-pipeline of annotators from the distant viewing toolkit:
+pipeline of annotators from dvt:
 
 ```
 python3 -m dvt video-viz video-clip.mp4
@@ -80,12 +80,12 @@ several video files [here](https://www.distantviewing.org/labs/).
 
 ## Getting started with the Python API
 
-The command line tools provide a fast way to get started with the toolkit
-but there is much more functionality available when using the full Python
+The command line tools provide a fast way to get started with the toolkit,
+and there is much more functionality available when using the full Python
 API provided by the module.
 
 Using the distant viewing toolkit starts by constructing a `DataExtraction`
-object that is associated with some input data (either a video file or a
+object that is associated with input data (either a video file or a
 collection of still images). Algorithms are then applied to the
 `DataExtraction`; the results are stored as Pandas DataFrames and can be
 exported as CSV or JSON files. There are two distinct types of algorithms:
@@ -97,7 +97,7 @@ from previously run annotators across across the entire input, but cannot
 direclty access the visual data
 
 The separation of algorithms into these two parts makes it easier to write
-straightforward, error-free code. It closely mirrors the theory of
+straightforward, error-free code. It closely mirrors our
 [theory of distant viewing](https://www.distantviewing.org/pdf/distant-viewing.pdf):
 
 > Distant viewing is distinguished from other approaches by making explicit
@@ -117,7 +117,7 @@ the aggregator algorithms perform a 'distant' (e.g., separated from the raw
 materials) analysis of the visual inputs.
 
 Here is an example showing the usage of these elements to detect shot breaks
-it a video input. We start by running an annotator that detects the differences
+in a video input. We start by running an annotator that detects the differences
 between subsequent shots and then apply the cut aggregator to determine where
 the changes indicate a pattern consistent with a shot break. As in the Minimal
 Demo, the code assumes that the video file
@@ -149,7 +149,7 @@ frame_start  frame_end
 ```
 
 There are many annotators and aggregators currently available in the toolkit.
-Pipelines, pre-bundled sequences of annotators and aggregators, are also
+Pipelines as well as pre-bundled sequences of annotators and aggregators are also
 included in the package. Currently available implementations in the toolkit
 are:
 
@@ -203,11 +203,10 @@ describing the tool and its application to the study of visual culture:
 
 Contributions, including bug fixes and new features, to the toolkit are
 welcome. When contributing to this repository, please first discuss the change
-you wish to make via issue, email, or any other method with the owners of this
+you wish to make via a GitHub issue or email with the maintainers of this
 repository before making a change. Small bug fixes can be given directly
 as pull requests.
 
 Please note that the project has a
 [code of conduct](https://github.com/distant-viewing/dvt/blob/master/.github/CODE_OF_CONDUCT.md).
-Contributors are expected to follow the guidelines for all interactions with
-the project.
+Contributors are expected to follow the guidelines.
