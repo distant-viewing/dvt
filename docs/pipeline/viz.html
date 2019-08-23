@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Pipeline for Working with Video Inputs &mdash; dvt 0.0.9 documentation</title>
+  <title>Pipeline for Building Interactive Visualizations &mdash; dvt 0.0.9 documentation</title>
   
 
   
@@ -95,7 +95,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#annotations">Annotations</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#pipelines">Pipelines</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Pipeline for Working with Video Inputs</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Pipeline for Building Interactive Visualizations</a></li>
 </ul>
 </li>
 </ul>
@@ -148,13 +148,13 @@
         
           <li><a href="../dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
         
-      <li>Pipeline for Working with Video Inputs</li>
+      <li>Pipeline for Building Interactive Visualizations</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/pipeline/video.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/pipeline/viz.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -167,18 +167,18 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-dvt.pipeline.videoviz">
-<span id="pipeline-for-working-with-video-inputs"></span><h1>Pipeline for Working with Video Inputs<a class="headerlink" href="#module-dvt.pipeline.videoviz" title="Permalink to this headline">¶</a></h1>
-<p>A pipeline for building an interactive website from a video file.</p>
+  <div class="section" id="module-dvt.pipeline.viz">
+<span id="pipeline-for-building-interactive-visualizations"></span><h1>Pipeline for Building Interactive Visualizations<a class="headerlink" href="#module-dvt.pipeline.viz" title="Permalink to this headline">¶</a></h1>
+<p>A pipeline for building an interactive website from media files.</p>
 <p>Offers similar functionality to the command line interface from within Python.</p>
 <dl class="class">
-<dt id="dvt.pipeline.videoviz.VideoVizPipeline">
-<em class="property">class </em><code class="descclassname">dvt.pipeline.videoviz.</code><code class="descname">VideoVizPipeline</code><span class="sig-paren">(</span><em>finput</em>, <em>dirout=None</em>, <em>pipeline_level=2</em>, <em>diff_cutoff=10</em>, <em>cut_min_length=30</em>, <em>frequency=0</em>, <em>path_to_faces=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/videoviz.html#VideoVizPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.videoviz.VideoVizPipeline" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.pipeline.viz.VideoVizPipeline">
+<em class="property">class </em><code class="descclassname">dvt.pipeline.viz.</code><code class="descname">VideoVizPipeline</code><span class="sig-paren">(</span><em>finput</em>, <em>dirout=None</em>, <em>pipeline_level=2</em>, <em>diff_cutoff=10</em>, <em>cut_min_length=30</em>, <em>frequency=0</em>, <em>path_to_faces=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/viz.html#VideoVizPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.Pipeline</span></code></p>
 <p>Contains a predefined annotators to process an input video file.</p>
 <dl class="attribute">
-<dt id="dvt.pipeline.videoviz.VideoVizPipeline.finput">
-<code class="descname">finput</code><a class="headerlink" href="#dvt.pipeline.videoviz.VideoVizPipeline.finput" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.pipeline.viz.VideoVizPipeline.finput">
+<code class="descname">finput</code><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.finput" title="Permalink to this definition">¶</a></dt>
 <dd><p>path to the input video file</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -191,8 +191,8 @@
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.pipeline.videoviz.VideoVizPipeline.dirout">
-<code class="descname">dirout</code><a class="headerlink" href="#dvt.pipeline.videoviz.VideoVizPipeline.dirout" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.pipeline.viz.VideoVizPipeline.dirout">
+<code class="descname">dirout</code><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.dirout" title="Permalink to this definition">¶</a></dt>
 <dd><p>output directory. If set to None (default), will be
 a directory named “dvt-output-data” in the current working
 directory</p>
@@ -207,8 +207,8 @@ directory</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.pipeline.videoviz.VideoVizPipeline.pipeline_level">
-<code class="descname">pipeline_level</code><a class="headerlink" href="#dvt.pipeline.videoviz.VideoVizPipeline.pipeline_level" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.pipeline.viz.VideoVizPipeline.pipeline_level">
+<code class="descname">pipeline_level</code><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.pipeline_level" title="Permalink to this definition">¶</a></dt>
 <dd><p>interger code (0, 1, or 2) describing how much
 data to parse. 0 creates just metadata, 1 creates just images and
 metadata, 2 or more creates the interactive website</p>
@@ -223,8 +223,8 @@ metadata, 2 or more creates the interactive website</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.pipeline.videoviz.VideoVizPipeline.diff_cutoff">
-<code class="descname">diff_cutoff</code><a class="headerlink" href="#dvt.pipeline.videoviz.VideoVizPipeline.diff_cutoff" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.pipeline.viz.VideoVizPipeline.diff_cutoff">
+<code class="descname">diff_cutoff</code><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.diff_cutoff" title="Permalink to this definition">¶</a></dt>
 <dd><p>difference cutoff value; integer from 0-256; higher
 values produce fewer cuts.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -238,8 +238,8 @@ values produce fewer cuts.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.pipeline.videoviz.VideoVizPipeline.cut_min_length">
-<code class="descname">cut_min_length</code><a class="headerlink" href="#dvt.pipeline.videoviz.VideoVizPipeline.cut_min_length" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.pipeline.viz.VideoVizPipeline.cut_min_length">
+<code class="descname">cut_min_length</code><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.cut_min_length" title="Permalink to this definition">¶</a></dt>
 <dd><p>minimum length of a detected cut in frames;
 higher values produce few cuts.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -253,8 +253,8 @@ higher values produce few cuts.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.pipeline.videoviz.VideoVizPipeline.freq">
-<code class="descname">freq</code><a class="headerlink" href="#dvt.pipeline.videoviz.VideoVizPipeline.freq" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.pipeline.viz.VideoVizPipeline.freq">
+<code class="descname">freq</code><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.freq" title="Permalink to this definition">¶</a></dt>
 <dd><p>set to a positive integer to select images based on
 frequency rather than detecting cuts; integer gives frequency
 of the sampling</p>
@@ -269,8 +269,8 @@ of the sampling</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.pipeline.videoviz.VideoVizPipeline.path_to_faces">
-<code class="descname">path_to_faces</code><a class="headerlink" href="#dvt.pipeline.videoviz.VideoVizPipeline.path_to_faces" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.pipeline.viz.VideoVizPipeline.path_to_faces">
+<code class="descname">path_to_faces</code><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.path_to_faces" title="Permalink to this definition">¶</a></dt>
 <dd><p>Path to directory containing protype faces
 (optional). See tutorial on the commandline interface for more
 details.</p>
@@ -285,14 +285,97 @@ details.</p>
 </dd></dl>
 
 <dl class="staticmethod">
-<dt id="dvt.pipeline.videoviz.VideoVizPipeline.get_argparser">
-<em class="property">static </em><code class="descname">get_argparser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/videoviz.html#VideoVizPipeline.get_argparser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.videoviz.VideoVizPipeline.get_argparser" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="dvt.pipeline.viz.VideoVizPipeline.get_argparser">
+<em class="property">static </em><code class="descname">get_argparser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/viz.html#VideoVizPipeline.get_argparser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.get_argparser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an argument parser class that can be used from the CLI.</p>
+</dd></dl>
 
 <dl class="method">
-<dt id="dvt.pipeline.videoviz.VideoVizPipeline.run">
-<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/videoviz.html#VideoVizPipeline.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.videoviz.VideoVizPipeline.run" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.pipeline.viz.VideoVizPipeline.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/viz.html#VideoVizPipeline.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.run" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run the pipeline over the input video object.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.pipeline.viz.ImageVizPipeline">
+<em class="property">class </em><code class="descclassname">dvt.pipeline.viz.</code><code class="descname">ImageVizPipeline</code><span class="sig-paren">(</span><em>dinput</em>, <em>dirout=None</em>, <em>pipeline_level=2</em>, <em>path_to_faces=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/viz.html#ImageVizPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.viz.ImageVizPipeline" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.Pipeline</span></code></p>
+<p>Contains a predefined annotators to process a corpus of images.</p>
+<dl class="attribute">
+<dt id="dvt.pipeline.viz.ImageVizPipeline.dinput">
+<code class="descname">dinput</code><a class="headerlink" href="#dvt.pipeline.viz.ImageVizPipeline.dinput" title="Permalink to this definition">¶</a></dt>
+<dd><p>directory of the input images. Will take all image
+files (png, jpg, jpeg, tif, tiff) from within the parent directory.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.pipeline.viz.ImageVizPipeline.dirout">
+<code class="descname">dirout</code><a class="headerlink" href="#dvt.pipeline.viz.ImageVizPipeline.dirout" title="Permalink to this definition">¶</a></dt>
+<dd><p>output directory. If set to None (default), will be
+a directory named “dvt-output-data” in the current working
+directory</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.pipeline.viz.ImageVizPipeline.pipeline_level">
+<code class="descname">pipeline_level</code><a class="headerlink" href="#dvt.pipeline.viz.ImageVizPipeline.pipeline_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>interger code (0, 1, or 2) describing how much
+data to parse. 0 creates just metadata, 1 creates just images and
+metadata, 2 or more creates the interactive website</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.pipeline.viz.ImageVizPipeline.path_to_faces">
+<code class="descname">path_to_faces</code><a class="headerlink" href="#dvt.pipeline.viz.ImageVizPipeline.path_to_faces" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to directory containing protype faces
+(optional). See tutorial on the commandline interface for more
+details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="staticmethod">
+<dt id="dvt.pipeline.viz.ImageVizPipeline.get_argparser">
+<em class="property">static </em><code class="descname">get_argparser</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/viz.html#ImageVizPipeline.get_argparser"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.viz.ImageVizPipeline.get_argparser" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return an argument parser class that can be used from the CLI.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.pipeline.viz.ImageVizPipeline.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/viz.html#ImageVizPipeline.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.viz.ImageVizPipeline.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the pipeline over the input image objects.</p>
 </dd></dl>
 
 </dd></dl>

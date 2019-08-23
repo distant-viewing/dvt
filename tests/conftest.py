@@ -11,6 +11,7 @@ from dvt.annotate.diff import DiffAnnotator
 from dvt.annotate.embed import EmbedAnnotator, EmbedFrameKerasResNet50
 from dvt.annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
 from dvt.annotate.hofm import HOFMAnnotator
+from dvt.annotate.img import ImgAnnotator
 from dvt.annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from dvt.annotate.opticalflow import OpticalFlowAnnotator
 from dvt.annotate.png import PngAnnotator
@@ -107,7 +108,8 @@ def get_image_annotation():
             embedding=FaceEmbedVgg2()
         ),
         ObjectAnnotator(detector=ObjectDetectRetinaNet()),
-        PngAnnotator(output_dir=png_output, size=229)
+        PngAnnotator(output_dir=png_output, size=229),
+        ImgAnnotator()
     ])
 
     return de, output_dir

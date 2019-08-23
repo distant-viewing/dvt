@@ -177,12 +177,12 @@ the video file
 in your working directory.</p>
 <p>To run the command line tool with the default settings on the video-clip.mp4
 file, one can execute the following code in a terminal:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">dvt</span> <span class="n">video</span><span class="o">-</span><span class="n">clip</span><span class="o">.</span><span class="n">mp4</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">dvt</span> <span class="n">video</span><span class="o">-</span><span class="n">viz</span> <span class="n">video</span><span class="o">-</span><span class="n">clip</span><span class="o">.</span><span class="n">mp4</span>
 </pre></div>
 </div>
 <p>Alternatively, all of the default values can be explicitly set using the
 following:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">dvt</span> <span class="n">video</span><span class="o">-</span><span class="n">clip</span><span class="o">.</span><span class="n">mp4</span> \
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">dvt</span> <span class="n">video</span><span class="o">-</span><span class="n">viz</span> <span class="n">video</span><span class="o">-</span><span class="n">clip</span><span class="o">.</span><span class="n">mp4</span> \
     <span class="o">--</span><span class="n">dirout</span><span class="o">=</span><span class="n">dvt</span><span class="o">-</span><span class="n">output</span><span class="o">-</span><span class="n">data</span> \
     <span class="o">--</span><span class="n">pipeline</span><span class="o">-</span><span class="n">level</span><span class="o">=</span><span class="mi">2</span> \
     <span class="o">--</span><span class="n">diff</span><span class="o">-</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">10</span> \
@@ -219,7 +219,7 @@ desired name of the person; for example, if you want to detect images of
 Oprah Winfrey, you may add an image titled “oprah-winfrey.png”. Then, assuming
 your images are in a file in the working directory called “face-images”,
 you can include these in the pipeline as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">dvt</span> <span class="n">video</span><span class="o">-</span><span class="n">clip</span><span class="o">.</span><span class="n">mp4</span> \
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">dvt</span> <span class="n">video</span><span class="o">-</span><span class="n">viz</span> <span class="n">video</span><span class="o">-</span><span class="n">clip</span><span class="o">.</span><span class="n">mp4</span> \
     <span class="o">--</span><span class="n">dirout</span><span class="o">=</span><span class="n">dvt</span><span class="o">-</span><span class="n">output</span><span class="o">-</span><span class="n">data</span> \
     <span class="o">--</span><span class="n">pipeline</span><span class="o">-</span><span class="n">level</span><span class="o">=</span><span class="mi">2</span> \
     <span class="o">--</span><span class="n">diff</span><span class="o">-</span><span class="n">cutoff</span><span class="o">=</span><span class="mi">10</span> \

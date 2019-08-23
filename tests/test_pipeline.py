@@ -2,7 +2,7 @@ from os import makedirs
 from os.path import exists, join, abspath
 import tempfile
 
-from dvt.pipeline.videoviz import VideoVizPipeline
+from dvt.pipeline.viz import VideoVizPipeline
 
 
 class TestVideoPipeline:

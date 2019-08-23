@@ -18,6 +18,7 @@ inputs. See the example in DataExtraction for the basic usage of the classes.
 from collections import OrderedDict
 from glob import glob
 from itertools import chain
+from math import ceil
 
 from cv2 import (
   COLOR_BGR2RGB,
@@ -32,6 +33,7 @@ from cv2 import (
 )
 from numpy import zeros, uint8, stack, zeros_like
 from pandas import concat, DataFrame
+from progress.bar import Bar
 
 from .abstract import VisualInput
 from .utils import process_output_values, _expand_path, _data_to_json
@@ -84,7 +86,7 @@ class DataExtraction:
         self.vinput = vinput
         self.data = OrderedDict()
 
-    def run_annotators(self, annotators, max_batch=None):
+    def run_annotators(self, annotators, max_batch=None, msg="Progress: "):
         """Run a collection of annotators over the input material.
 
         Batches of inputs are grabbed from vinput and passed to the annotators.
@@ -97,12 +99,22 @@ class DataExtraction:
             max_batch (int): The maximum number of batches to process. Useful
                 for testing and debugging. Set to None (default) to process
                 all available frames.
+            progress (bool): Should a progress bar be shown over each batch?
+            msg (str): Message to display in the progress bar, if used. Set
+                to None to supress the message
         """
         self.vinput.open_input()
 
         pipeline = {anno.name: anno for anno in annotators}
         output = OrderedDict({key: [] for key in pipeline.keys()})
         output['meta'] = process_output_values(self.vinput.get_metadata())
+
+        # setup progress bar
+        mbatch = self.vinput.max_batch
+        if msg is not None:
+            progress_bar = Bar(msg, max=(
+                mbatch if max_batch is None else min(mbatch, max_batch)
+            ))
 
         # cycle through batches and process the file
         cread = self.vinput.continue_read
@@ -120,11 +132,17 @@ class DataExtraction:
                 if batch.bnum >= max_batch - 1:
                     cread = False
 
+            if msg is not None:
+                progress_bar.next()
+
         for key, value in output.items():
             if value:
                 self.data[key] = concat(value, ignore_index=True)
             else:
                 self.data[key] = DataFrame()
+
+        if msg is not None:
+            progress_bar.finish()
 
     def run_aggregator(self, aggregator):
         """Run an aggregator over the extracted annotations.
@@ -267,6 +285,7 @@ class FrameInput(VisualInput):
         self.continue_read = True
         self.start = 0
         self.end = 0
+        self.max_batch = 0
         self._video_cap = None
         self._img = None
         self._continue = True
@@ -283,6 +302,7 @@ class FrameInput(VisualInput):
         self.end = 0
         self._video_cap = VideoCapture(self.input_path)
         self.meta = self._metadata()
+        self.max_batch = ceil(self.get_metadata()['frames'] / self.bsize)
 
         self._img = zeros(
             (self.bsize * 2, self.meta["height"], self.meta["width"], 3),
@@ -409,6 +429,7 @@ class ImageInput(VisualInput):
         self.start = 0
         self.end = 0
         self._video_cap = None
+        self.max_batch = len(self.paths)
 
         # create metadata
         self.meta = {"type": "image", "paths": self.paths}
@@ -446,7 +467,7 @@ class ImageInput(VisualInput):
             start=float(this_index),
             end=float(this_index),
             continue_read=self.continue_read,
-            fnames=[self.paths[this_index]],
+            fnames=[int(this_index)],
             bnum=this_index
         )
 

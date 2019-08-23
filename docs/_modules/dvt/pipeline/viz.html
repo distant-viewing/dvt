@@ -1,0 +1,718 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dvt.pipeline.viz &mdash; dvt 0.0.9 documentation</title>
+  
+
+  
+  
+  
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.9
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo.html"> Minimal Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dvt.html"> API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dvt.pipeline.viz</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dvt.pipeline.viz</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;A pipeline for building an interactive website from media files.</span>
+
+<span class="sd">Offers similar functionality to the command line interface from within Python.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">argparse</span> <span class="k">import</span> <span class="n">ArgumentParser</span>
+<span class="kn">from</span> <span class="nn">json</span> <span class="k">import</span> <span class="n">dump</span><span class="p">,</span> <span class="n">load</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">getcwd</span><span class="p">,</span> <span class="n">makedirs</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">exists</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="k">import</span> <span class="n">copyfile</span>
+
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">append</span><span class="p">,</span> <span class="n">int32</span>
+<span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">DataFrame</span>
+
+<span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">DataExtraction</span><span class="p">,</span> <span class="n">FrameInput</span><span class="p">,</span> <span class="n">ImageInput</span>
+<span class="kn">from</span> <span class="nn">..annotate.diff</span> <span class="k">import</span> <span class="n">DiffAnnotator</span>
+<span class="kn">from</span> <span class="nn">..annotate.cielab</span> <span class="k">import</span> <span class="n">CIElabAnnotator</span>
+<span class="kn">from</span> <span class="nn">..annotate.face</span> <span class="k">import</span> <span class="n">FaceAnnotator</span><span class="p">,</span> <span class="n">FaceDetectMtcnn</span><span class="p">,</span> <span class="n">FaceEmbedVgg2</span>
+<span class="kn">from</span> <span class="nn">..annotate.img</span> <span class="k">import</span> <span class="n">ImgAnnotator</span>
+<span class="kn">from</span> <span class="nn">..annotate.obj</span> <span class="k">import</span> <span class="n">ObjectAnnotator</span><span class="p">,</span> <span class="n">ObjectDetectRetinaNet</span>
+<span class="kn">from</span> <span class="nn">..annotate.opticalflow</span> <span class="k">import</span> <span class="n">OpticalFlowAnnotator</span>
+<span class="kn">from</span> <span class="nn">..annotate.png</span> <span class="k">import</span> <span class="n">PngAnnotator</span>
+<span class="kn">from</span> <span class="nn">..aggregate.cut</span> <span class="k">import</span> <span class="n">CutAggregator</span>
+<span class="kn">from</span> <span class="nn">..aggregate.display</span> <span class="k">import</span> <span class="n">DisplayAggregator</span>
+<span class="kn">from</span> <span class="nn">..aggregate.people</span> <span class="k">import</span> <span class="n">PeopleAggregator</span><span class="p">,</span> <span class="n">make_fprint_from_images</span>
+<span class="kn">from</span> <span class="nn">..aggregate.length</span> <span class="k">import</span> <span class="n">ShotLengthAggregator</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span><span class="p">(</span>
+    <span class="n">setup_tensorflow</span><span class="p">,</span>
+    <span class="n">get_data_location</span><span class="p">,</span>
+    <span class="n">_expand_path</span><span class="p">,</span>
+    <span class="n">_check_exists</span><span class="p">,</span>
+    <span class="n">_check_exists_dir</span><span class="p">,</span>
+    <span class="n">_find_containing_images</span>
+<span class="p">)</span>
+
+
+<div class="viewcode-block" id="VideoVizPipeline"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline">[docs]</a><span class="k">class</span> <span class="nc">VideoVizPipeline</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Contains a predefined annotators to process an input video file.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        finput (str): path to the input video file</span>
+<span class="sd">        dirout (str): output directory. If set to None (default), will be</span>
+<span class="sd">            a directory named &quot;dvt-output-data&quot; in the current working</span>
+<span class="sd">            directory</span>
+<span class="sd">        pipeline_level (int): interger code (0, 1, or 2) describing how much</span>
+<span class="sd">            data to parse. 0 creates just metadata, 1 creates just images and</span>
+<span class="sd">            metadata, 2 or more creates the interactive website</span>
+<span class="sd">        diff_cutoff (int): difference cutoff value; integer from 0-256; higher</span>
+<span class="sd">            values produce fewer cuts.</span>
+<span class="sd">        cut_min_length (int): minimum length of a detected cut in frames;</span>
+<span class="sd">            higher values produce few cuts.</span>
+<span class="sd">        freq (int): set to a positive integer to select images based on</span>
+<span class="sd">            frequency rather than detecting cuts; integer gives frequency</span>
+<span class="sd">            of the sampling</span>
+<span class="sd">        path_to_faces (str): Path to directory containing protype faces</span>
+<span class="sd">            (optional). See tutorial on the commandline interface for more</span>
+<span class="sd">            details.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">finput</span><span class="p">,</span>
+        <span class="n">dirout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pipeline_level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">diff_cutoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">cut_min_length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="n">frequency</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">path_to_faces</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+
+        <span class="n">setup_tensorflow</span><span class="p">()</span>
+
+        <span class="c1"># create data extraction object and get metadata for the input</span>
+        <span class="n">input_path</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_expand_path</span><span class="p">(</span><span class="n">finput</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span> <span class="o">=</span> <span class="n">DataExtraction</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span>
+            <span class="n">input_path</span><span class="o">=</span><span class="n">input_path</span><span class="p">,</span>
+            <span class="n">bsize</span><span class="o">=</span><span class="mi">128</span>
+        <span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">([],</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">=</span> <span class="n">pipeline_level</span>
+
+        <span class="c1"># process and prepare the output directory</span>
+        <span class="k">if</span> <span class="n">dirout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dirout</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s2">&quot;dvt-output-data&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">dirout</span><span class="p">):</span>
+            <span class="n">makedirs</span><span class="p">(</span><span class="n">dirout</span><span class="p">)</span>
+
+        <span class="c1"># grab parameters and store as class attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;finput&quot;</span><span class="p">:</span> <span class="n">_check_exists</span><span class="p">(</span><span class="n">finput</span><span class="p">),</span>
+            <span class="s2">&quot;fname&quot;</span><span class="p">:</span> <span class="n">fname</span><span class="p">,</span>
+            <span class="s2">&quot;dirout&quot;</span><span class="p">:</span> <span class="n">join</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="n">fname</span><span class="p">),</span>
+            <span class="s2">&quot;diff_cutoff&quot;</span><span class="p">:</span> <span class="n">diff_cutoff</span><span class="p">,</span>
+            <span class="s2">&quot;cut_min_length&quot;</span><span class="p">:</span> <span class="n">cut_min_length</span><span class="p">,</span>
+            <span class="s2">&quot;path_to_faces&quot;</span><span class="p">:</span> <span class="n">path_to_faces</span><span class="p">,</span>
+            <span class="s2">&quot;frequency&quot;</span><span class="p">:</span> <span class="n">frequency</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="VideoVizPipeline.run"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run the pipeline over the input video object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># determine frames to process and run the main annotations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_make_breaks</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_annotation</span><span class="p">()</span>
+
+        <span class="c1"># run aggregators</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_faces&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_proc_faces</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">ShotLengthAggregator</span><span class="p">(</span>
+            <span class="n">frames</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">][</span><span class="s1">&#39;mpoint&#39;</span><span class="p">]</span>
+        <span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">DisplayAggregator</span><span class="p">(</span>
+            <span class="n">input_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">),</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img-display&quot;</span><span class="p">),</span>
+            <span class="n">frames</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">][</span><span class="s1">&#39;mpoint&#39;</span><span class="p">],</span>
+            <span class="n">size</span><span class="o">=</span><span class="mi">250</span>
+        <span class="p">))</span>
+
+        <span class="c1"># output dataset as a JSON file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span>
+            <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;data.json&quot;</span><span class="p">),</span>
+            <span class="n">exclude_set</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;opticalflow&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">miter</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="s2">&quot;mpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="n">_json_toc</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="s2">&quot;mpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">miter</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># if desired, push web-specific files</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">_copy_web</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;index-video.html&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="VideoVizPipeline.get_argparser"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.get_argparser">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_argparser</span><span class="p">():</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
+            <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;python3 -m dvt video-viz&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span>
+            <span class="s2">&quot;Given a single video file, this pipeline selects a set of frames &quot;</span>
+            <span class="s2">&quot;(by default, one frame in each shot) and extracts various &quot;</span>
+            <span class="s2">&quot;metadata using the toolkit&#39;s annotators and aggregators. &quot;</span>
+            <span class="s2">&quot;The output is stored locally as JSON and PNG files that can be &quot;</span>
+            <span class="s2">&quot;viewed locally using the interactive web interface.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;finput&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to the video file to process&quot;</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--dirout&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;base directory in which to store the output&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;dvt-output-data&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--pipeline-level&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-l&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;interger code (0, 1, or 2) describing how much data to &quot;</span>
+            <span class="s2">&quot;parse; 0 creates just metadata, 1 creates just images and &quot;</span>
+            <span class="s2">&quot;metadata, 2 or more creates the interactive website &quot;</span>
+            <span class="s2">&quot;(default: 2)&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--diff-cutoff&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-dc&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;difference cutoff value; integer from 0-256; higher values &quot;</span>
+            <span class="s2">&quot;produce fewer cuts (default: 10)&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--cut-min-length&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-cml&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;minimum length of a detected cut, frames; higher values &quot;</span>
+            <span class="s2">&quot;produce fewer cuts (default: 30)&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--frequency&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-f&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;set to a positive integer to select images based on &quot;</span>
+            <span class="s2">&quot;frequency rather than detecting cuts; integer gives frequency of &quot;</span>
+            <span class="s2">&quot;the sampling (default: 0)&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--path-to-faces&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to directory containing protype faces (optional). See &quot;</span>
+            <span class="s2">&quot;tutorial on the commandline interface for more details.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">parser</span></div>
+
+    <span class="k">def</span> <span class="nf">_make_breaks</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Determine what frames to include in the output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">([</span>
+                <span class="n">DiffAnnotator</span><span class="p">(</span><span class="n">quantiles</span><span class="o">=</span><span class="p">[</span><span class="mi">40</span><span class="p">])</span>
+            <span class="p">],</span> <span class="n">msg</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span>
+                <span class="n">CutAggregator</span><span class="p">(</span>
+                    <span class="n">cut_vals</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;q40&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;diff_cutoff&#39;</span><span class="p">]},</span>
+                    <span class="n">min_len</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;cut_min_length&#39;</span><span class="p">])</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">nframes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s1">&#39;frames&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">frame_start</span> <span class="o">=</span> <span class="n">array</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="n">nframes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;frequency&#39;</span><span class="p">]</span>
+            <span class="p">))</span>
+            <span class="n">frame_end</span> <span class="o">=</span> <span class="n">append</span><span class="p">(</span><span class="n">frame_start</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">nframes</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DataFrame</span><span class="p">({</span>
+                <span class="s2">&quot;frame_start&quot;</span><span class="p">:</span> <span class="n">frame_start</span><span class="p">,</span>
+                <span class="s2">&quot;frame_end&quot;</span><span class="p">:</span> <span class="n">frame_end</span>
+            <span class="p">})</span>
+
+        <span class="n">fstart</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">frame_start</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">fend</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">frame_end</span><span class="o">.</span><span class="n">values</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">][</span><span class="s1">&#39;mpoint&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span>
+            <span class="n">fstart</span> <span class="o">+</span> <span class="p">(</span><span class="n">fend</span> <span class="o">-</span> <span class="n">fstart</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_run_annotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">][</span><span class="s1">&#39;mpoint&#39;</span><span class="p">]</span>
+
+        <span class="n">annotators</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">CIElabAnnotator</span><span class="p">(</span><span class="n">frames</span><span class="o">=</span><span class="n">frames</span><span class="p">,</span> <span class="n">num_dominant</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+            <span class="n">ObjectAnnotator</span><span class="p">(</span><span class="n">detector</span><span class="o">=</span><span class="n">ObjectDetectRetinaNet</span><span class="p">(),</span> <span class="n">frames</span><span class="o">=</span><span class="n">frames</span><span class="p">)</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PngAnnotator</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">),</span> <span class="n">frames</span><span class="o">=</span><span class="n">frames</span>
+            <span class="p">))</span>
+            <span class="n">thumb</span> <span class="o">=</span> <span class="n">PngAnnotator</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img-thumb&quot;</span><span class="p">),</span>
+                <span class="n">frames</span><span class="o">=</span><span class="n">frames</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="mi">150</span>
+            <span class="p">)</span>
+            <span class="n">thumb</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;thumb&quot;</span>
+            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thumb</span><span class="p">)</span>
+            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">OpticalFlowAnnotator</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img-flow&quot;</span><span class="p">),</span>
+                <span class="n">frames</span><span class="o">=</span><span class="n">frames</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="mi">150</span>
+            <span class="p">))</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_faces&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FaceAnnotator</span><span class="p">(</span>
+                    <span class="n">detector</span><span class="o">=</span><span class="n">FaceDetectMtcnn</span><span class="p">(),</span>
+                    <span class="n">embedding</span><span class="o">=</span><span class="n">FaceEmbedVgg2</span><span class="p">(),</span>
+                    <span class="n">frames</span><span class="o">=</span><span class="n">frames</span>
+            <span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FaceAnnotator</span><span class="p">(</span>
+                <span class="n">detector</span><span class="o">=</span><span class="n">FaceDetectMtcnn</span><span class="p">(),</span> <span class="n">frames</span><span class="o">=</span><span class="n">frames</span>
+            <span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">(</span>
+            <span class="n">annotators</span><span class="p">,</span>
+            <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing annotators: &quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_proc_faces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fembed</span><span class="p">,</span> <span class="n">fnames</span> <span class="o">=</span> <span class="n">make_fprint_from_images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_faces&#39;</span><span class="p">])</span>
+
+        <span class="n">frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">][</span><span class="s1">&#39;mpoint&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">PeopleAggregator</span><span class="p">(</span>
+            <span class="n">face_names</span><span class="o">=</span><span class="n">fnames</span><span class="p">,</span>
+            <span class="n">fprint</span><span class="o">=</span><span class="n">fembed</span><span class="p">,</span>
+            <span class="n">frames</span><span class="o">=</span><span class="n">frames</span>
+        <span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="ImageVizPipeline"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline">[docs]</a><span class="k">class</span> <span class="nc">ImageVizPipeline</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Contains a predefined annotators to process a corpus of images.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        dinput (str): directory of the input images. Will take all image</span>
+<span class="sd">            files (png, jpg, jpeg, tif, tiff) from within the parent directory.</span>
+<span class="sd">        dirout (str): output directory. If set to None (default), will be</span>
+<span class="sd">            a directory named &quot;dvt-output-data&quot; in the current working</span>
+<span class="sd">            directory</span>
+<span class="sd">        pipeline_level (int): interger code (0, 1, or 2) describing how much</span>
+<span class="sd">            data to parse. 0 creates just metadata, 1 creates just images and</span>
+<span class="sd">            metadata, 2 or more creates the interactive website</span>
+<span class="sd">        path_to_faces (str): Path to directory containing protype faces</span>
+<span class="sd">            (optional). See tutorial on the commandline interface for more</span>
+<span class="sd">            details.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">dinput</span><span class="p">,</span>
+        <span class="n">dirout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">pipeline_level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="n">path_to_faces</span><span class="o">=</span><span class="kc">None</span>
+    <span class="p">):</span>
+
+        <span class="n">setup_tensorflow</span><span class="p">()</span>
+
+        <span class="c1"># create data extraction object and get metadata for the input</span>
+        <span class="n">dinput</span> <span class="o">=</span> <span class="n">_check_exists_dir</span><span class="p">(</span><span class="n">dinput</span><span class="p">)</span>
+        <span class="n">finput</span> <span class="o">=</span> <span class="n">_find_containing_images</span><span class="p">(</span><span class="n">dinput</span><span class="p">)</span>
+        <span class="n">fname</span> <span class="o">=</span> <span class="n">_expand_path</span><span class="p">(</span><span class="n">dinput</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span> <span class="o">=</span> <span class="n">DataExtraction</span><span class="p">(</span><span class="n">ImageInput</span><span class="p">(</span><span class="n">input_paths</span><span class="o">=</span><span class="n">finput</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">([],</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">=</span> <span class="n">pipeline_level</span>
+
+        <span class="c1"># process and prepare the output directory</span>
+        <span class="k">if</span> <span class="n">dirout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">dirout</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s2">&quot;dvt-output-data&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">dirout</span><span class="p">):</span>
+            <span class="n">makedirs</span><span class="p">(</span><span class="n">dirout</span><span class="p">)</span>
+
+        <span class="c1"># grab parameters and store as class attribute</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;fname&quot;</span><span class="p">:</span> <span class="n">fname</span><span class="p">,</span>
+            <span class="s2">&quot;finput&quot;</span><span class="p">:</span> <span class="n">finput</span><span class="p">,</span>
+            <span class="s2">&quot;dirout&quot;</span><span class="p">:</span> <span class="n">join</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="n">fname</span><span class="p">),</span>
+            <span class="s2">&quot;path_to_faces&quot;</span><span class="p">:</span> <span class="n">path_to_faces</span>
+        <span class="p">}</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ImageVizPipeline.run"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run the pipeline over the input image objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># run the main annotations</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_run_annotation</span><span class="p">()</span>
+
+        <span class="c1"># run aggregators</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_faces&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_proc_faces</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">ShotLengthAggregator</span><span class="p">(</span>
+            <span class="n">frames</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;finput&#39;</span><span class="p">])))</span>
+        <span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">DisplayAggregator</span><span class="p">(</span>
+            <span class="n">input_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">),</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img-display&quot;</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="mi">250</span>
+        <span class="p">))</span>
+
+        <span class="c1"># output dataset as a JSON file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span>
+            <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;data.json&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">_json_toc</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+            <span class="mi">0</span>
+        <span class="p">)</span>
+
+        <span class="c1"># if desired, push web-specific files</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">_copy_web</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;index-image.html&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="ImageVizPipeline.get_argparser"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.get_argparser">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">get_argparser</span><span class="p">():</span>
+        <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
+            <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;python3 -m dvt video-viz&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span>
+            <span class="s2">&quot;Given a single video file, this pipeline selects a set of frames &quot;</span>
+            <span class="s2">&quot;(by default, one frame in each shot) and extracts various &quot;</span>
+            <span class="s2">&quot;metadata using the toolkit&#39;s annotators and aggregators. &quot;</span>
+            <span class="s2">&quot;The output is stored locally as JSON and PNG files that can be &quot;</span>
+            <span class="s2">&quot;viewed locally using the interactive web interface.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;dinput&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;directory of the input images. Will take all image files &quot;</span>
+                 <span class="s2">&quot;(png, jpg, jpeg, tif, tiff) from within this parent&quot;</span>
+                 <span class="s2">&quot;directory.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--dirout&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;base directory in which to store the output&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;dvt-output-data&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--pipeline-level&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;-l&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;interger code (0, 1, or 2) describing how much data to &quot;</span>
+            <span class="s2">&quot;parse; 0 creates just metadata, 1 creates just images and &quot;</span>
+            <span class="s2">&quot;metadata, 2 or more creates the interactive website &quot;</span>
+            <span class="s2">&quot;(default: 2)&quot;</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--path-to-faces&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to directory containing protype faces (optional). See &quot;</span>
+            <span class="s2">&quot;tutorial on the commandline interface for more details.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">parser</span></div>
+
+    <span class="k">def</span> <span class="nf">_run_annotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+
+        <span class="n">annotators</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">CIElabAnnotator</span><span class="p">(</span><span class="n">num_dominant</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+            <span class="n">ObjectAnnotator</span><span class="p">(</span><span class="n">detector</span><span class="o">=</span><span class="n">ObjectDetectRetinaNet</span><span class="p">()),</span>
+            <span class="n">ImgAnnotator</span><span class="p">()</span>
+        <span class="p">]</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PngAnnotator</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">)</span>
+            <span class="p">))</span>
+            <span class="n">thumb</span> <span class="o">=</span> <span class="n">PngAnnotator</span><span class="p">(</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img-thumb&quot;</span><span class="p">),</span>
+                <span class="n">size</span><span class="o">=</span><span class="mi">150</span>
+            <span class="p">)</span>
+            <span class="n">thumb</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;thumb&quot;</span>
+            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thumb</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_faces&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FaceAnnotator</span><span class="p">(</span>
+                    <span class="n">detector</span><span class="o">=</span><span class="n">FaceDetectMtcnn</span><span class="p">(),</span>
+                    <span class="n">embedding</span><span class="o">=</span><span class="n">FaceEmbedVgg2</span><span class="p">()</span>
+            <span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FaceAnnotator</span><span class="p">(</span>
+                <span class="n">detector</span><span class="o">=</span><span class="n">FaceDetectMtcnn</span><span class="p">()</span>
+            <span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">(</span>
+            <span class="n">annotators</span><span class="p">,</span>
+            <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing annotators: &quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_proc_faces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fembed</span><span class="p">,</span> <span class="n">fnames</span> <span class="o">=</span> <span class="n">make_fprint_from_images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_faces&#39;</span><span class="p">])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">PeopleAggregator</span><span class="p">(</span>
+            <span class="n">face_names</span><span class="o">=</span><span class="n">fnames</span><span class="p">,</span>
+            <span class="n">fprint</span><span class="o">=</span><span class="n">fembed</span>
+        <span class="p">))</span></div>
+
+
+<span class="k">def</span> <span class="nf">_json_toc</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">frame_num</span><span class="p">):</span>
+    <span class="n">toc_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">dirout</span><span class="p">),</span> <span class="s2">&quot;toc.json&quot;</span><span class="p">)</span>
+
+    <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">exists</span><span class="p">(</span><span class="n">toc_path</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">toc_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">finput</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">load</span><span class="p">(</span><span class="n">finput</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">data</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;video_name&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">fname</span><span class="p">]</span>
+
+    <span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+        <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;thumb_path&quot;</span><span class="p">:</span> <span class="n">join</span><span class="p">(</span>
+                    <span class="n">fname</span><span class="p">,</span>
+                    <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame_num</span><span class="p">),</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;video_name&quot;</span><span class="p">:</span> <span class="n">fname</span><span class="p">,</span>
+                <span class="s2">&quot;video_name_long&quot;</span><span class="p">:</span> <span class="n">fname</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+    <span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">toc_path</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">finput</span><span class="p">:</span>
+        <span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">finput</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_copy_web</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="n">index_name</span><span class="o">=</span><span class="s2">&quot;index-video.html&quot;</span><span class="p">):</span>
+    <span class="n">data_dir</span> <span class="o">=</span> <span class="n">get_data_location</span><span class="p">()</span>
+    <span class="n">toc_level</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dirout</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">)):</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;css&quot;</span><span class="p">)):</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;css&quot;</span><span class="p">))</span>
+
+    <span class="n">copyfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="s2">&quot;index-main.html&quot;</span><span class="p">),</span>
+             <span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;index.html&quot;</span><span class="p">))</span>
+
+    <span class="n">copyfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">index_name</span><span class="p">),</span>
+             <span class="n">join</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="s2">&quot;index.html&quot;</span><span class="p">))</span>
+
+    <span class="n">copyfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;css&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt.css&quot;</span><span class="p">),</span>
+             <span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;css&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt.css&quot;</span><span class="p">))</span>
+
+    <span class="n">copyfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt-main.js&quot;</span><span class="p">),</span>
+             <span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt-main.js&quot;</span><span class="p">))</span>
+
+    <span class="n">copyfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt-video.js&quot;</span><span class="p">),</span>
+             <span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt-video.js&quot;</span><span class="p">))</span>
+
+    <span class="n">copyfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt-image.js&quot;</span><span class="p">),</span>
+             <span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt-image.js&quot;</span><span class="p">))</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

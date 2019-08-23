@@ -23,6 +23,7 @@ Annotations
    annotate/embed
    annotate/face
    annotate/hofm
+   annotate/img
    annotate/obj
    annotate/opticalflow
    annotate/png
@@ -44,4 +45,4 @@ Pipelines
 .. toctree::
    :maxdepth: 4
 
-   pipeline/video
+   pipeline/viz

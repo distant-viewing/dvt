@@ -102,6 +102,8 @@ def make_fprint_from_images(dinput):
     )])
 
     faces = dextra.get_data()['face']
-    face_names = [splitext(basename(x))[0] for x in faces.frame.values]
+    face_names = [
+        splitext(basename(x))[0] for x in dextra.get_data()["meta"]["paths"]
+    ]
 
     return vstack(faces.embed), face_names

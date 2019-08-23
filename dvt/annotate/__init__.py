@@ -13,5 +13,6 @@ from . import png
 from . import cielab
 from . import opticalflow
 from . import hofm
+from . import img
 from . import obj
 from . import face

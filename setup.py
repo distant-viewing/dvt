@@ -34,11 +34,18 @@ required = [
     "h5py",
     "opencv-python",
     "keras_retinanet",
-    "mtcnn"
+    "mtcnn",
+    "progress"
 ]
 
 extras = {
-    "tests": ["pytest", "pytest-pep8", "pytest-xdist", "pytest-cov", "codecov"],
+    "tests": [
+        "pytest",
+        "pytest-pep8",
+        "pytest-xdist",
+        "pytest-cov",
+        "codecov"
+    ],
     "optional": ["scikit-image"]
 }
 

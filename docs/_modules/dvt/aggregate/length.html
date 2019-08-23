@@ -230,15 +230,28 @@
         <span class="c1"># grab the data sets</span>
         <span class="n">face</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">]</span>
         <span class="n">objs</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;obj&quot;</span><span class="p">]</span>
-        <span class="n">meta_height</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">height</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># get heights; different depending on input type (video or images)</span>
+        <span class="k">if</span> <span class="s2">&quot;height&quot;</span> <span class="ow">in</span> <span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">face</span> <span class="o">=</span> <span class="n">face</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">img_height</span><span class="o">=</span><span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">height</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">img_width</span><span class="o">=</span><span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">width</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">objs</span> <span class="o">=</span> <span class="n">objs</span><span class="o">.</span><span class="n">assign</span><span class="p">(</span>
+                <span class="n">img_height</span><span class="o">=</span><span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">height</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+                <span class="n">img_width</span><span class="o">=</span><span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">width</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">face</span> <span class="o">=</span> <span class="n">face</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;img&quot;</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;frame&quot;</span><span class="p">)</span>
+            <span class="n">objs</span> <span class="o">=</span> <span class="n">objs</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;img&quot;</span><span class="p">],</span> <span class="n">on</span><span class="o">=</span><span class="s2">&quot;frame&quot;</span><span class="p">)</span>
 
         <span class="c1"># compute data using vectorized numpy arrays, where possible</span>
         <span class="n">face_height</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">face</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">face</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">values</span>
-        <span class="p">)</span> <span class="o">/</span> <span class="n">meta_height</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">face</span><span class="o">.</span><span class="n">img_height</span><span class="o">.</span><span class="n">values</span>
         <span class="n">objs_height</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">objs</span><span class="o">.</span><span class="n">bottom</span><span class="o">.</span><span class="n">values</span> <span class="o">-</span> <span class="n">objs</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">values</span>
-        <span class="p">)</span> <span class="o">/</span> <span class="n">meta_height</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">objs</span><span class="o">.</span><span class="n">img_height</span><span class="o">.</span><span class="n">values</span>
         <span class="k">if</span> <span class="s2">&quot;person&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">face</span><span class="p">:</span>
             <span class="n">face</span><span class="p">[</span><span class="s1">&#39;person&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
         <span class="k">if</span> <span class="s2">&quot;person_dist&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">face</span><span class="p">:</span>

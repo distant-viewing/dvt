@@ -179,7 +179,7 @@
 
 <span class="kn">from</span> <span class="nn">sys</span> <span class="k">import</span> <span class="n">argv</span>
 
-<span class="kn">from</span> <span class="nn">.pipeline.videoviz</span> <span class="k">import</span> <span class="n">VideoVizPipeline</span>
+<span class="kn">from</span> <span class="nn">.pipeline.viz</span> <span class="k">import</span> <span class="n">VideoVizPipeline</span><span class="p">,</span> <span class="n">ImageVizPipeline</span>
 
 
 <div class="viewcode-block" id="run_cli"><a class="viewcode-back" href="../../cli.html#dvt.cli.run_cli">[docs]</a><span class="k">def</span> <span class="nf">run_cli</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -197,15 +197,15 @@
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;video-viz&quot;</span><span class="p">:</span>
             <span class="n">pipeline</span> <span class="o">=</span> <span class="n">VideoVizPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;image-viz&quot;</span><span class="p">:</span>
-            <span class="n">pipeline</span> <span class="o">=</span> <span class="n">VideoVizPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
+            <span class="n">pipeline</span> <span class="o">=</span> <span class="n">ImageVizPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;video-full&quot;</span><span class="p">:</span>
             <span class="n">pipeline</span> <span class="o">=</span> <span class="n">VideoVizPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">IndexError</span>
+            <span class="k">raise</span> <span class="ne">IndexError</span><span class="p">(</span><span class="s2">&quot;Unknown pipeline: &quot;</span> <span class="o">+</span> <span class="n">key</span><span class="p">)</span>
 
         <span class="n">pipeline</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
 
-    <span class="k">except</span> <span class="ne">IndexError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+    <span class="k">except</span> <span class="ne">IndexError</span><span class="p">:</span>
         <span class="n">print_help</span><span class="p">()</span></div>
 
 

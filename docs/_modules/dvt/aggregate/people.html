@@ -258,7 +258,9 @@
     <span class="p">)])</span>
 
     <span class="n">faces</span> <span class="o">=</span> <span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s1">&#39;face&#39;</span><span class="p">]</span>
-    <span class="n">face_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">splitext</span><span class="p">(</span><span class="n">basename</span><span class="p">(</span><span class="n">x</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">faces</span><span class="o">.</span><span class="n">frame</span><span class="o">.</span><span class="n">values</span><span class="p">]</span>
+    <span class="n">face_names</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">splitext</span><span class="p">(</span><span class="n">basename</span><span class="p">(</span><span class="n">x</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s2">&quot;meta&quot;</span><span class="p">][</span><span class="s2">&quot;paths&quot;</span><span class="p">]</span>
+    <span class="p">]</span>
 
     <span class="k">return</span> <span class="n">vstack</span><span class="p">(</span><span class="n">faces</span><span class="o">.</span><span class="n">embed</span><span class="p">),</span> <span class="n">face_names</span></div>
 </pre></div>

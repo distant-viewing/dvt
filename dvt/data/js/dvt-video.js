@@ -37,7 +37,7 @@ function createFrameData(jsonObj) {
     cln.children[0].children[0].src =
       'img-display/frame-' + padZeros(frame_num, 6) + ".png";
     cln.children[0].children[1].src =
-      'img-flow/frame-' + ("0000" + frame_num).substr(-6,6) + ".png";
+      'img-flow/frame-' + padZeros(frame_num, 6) + ".png";
     cln.children[0].children[0].id = 'img' + (frame_num).toString();
 
     let ulist = cln.children[1].children[0].children;

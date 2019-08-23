@@ -47,9 +47,7 @@ class TestAnnotatorVideoFreqOutput:
                 "bottom",
                 "left",
                 "right",
-                "embed",
-                "person",
-                "person_dist"
+                "embed"
         ])
 
     def test_video_freq_hofm(self, get_video_annotation):

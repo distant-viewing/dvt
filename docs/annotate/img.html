@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Dense Optical Flow Annotations &mdash; dvt 0.0.9 documentation</title>
+  <title>Face Annotations &mdash; dvt 0.0.9 documentation</title>
   
 
   
@@ -36,8 +36,8 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Png Annotations" href="png.html" />
-    <link rel="prev" title="Object Annotations" href="obj.html" /> 
+    <link rel="next" title="Object Annotations" href="obj.html" />
+    <link rel="prev" title="Histograms of Optical Flow" href="hofm.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -99,9 +99,9 @@
 <li class="toctree-l3"><a class="reference internal" href="embed.html">Embed Image Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="face.html">Face Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="hofm.html">Histograms of Optical Flow</a></li>
-<li class="toctree-l3"><a class="reference internal" href="img.html">Face Annotations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Face Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="obj.html">Object Annotations</a></li>
-<li class="toctree-l3 current"><a class="current reference internal" href="#">Dense Optical Flow Annotations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="opticalflow.html">Dense Optical Flow Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="png.html">Png Annotations</a></li>
 </ul>
 </li>
@@ -157,13 +157,13 @@
         
           <li><a href="../dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
         
-      <li>Dense Optical Flow Annotations</li>
+      <li>Face Annotations</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/annotate/opticalflow.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/annotate/img.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -176,116 +176,35 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-dvt.annotate.opticalflow">
-<span id="dense-optical-flow-annotations"></span><h1>Dense Optical Flow Annotations<a class="headerlink" href="#module-dvt.annotate.opticalflow" title="Permalink to this headline">¶</a></h1>
-<p>Annotator to extract dense Optical Flow using Gunnar Farneback’s algorithm.</p>
+  <div class="section" id="module-dvt.annotate.img">
+<span id="face-annotations"></span><h1>Face Annotations<a class="headerlink" href="#module-dvt.annotate.img" title="Permalink to this headline">¶</a></h1>
+<p>Annotators for extracting high-level metadata about the images in the input.</p>
+<p>The annotator implemented here finds simple metadata, such as high and width,
+of the input images. Particularly useful when using the ImageInput annotator.</p>
 <dl class="class">
-<dt id="dvt.annotate.opticalflow.OpticalFlowAnnotator">
-<em class="property">class </em><code class="descclassname">dvt.annotate.opticalflow.</code><code class="descname">OpticalFlowAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/opticalflow.html#OpticalFlowAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.opticalflow.OpticalFlowAnnotator" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.annotate.img.ImgAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.img.</code><code class="descname">ImgAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/img.html#ImgAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.img.ImgAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.FrameAnnotator" title="dvt.abstract.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.FrameAnnotator</span></code></a></p>
-<p>Annotator to extract dense Optical Flow using the opencv Gunnar
-Farneback’s algorithm.</p>
-<p>The annotator will return an image or flow field describing the motion in
-two subsequent frames.</p>
-<dl class="attribute">
-<dt id="dvt.annotate.opticalflow.OpticalFlowAnnotator.freq">
-<code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.opticalflow.OpticalFlowAnnotator.freq" title="Permalink to this definition">¶</a></dt>
-<dd><p>How often to perform the embedding. For example, setting
-the frequency to 2 will computer every other frame in the batch.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="dvt.annotate.opticalflow.OpticalFlowAnnotator.raw">
-<code class="descname">raw</code><a class="headerlink" href="#dvt.annotate.opticalflow.OpticalFlowAnnotator.raw" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return optical flow as color image by default, raw returns
-the raw output as produced by the opencv algorithm.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">bool</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="dvt.annotate.opticalflow.OpticalFlowAnnotator.frames">
-<code class="descname">frames</code><a class="headerlink" href="#dvt.annotate.opticalflow.OpticalFlowAnnotator.frames" title="Permalink to this definition">¶</a></dt>
-<dd><p>An optional list of frames to process. This
-should be a list of integers or a 1D numpy array of integers. If
-set to something other than None, the freq input is ignored.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">array of ints</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="dvt.annotate.opticalflow.OpticalFlowAnnotator.output_dir">
-<code class="descname">output_dir</code><a class="headerlink" href="#dvt.annotate.opticalflow.OpticalFlowAnnotator.output_dir" title="Permalink to this definition">¶</a></dt>
-<dd><p>optional location to store the computed images.
-Only used if raw is set to False.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">string</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="dvt.annotate.opticalflow.OpticalFlowAnnotator.size">
-<code class="descname">size</code><a class="headerlink" href="#dvt.annotate.opticalflow.OpticalFlowAnnotator.size" title="Permalink to this definition">¶</a></dt>
-<dd><p>What should the size of the output images be? Set to
-None, the default, to preserve the size as given in the input file.
-Given as the desired height; the width will be scaled to keep the
-aspect ratio.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
+<p>Annotator for grabbing metadata about the images in the batch.</p>
 <dl class="method">
-<dt id="dvt.annotate.opticalflow.OpticalFlowAnnotator.annotate">
-<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/opticalflow.html#OpticalFlowAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.opticalflow.OpticalFlowAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Annotate the batch of frames with the optical flow annotator.</p>
+<dt id="dvt.annotate.img.ImgAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/img.html#ImgAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.img.ImgAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the batch of frames with the difference annotator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="../core.html#dvt.core.FrameBatch" title="dvt.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, and the
-optical flow representation. The latter has the same spatial
-dimensions as the input.</td>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A dictionaries containing the height and width of the input images.</td>
 </tr>
 </tbody>
 </table>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.annotate.opticalflow.OpticalFlowAnnotator.name">
-<code class="descname">name</code><em class="property"> = 'opticalflow'</em><a class="headerlink" href="#dvt.annotate.opticalflow.OpticalFlowAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.annotate.img.ImgAnnotator.name">
+<code class="descname">name</code><em class="property"> = 'img'</em><a class="headerlink" href="#dvt.annotate.img.ImgAnnotator.name" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -300,10 +219,10 @@ dimensions as the input.</td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="png.html" class="btn btn-neutral float-right" title="Png Annotations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="obj.html" class="btn btn-neutral float-right" title="Object Annotations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="obj.html" class="btn btn-neutral float-left" title="Object Annotations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="hofm.html" class="btn btn-neutral float-left" title="Histograms of Optical Flow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

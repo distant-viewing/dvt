@@ -6,7 +6,7 @@ location specified on the local machine. It is only useful for its side effects
 as no information is returned to the FrameProcessor.
 """
 
-from os.path import basename, join, splitext
+from os.path import join
 
 from cv2 import cvtColor, imwrite, resize, COLOR_RGB2BGR
 
@@ -57,13 +57,7 @@ class PngAnnotator(FrameAnnotator):
             img = cvtColor(batch.img[fnum, :, :, :], COLOR_RGB2BGR)
             frame = batch.get_frame_names()[fnum]
 
-            if isinstance(frame, int):
-                opath = "frame-{0:06d}.png".format(frame)
-            else:
-                opath = basename(frame)
-                opath = splitext(opath)[0] + ".png"
-
-            opath = join(self.output_dir, opath)
+            opath = join(self.output_dir, "frame-{0:06d}.png".format(frame))
             if self.size is not None:
                 scale = batch.img.shape[1] / self.size
                 new_size = (int(batch.img.shape[2] // scale), int(self.size))

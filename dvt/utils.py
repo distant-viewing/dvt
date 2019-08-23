@@ -5,7 +5,6 @@ Public methods may be useful in producing new annotators, aggregators, and
 pipeline methods.
 """
 
-from glob import glob
 from json import loads, dump
 from os.path import(
     abspath,
@@ -17,7 +16,7 @@ from os.path import(
     join,
     splitext
 )
-from os import makedirs
+from os import makedirs, walk
 
 from pandas import DataFrame
 from numpy import ndarray, array, isin, flatnonzero, uint8, vstack
@@ -213,31 +212,30 @@ def _expand_path(path):
 
 
 def _check_exists(path):
+    path = abspath(expanduser(path))
     if not isfile(path):
         raise FileNotFoundError("No such input file found:" + path)
 
     return path
 
 
-def _expand_path_and_check(fnames):
-    """Expand input paths and make sure
-    """
-    video_files = []
-    for this_name in fnames:
-        video_files.extend(glob(this_name, recursive=True))
+def _check_exists_dir(path):
+    path = abspath(expanduser(path))
+    if not isdir(path):
+        raise FileNotFoundError("No such input directory found:" + path)
 
-    video_files = sorted((abspath(x) for x in video_files))
-    base_names = [splitext(basename(x))[0] for x in video_files]
+    return path
 
-    if len(set(base_names)) != len(base_names):
-        raise AssertionError(
-            "Processing input files with duplicate basenames is not supported."
-        )
 
-    if not video_files:
-        raise FileNotFoundError("No valid input files found.")
+def _find_containing_images(directory):
+    img_exts = [".jpg", ".jpeg", ".png", ".tif", ".tiff"]
+    output = []
+    for dirpath, _, filenames in walk(directory):
+        for file in filenames:
+            if splitext(file)[1].lower() in img_exts:
+                output.append(abspath(join(dirpath, file)))
 
-    return video_files
+    return output
 
 
 def _trim_bbox(css, image_shape):

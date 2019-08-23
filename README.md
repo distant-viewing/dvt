@@ -58,7 +58,7 @@ in your working directory. Run the following command to run the default
 pipeline of annotators from the distant viewing toolkit:
 
 ```
-python3 -m dvt video-clip.mp4
+python3 -m dvt video-viz video-clip.mp4
 ```
 
 This may take several minutes to complete. Some minimal logging information

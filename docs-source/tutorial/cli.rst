@@ -17,12 +17,12 @@ in your working directory.
 To run the command line tool with the default settings on the video-clip.mp4
 file, one can execute the following code in a terminal::
 
-    python3 -m dvt video-clip.mp4
+    python3 -m dvt video-viz video-clip.mp4
 
 Alternatively, all of the default values can be explicitly set using the
 following::
 
-    python3 -m dvt video-clip.mp4 \
+    python3 -m dvt video-viz video-clip.mp4 \
         --dirout=dvt-output-data \
         --pipeline-level=2 \
         --diff-cutoff=10 \
@@ -61,7 +61,7 @@ Oprah Winfrey, you may add an image titled "oprah-winfrey.png". Then, assuming
 your images are in a file in the working directory called "face-images",
 you can include these in the pipeline as follows::
 
-    python3 -m dvt video-clip.mp4 \
+    python3 -m dvt video-viz video-clip.mp4 \
         --dirout=dvt-output-data \
         --pipeline-level=2 \
         --diff-cutoff=10 \

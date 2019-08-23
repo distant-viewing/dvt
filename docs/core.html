@@ -307,7 +307,7 @@ input data.</td>
 
 <dl class="method">
 <dt id="dvt.core.DataExtraction.run_annotators">
-<code class="descname">run_annotators</code><span class="sig-paren">(</span><em>annotators</em>, <em>max_batch=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/core.html#DataExtraction.run_annotators"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.core.DataExtraction.run_annotators" title="Permalink to this definition">¶</a></dt>
+<code class="descname">run_annotators</code><span class="sig-paren">(</span><em>annotators</em>, <em>max_batch=None</em>, <em>msg='Progress: '</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/core.html#DataExtraction.run_annotators"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.core.DataExtraction.run_annotators" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run a collection of annotators over the input material.</p>
 <p>Batches of inputs are grabbed from vinput and passed to the annotators.
 Output is collapsed into one DataFrame per annotator, and stored as
@@ -322,6 +322,9 @@ that contains metadata about the collection.</p>
 <li><strong>max_batch</strong> (<em>int</em>) – The maximum number of batches to process. Useful
 for testing and debugging. Set to None (default) to process
 all available frames.</li>
+<li><strong>progress</strong> (<em>bool</em>) – Should a progress bar be shown over each batch?</li>
+<li><strong>msg</strong> (<em>str</em>) – Message to display in the progress bar, if used. Set
+to None to supress the message</li>
 </ul>
 </td>
 </tr>

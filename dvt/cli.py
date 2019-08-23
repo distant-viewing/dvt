@@ -23,7 +23,7 @@ Example:
 
 from sys import argv
 
-from .pipeline.videoviz import VideoVizPipeline
+from .pipeline.viz import VideoVizPipeline, ImageVizPipeline
 
 
 def run_cli(args=None):
@@ -41,11 +41,11 @@ def run_cli(args=None):
         if key == "video-viz":
             pipeline = VideoVizPipeline.create_from_cli(args[2:])
         elif key == "image-viz":
-            pipeline = VideoVizPipeline.create_from_cli(args[2:])
+            pipeline = ImageVizPipeline.create_from_cli(args[2:])
         elif key == "video-full":
             pipeline = VideoVizPipeline.create_from_cli(args[2:])
         else:
-            raise IndexError
+            raise IndexError("Unknown pipeline: " + key)
 
         pipeline.run()
 

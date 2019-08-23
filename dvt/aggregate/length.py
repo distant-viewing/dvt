@@ -74,15 +74,28 @@ class ShotLengthAggregator(Aggregator):
         # grab the data sets
         face = ldframe["face"]
         objs = ldframe["obj"]
-        meta_height = ldframe["meta"].height.values[0]
+
+        # get heights; different depending on input type (video or images)
+        if "height" in ldframe["meta"].keys():
+            face = face.assign(
+                img_height=ldframe["meta"].height.values[0],
+                img_width=ldframe["meta"].width.values[0]
+            )
+            objs = objs.assign(
+                img_height=ldframe["meta"].height.values[0],
+                img_width=ldframe["meta"].width.values[0]
+            )
+        else:
+            face = face.merge(ldframe["img"], on="frame")
+            objs = objs.merge(ldframe["img"], on="frame")
 
         # compute data using vectorized numpy arrays, where possible
         face_height = (
             face.bottom.values - face.top.values
-        ) / meta_height
+        ) / face.img_height.values
         objs_height = (
             objs.bottom.values - objs.top.values
-        ) / meta_height
+        ) / objs.img_height.values
         if "person" not in face:
             face['person'] = ""
         if "person_dist" not in face:
