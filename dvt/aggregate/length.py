@@ -9,6 +9,7 @@ and objects for each frame.
 from numpy import argmax, array, max as npmax, nonzero
 
 from ..abstract import Aggregator
+from ..utils import _check_data_exists
 
 
 class ShotLengthAggregator(Aggregator):
@@ -70,6 +71,8 @@ class ShotLengthAggregator(Aggregator):
             A dictionary frame giving the detected people, with one row per
             frame in the original input.
         """
+        # make sure annotators have been run
+        _check_data_exists(ldframe, ["face", "obj", "meta"])
 
         # grab the data sets
         face = ldframe["face"]

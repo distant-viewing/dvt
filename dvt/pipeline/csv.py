@@ -20,7 +20,7 @@ from ..annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from ..aggregate.cut import CutAggregator
 from ..aggregate.people import PeopleAggregator, make_fprint_from_images
 from ..aggregate.length import ShotLengthAggregator
-from ..utils import(
+from ..utils import (
     setup_tensorflow,
     _expand_path,
     _check_exists
@@ -116,10 +116,9 @@ class VideoCsvPipeline(Pipeline):
     def get_argparser():
         parser = ArgumentParser(
             prog="python3 -m dvt video-viz",
-            description=
-            "Given a single video file, this pipeline extracts metadata and"
-            "saves the output as a set of CSV files. This is a useful format"
-            "for later computational analysis.",
+            description="Given a single video file, this pipeline extracts "
+            "metadata and saves the output as a set of CSV files. This is a "
+            "useful format for later computational analysis.",
         )
         parser.add_argument(
             "finput", type=str, help="path to the video file to process"

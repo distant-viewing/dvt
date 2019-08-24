@@ -85,7 +85,44 @@ class FrameAnnotator(ABC):   # pragma: no cover
             batch (FrameBatch): A batch of images to annotate.
 
         Returns:
-            The method should return item that can be processed by the
+            The method should return an item that can be processed by the
+            utility function process_output_values.
+        """
+        return
+
+
+class AudioAnnotator(ABC):   # pragma: no cover
+    """Base class for annotating audio data.
+
+    Subclasses of this abstract class take audio inputs and return annotated
+    data. Several common annotations are implemented in the toolkit. Users can
+    create their own annotations by implementing the __init__ and annotate
+    methods. Note that the annotator must contain a name attribute; the name is
+    used as the key in the output annotation object.
+    """
+
+    name = "abstract"
+
+    def __init__(self, **kwargs):    # pylint: disable=W0613
+        """Create a new annotator object, with possible keyword arguments.
+        """
+        return
+
+    @abstractmethod
+    def annotate(self, rate, data, ldframe):
+        """Annotate audio data and return the resulting annotations.
+
+        This method contains the core functionality of an annotator. It takes
+        extract wave data and sampling rate and returns extracted metadata.
+
+        Args:
+            rate (int): Sample rate of wav file.
+            data (np.array): Data read from wav file.
+            ldframe (OrderedDict): Previously extracted metadata; key's are the
+                names of the annotators and aggregators.
+
+        Returns:
+            The method should return an item that can be processed by the
             utility function process_output_values.
         """
         return

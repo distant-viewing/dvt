@@ -4,7 +4,7 @@
 
 import os
 
-from numpy import(
+from numpy import (
     arctan2,
     arange,
     array,
@@ -16,9 +16,9 @@ from numpy import(
     square,
     stack,
     uint8,
-    zeros,
+    zeros
 )
-from cv2 import(
+from cv2 import (
     calcOpticalFlowFarneback,
     cvtColor,
     imwrite,

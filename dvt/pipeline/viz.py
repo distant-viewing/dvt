@@ -26,7 +26,7 @@ from ..aggregate.cut import CutAggregator
 from ..aggregate.display import DisplayAggregator
 from ..aggregate.people import PeopleAggregator, make_fprint_from_images
 from ..aggregate.length import ShotLengthAggregator
-from ..utils import(
+from ..utils import (
     setup_tensorflow,
     get_data_location,
     _expand_path,
@@ -143,10 +143,9 @@ class VideoVizPipeline(Pipeline):
     def get_argparser():
         parser = ArgumentParser(
             prog="python3 -m dvt video-viz",
-            description=
-            "Given a single video file, this pipeline selects a set of frames "
-            "(by default, one frame in each shot) and extracts various "
-            "metadata using the toolkit's annotators and aggregators. "
+            description="Given a single video file, this pipeline selects a "
+            "set of frames (by default, one frame in each shot) and extracts "
+            "various metadata using the toolkit's annotators and aggregators. "
             "The output is stored locally as JSON and PNG files that can be "
             "viewed locally using the interactive web interface.",
         )
@@ -380,9 +379,8 @@ class ImageVizPipeline(Pipeline):
     def get_argparser():
         parser = ArgumentParser(
             prog="python3 -m dvt video-viz",
-            description=
-            "Given a single video file, this pipeline selects a set of frames "
-            "(by default, one frame in each shot) and extracts various "
+            description="Given a single video file, this pipeline selects a "
+            "set of frames (by default, one frame in each shot) and extracts "
             "metadata using the toolkit's annotators and aggregators. "
             "The output is stored locally as JSON and PNG files that can be "
             "viewed locally using the interactive web interface.",

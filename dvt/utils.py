@@ -6,7 +6,7 @@ pipeline methods.
 """
 
 from json import loads, dump
-from os.path import(
+from os.path import (
     abspath,
     dirname,
     expanduser,
@@ -152,6 +152,19 @@ def get_data_location():
     return join(dirname(__file__), 'data')
 
 
+def _check_data_exists(ldframe, names):
+    """Assert that any required annotator has been run.
+
+    Useful to call at the start of an aggregator to avoid confusing error
+    message later in the call.
+    """
+    for name in names:
+        if name not in ldframe.keys():
+            raise KeyError(
+                "Requires annotator '" + name + "', which was not found"
+            )
+
+
 def _data_to_json(dframe, path=None, exclude_set=None, exclude_key=None):
 
     if exclude_set is None:
@@ -159,7 +172,6 @@ def _data_to_json(dframe, path=None, exclude_set=None, exclude_key=None):
 
     if exclude_key is None:
         exclude_key = set()
-
 
     output = {}
     for key, value in dframe.items():

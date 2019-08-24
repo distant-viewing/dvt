@@ -6,6 +6,7 @@ where cuts in the video occur.
 """
 
 from ..abstract import Aggregator
+from ..utils import _check_data_exists
 
 
 class CutAggregator(Aggregator):
@@ -49,6 +50,9 @@ class CutAggregator(Aggregator):
         Returns:
             A dictionary frame giving the detected cuts.
         """
+
+        # make sure annotators have been run
+        _check_data_exists(ldframe, ["diff"])
 
         # grab the data, initialize counters, and create output `cuts`
         ops = ldframe["diff"]
