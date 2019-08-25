@@ -162,7 +162,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">json</span> <span class="k">import</span> <span class="n">loads</span><span class="p">,</span> <span class="n">dump</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span><span class="p">(</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">abspath</span><span class="p">,</span>
     <span class="n">dirname</span><span class="p">,</span>
     <span class="n">expanduser</span><span class="p">,</span>
@@ -173,9 +173,20 @@
     <span class="n">splitext</span>
 <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">makedirs</span><span class="p">,</span> <span class="n">walk</span>
+<span class="kn">from</span> <span class="nn">re</span> <span class="k">import</span> <span class="nb">compile</span> <span class="k">as</span> <span class="n">re_compile</span><span class="p">,</span> <span class="n">sub</span>
 
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">DataFrame</span>
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">ndarray</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="n">isin</span><span class="p">,</span> <span class="n">flatnonzero</span><span class="p">,</span> <span class="n">uint8</span><span class="p">,</span> <span class="n">vstack</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">array</span><span class="p">,</span>
+    <span class="n">ceil</span><span class="p">,</span>
+    <span class="n">flatnonzero</span><span class="p">,</span>
+    <span class="n">floor</span><span class="p">,</span>
+    <span class="n">isin</span><span class="p">,</span>
+    <span class="n">int32</span><span class="p">,</span>
+    <span class="n">ndarray</span><span class="p">,</span>
+    <span class="n">uint8</span><span class="p">,</span>
+    <span class="n">vstack</span>
+<span class="p">)</span>
 <span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span> <span class="n">resize</span>
 
 
@@ -308,6 +319,19 @@
     <span class="k">return</span> <span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="vm">__file__</span><span class="p">),</span> <span class="s1">&#39;data&#39;</span><span class="p">)</span>
 
 
+<span class="k">def</span> <span class="nf">_check_data_exists</span><span class="p">(</span><span class="n">ldframe</span><span class="p">,</span> <span class="n">names</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Assert that any required annotator has been run.</span>
+
+<span class="sd">    Useful to call at the start of an aggregator to avoid confusing error</span>
+<span class="sd">    message later in the call.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">names</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ldframe</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+                <span class="s2">&quot;Requires annotator &#39;&quot;</span> <span class="o">+</span> <span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;&#39;, which was not found&quot;</span>
+            <span class="p">)</span>
+
+
 <span class="k">def</span> <span class="nf">_data_to_json</span><span class="p">(</span><span class="n">dframe</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude_set</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">exclude_key</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
 
     <span class="k">if</span> <span class="n">exclude_set</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -315,7 +339,6 @@
 
     <span class="k">if</span> <span class="n">exclude_key</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">exclude_key</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-
 
     <span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">dframe</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -325,8 +348,11 @@
                 <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;records&#39;</span>
             <span class="p">))</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="p">:</span>   <span class="c1"># pragma: no cover</span>
         <span class="k">return</span> <span class="n">output</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">)):</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
 
     <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="s2">&quot;w+&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
         <span class="n">dump</span><span class="p">(</span><span class="n">output</span><span class="p">,</span> <span class="n">fin</span><span class="p">)</span>
@@ -377,7 +403,7 @@
 
 <span class="k">def</span> <span class="nf">_check_exists_dir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
     <span class="n">path</span> <span class="o">=</span> <span class="n">abspath</span><span class="p">(</span><span class="n">expanduser</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>   <span class="c1"># pragma: no cover</span>
         <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;No such input directory found:&quot;</span> <span class="o">+</span> <span class="n">path</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">path</span>
@@ -414,6 +440,47 @@
         <span class="nb">min</span><span class="p">(</span><span class="n">css</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">image_shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
         <span class="nb">max</span><span class="p">(</span><span class="n">css</span><span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="mi">0</span><span class="p">),</span>
     <span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_subtitle_data</span><span class="p">(</span><span class="n">sinput</span><span class="p">,</span> <span class="n">meta</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">_expand_path</span><span class="p">(</span><span class="n">sinput</span><span class="p">)[</span><span class="mi">0</span><span class="p">],</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fin</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">fin</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+
+    <span class="c1"># split data into groups:</span>
+    <span class="n">data_groups</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">this_group</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+            <span class="n">data_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_group</span><span class="p">)</span>
+            <span class="n">this_group</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">this_group</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">this_group</span> <span class="o">!=</span> <span class="p">[]:</span>
+        <span class="n">data_groups</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">this_group</span><span class="p">)</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;time_start&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;time_stop&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;caption&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+    <span class="n">html_re</span> <span class="o">=</span> <span class="n">re_compile</span><span class="p">(</span><span class="s1">&#39;&lt;.*?&gt;&#39;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">data_groups</span><span class="p">:</span>
+        <span class="n">time_stamp</span> <span class="o">=</span> <span class="n">group</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;time_start&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_str_to_time</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">))</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;time_stop&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_str_to_time</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">[</span><span class="mi">17</span><span class="p">:]))</span>
+        <span class="n">output</span><span class="p">[</span><span class="s1">&#39;caption&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sub</span><span class="p">(</span><span class="n">html_re</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">group</span><span class="p">[</span><span class="mi">2</span><span class="p">:])))</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="n">process_output_values</span><span class="p">(</span><span class="n">output</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;frame_start&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span><span class="n">floor</span><span class="p">(</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">time_start</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">meta</span><span class="o">.</span><span class="n">fps</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">))</span>
+    <span class="n">output</span><span class="p">[</span><span class="s1">&#39;frame_stop&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">int32</span><span class="p">(</span><span class="n">ceil</span><span class="p">(</span>
+        <span class="n">output</span><span class="o">.</span><span class="n">time_stop</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">meta</span><span class="o">.</span><span class="n">fps</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">output</span>
+
+<span class="k">def</span> <span class="nf">_str_to_time</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">int</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">2</span><span class="p">])</span> <span class="o">*</span> <span class="mi">60</span>  <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">[</span><span class="mi">3</span><span class="p">:</span><span class="mi">5</span><span class="p">])</span>
+    <span class="p">)</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">[</span><span class="mi">6</span><span class="p">:</span><span class="mi">8</span><span class="p">])</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_stamp</span><span class="p">[</span><span class="mi">9</span><span class="p">:</span><span class="mi">12</span><span class="p">])</span> <span class="o">/</span> <span class="mi">1000</span>
 </pre></div>
 
            </div>

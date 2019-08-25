@@ -15,7 +15,6 @@ from __future__ import absolute_import
 from . import abstract
 from . import aggregate
 from . import annotate
-from . import audio
 from . import core
 from . import utils
 

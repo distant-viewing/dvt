@@ -35,6 +35,8 @@ required = [
     "opencv-python",
     "keras_retinanet",
     "mtcnn",
+    "matplotlib",
+    "scipy",
     "progress"
 ]
 

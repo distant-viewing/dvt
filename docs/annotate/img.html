@@ -186,10 +186,56 @@ of the input images. Particularly useful when using the ImageInput annotator.</p
 <em class="property">class </em><code class="descclassname">dvt.annotate.img.</code><code class="descname">ImgAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/img.html#ImgAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.img.ImgAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.FrameAnnotator" title="dvt.abstract.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.FrameAnnotator</span></code></a></p>
 <p>Annotator for grabbing metadata about the images in the batch.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.img.ImgAnnotator.freq">
+<code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.img.ImgAnnotator.freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>How often to perform the embedding. For example, setting
+the frequency to 2 will computer every other frame in the batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.img.ImgAnnotator.frames">
+<code class="descname">frames</code><a class="headerlink" href="#dvt.annotate.img.ImgAnnotator.frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>An optional list of frames to process. This
+should be a list of integers or a 1D numpy array of integers. If
+set to something other than None, the freq input is ignored.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">array of ints</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.img.ImgAnnotator.name">
+<code class="descname">name</code><a class="headerlink" href="#dvt.annotate.img.ImgAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>A description of the aggregator. Used as a key in the
+output data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 <dl class="method">
 <dt id="dvt.annotate.img.ImgAnnotator.annotate">
 <code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/img.html#ImgAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.img.ImgAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Annotate the batch of frames with the difference annotator.</p>
+<dd><p>Annotate the batch of frames with the image annotator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -203,8 +249,8 @@ of the input images. Particularly useful when using the ImageInput annotator.</p
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.annotate.img.ImgAnnotator.name">
-<code class="descname">name</code><em class="property"> = 'img'</em><a class="headerlink" href="#dvt.annotate.img.ImgAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">name</code><em class="property"> = 'img'</em></dt>
 <dd></dd></dl>
 
 </dd></dl>

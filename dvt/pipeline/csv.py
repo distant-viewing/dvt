@@ -17,13 +17,15 @@ from ..annotate.diff import DiffAnnotator
 from ..annotate.cielab import CIElabAnnotator
 from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
 from ..annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
+from ..aggregate.audio import PowerToneAggregator
 from ..aggregate.cut import CutAggregator
 from ..aggregate.people import PeopleAggregator, make_fprint_from_images
 from ..aggregate.length import ShotLengthAggregator
 from ..utils import (
     setup_tensorflow,
     _expand_path,
-    _check_exists
+    _check_exists,
+    _check_out_dir
 )
 
 
@@ -44,6 +46,10 @@ class VideoCsvPipeline(Pipeline):
             of the sampling
         path_to_faces (str): Path to directory containing protype faces
             (optional).
+        path_to_audio (str): Path to a wav file with audio data. See tutorial
+            on the commandline interface for more details.
+        path_to_subtitle (str): Path to a src file with subtitle data. See
+            tutorial on the commandline interface for more details.
     """
 
     def __init__(
@@ -53,7 +59,9 @@ class VideoCsvPipeline(Pipeline):
         diff_cutoff=10,
         cut_min_length=30,
         frequency=0,
-        path_to_faces=None
+        path_to_faces=None,
+        path_to_audio=None,
+        path_to_subtitle=None
     ):
 
         setup_tensorflow()
@@ -63,7 +71,7 @@ class VideoCsvPipeline(Pipeline):
         self.dextra = DataExtraction(FrameInput(
             input_path=input_path,
             bsize=128
-        ))
+        ), ainput=path_to_audio, sinput=path_to_subtitle)
         self.dextra.run_annotators([], max_batch=1, msg=None)
 
         # process and prepare the output directory
@@ -81,6 +89,8 @@ class VideoCsvPipeline(Pipeline):
             "diff_cutoff": diff_cutoff,
             "cut_min_length": cut_min_length,
             "path_to_faces": path_to_faces,
+            "path_to_audio": path_to_audio,
+            "path_to_subtitle": path_to_subtitle,
             "frequency": frequency,
         }
 
@@ -101,14 +111,28 @@ class VideoCsvPipeline(Pipeline):
             frames=self.dextra.data['cut']['mpoint']
         ))
 
+        # if audio file, process
+        if self.attrib['path_to_audio'] is not None:
+            breaks = [0] + self.dextra.data['cut']['frame_end'].tolist()
+
+            self.dextra.run_audio_annotator()
+            self.dextra.run_aggregator(PowerToneAggregator(breaks=breaks))
+            self.dextra.data.pop('audio')
+            self.dextra.data.pop('audiometa')
+
+        # if subtitle file, process
+        if self.attrib['path_to_subtitle'] is not None:
+            self.dextra.run_subtitle_annotator()
+
         if not exists(join(self.attrib['dirout'], "csv")):
             makedirs(join(self.attrib['dirout'], "csv"))
 
         # output dataset as CSV files
         ldframe = self.dextra.get_data()
+        _check_out_dir(join(self.attrib['dirout'], "data"))
         for key, value in ldframe.items():
             value.to_csv(
-                path_or_buf=join(self.attrib['dirout'], "csv", key + ".csv"),
+                path_or_buf=join(self.attrib['dirout'], "data", key + ".csv"),
                 index=False
             )
 
@@ -161,6 +185,22 @@ class VideoCsvPipeline(Pipeline):
             default=None,
             help="Path to directory containing protype faces (optional). See "
             "tutorial on the commandline interface for more details.",
+        )
+        parser.add_argument(
+            "--path-to-audio",
+            type=str,
+            default=None,
+            help="Path to a wav file corresponding to the video input "
+            "(optional). See tutorial on the commandline interface for more "
+            "details.",
+        )
+        parser.add_argument(
+            "--path-to-subtitle",
+            type=str,
+            default=None,
+            help="Path to a srt file corresponding to the subtitle input "
+            "(optional). See tutorial on the commandline interface for more "
+            "details.",
         )
 
         return parser

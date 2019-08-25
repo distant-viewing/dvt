@@ -44,6 +44,8 @@ class DisplayAggregator(Aggregator):
             None, the default, to preserve the size as given in the input file.
             Given as the desired height; the width will be scaled to keep the
             aspect ratio.
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
     """
 
     name = "display"
@@ -55,7 +57,7 @@ class DisplayAggregator(Aggregator):
         self.frames = kwargs.get('frames', None)
         self.size = kwargs.get('size', None)
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     def aggregate(self, ldframe, **kwargs):
         """Create output png files showing the annotated data.

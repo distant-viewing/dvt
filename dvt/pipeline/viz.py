@@ -22,6 +22,7 @@ from ..annotate.img import ImgAnnotator
 from ..annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from ..annotate.opticalflow import OpticalFlowAnnotator
 from ..annotate.png import PngAnnotator
+from ..aggregate.audio import SpectrogramAggregator, PowerToneAggregator
 from ..aggregate.cut import CutAggregator
 from ..aggregate.display import DisplayAggregator
 from ..aggregate.people import PeopleAggregator, make_fprint_from_images
@@ -57,6 +58,10 @@ class VideoVizPipeline(Pipeline):
         path_to_faces (str): Path to directory containing protype faces
             (optional). See tutorial on the commandline interface for more
             details.
+        path_to_audio (str): Path to a wav file with audio data. See tutorial
+            on the commandline interface for more details.
+        path_to_subtitle (str): Path to a src file with subtitle data. See
+            tutorial on the commandline interface for more details.
     """
 
     def __init__(
@@ -67,7 +72,9 @@ class VideoVizPipeline(Pipeline):
         diff_cutoff=10,
         cut_min_length=30,
         frequency=0,
-        path_to_faces=None
+        path_to_faces=None,
+        path_to_audio=None,
+        path_to_subtitle=None
     ):
 
         setup_tensorflow()
@@ -77,7 +84,7 @@ class VideoVizPipeline(Pipeline):
         self.dextra = DataExtraction(FrameInput(
             input_path=input_path,
             bsize=128
-        ))
+        ), ainput=path_to_audio, sinput=path_to_subtitle)
         self.dextra.run_annotators([], max_batch=1, msg=None)
         self.pipeline_level = pipeline_level
 
@@ -96,6 +103,8 @@ class VideoVizPipeline(Pipeline):
             "diff_cutoff": diff_cutoff,
             "cut_min_length": cut_min_length,
             "path_to_faces": path_to_faces,
+            "path_to_audio": path_to_audio,
+            "path_to_subtitle": path_to_subtitle,
             "frequency": frequency,
         }
 
@@ -117,15 +126,35 @@ class VideoVizPipeline(Pipeline):
         ))
 
         self.dextra.run_aggregator(DisplayAggregator(
-            input_dir=join(self.attrib['dirout'], "img"),
-            output_dir=join(self.attrib['dirout'], "img-display"),
+            input_dir=join(self.attrib['dirout'], "img", "frames"),
+            output_dir=join(self.attrib['dirout'], "img", "display"),
             frames=self.dextra.data['cut']['mpoint'],
             size=250
         ))
 
+        # if audio file, process
+        if self.attrib['path_to_audio'] is not None:
+            breaks = [0] + self.dextra.data['cut']['frame_end'].tolist()
+            spec_output = join(self.attrib['dirout'], "img", "spec")
+            tone_output = join(self.attrib['dirout'], "img", "tone")
+
+            self.dextra.run_audio_annotator()
+            self.dextra.run_aggregator(SpectrogramAggregator(
+                output_dir=spec_output, breaks=breaks
+            ))
+            self.dextra.run_aggregator(PowerToneAggregator(
+                output_dir=tone_output, breaks=breaks
+            ))
+            self.dextra.data.pop('audio')
+            self.dextra.data.pop('audiometa')
+
+        # if subtitle file, process
+        if self.attrib['path_to_subtitle'] is not None:
+            self.dextra.run_subtitle_annotator()
+
         # output dataset as a JSON file
         self.dextra.get_json(
-            join(self.attrib['dirout'], "data.json"),
+            join(self.attrib['dirout'], "data", "viz-data.json"),
             exclude_set=["opticalflow"]
         )
         miter = len(self.dextra.get_data()["cut"]["mpoint"].values) // 2
@@ -201,6 +230,22 @@ class VideoVizPipeline(Pipeline):
             help="Path to directory containing protype faces (optional). See "
             "tutorial on the commandline interface for more details.",
         )
+        parser.add_argument(
+            "--path-to-audio",
+            type=str,
+            default=None,
+            help="Path to a wav file corresponding to the video input "
+            "(optional). See tutorial on the commandline interface for more "
+            "details.",
+        )
+        parser.add_argument(
+            "--path-to-subtitle",
+            type=str,
+            default=None,
+            help="Path to a srt file corresponding to the subtitle input "
+            "(optional). See tutorial on the commandline interface for more "
+            "details.",
+        )
 
         return parser
 
@@ -246,17 +291,18 @@ class VideoVizPipeline(Pipeline):
 
         if self.pipeline_level >= 1:
             annotators.append(PngAnnotator(
-                output_dir=join(self.attrib['dirout'], "img"), frames=frames
+                output_dir=join(self.attrib['dirout'], "img", "frames"),
+                frames=frames
             ))
             thumb = PngAnnotator(
-                output_dir=join(self.attrib['dirout'], "img-thumb"),
+                output_dir=join(self.attrib['dirout'], "img", "thumb"),
                 frames=frames,
                 size=150
             )
             thumb.name = "thumb"
             annotators.append(thumb)
             annotators.append(OpticalFlowAnnotator(
-                output_dir=join(self.attrib['dirout'], "img-flow"),
+                output_dir=join(self.attrib['dirout'], "img", "flow"),
                 frames=frames,
                 size=150
             ))
@@ -356,14 +402,14 @@ class ImageVizPipeline(Pipeline):
         ))
 
         self.dextra.run_aggregator(DisplayAggregator(
-            input_dir=join(self.attrib['dirout'], "img"),
-            output_dir=join(self.attrib['dirout'], "img-display"),
+            input_dir=join(self.attrib['dirout'], "img", "frames"),
+            output_dir=join(self.attrib['dirout'], "img", "display"),
             size=250
         ))
 
         # output dataset as a JSON file
         self.dextra.get_json(
-            join(self.attrib['dirout'], "data.json")
+            join(self.attrib['dirout'], "data", "viz-data.json")
         )
         _json_toc(
             self.attrib['dirout'],
@@ -429,10 +475,10 @@ class ImageVizPipeline(Pipeline):
 
         if self.pipeline_level >= 1:
             annotators.append(PngAnnotator(
-                output_dir=join(self.attrib['dirout'], "img")
+                output_dir=join(self.attrib['dirout'], "img", "frames")
             ))
             thumb = PngAnnotator(
-                output_dir=join(self.attrib['dirout'], "img-thumb"),
+                output_dir=join(self.attrib['dirout'], "img", "thumb"),
                 size=150
             )
             thumb.name = "thumb"
@@ -478,6 +524,7 @@ def _json_toc(dirout, fname, frame_num):
                 "thumb_path": join(
                     fname,
                     "img",
+                    "frames",
                     "frame-{0:06d}.png".format(frame_num),
                 ),
                 "video_name": fname,

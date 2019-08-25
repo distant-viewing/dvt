@@ -30,6 +30,8 @@ class PeopleAggregator(Aggregator):
             the predefined faces. Each row should correspond with one face id
             and the number of columns should match the number of columns in
             your embedding.
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
     """
 
     name = "people"
@@ -41,7 +43,7 @@ class PeopleAggregator(Aggregator):
 
         assert self.fprint.shape[0] == len(self.face_names)
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     def aggregate(self, ldframe, **kwargs):
         """Aggregate faces.

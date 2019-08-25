@@ -169,6 +169,7 @@
 <span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">Aggregator</span>
 <span class="kn">from</span> <span class="nn">..annotate.face</span> <span class="k">import</span> <span class="n">FaceAnnotator</span><span class="p">,</span> <span class="n">FaceDetectMtcnn</span><span class="p">,</span> <span class="n">FaceEmbedVgg2</span>
 <span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">DataExtraction</span><span class="p">,</span> <span class="n">ImageInput</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_check_data_exists</span>
 
 
 <div class="viewcode-block" id="PeopleAggregator"><a class="viewcode-back" href="../../../aggregate/people.html#dvt.aggregate.people.PeopleAggregator">[docs]</a><span class="k">class</span> <span class="nc">PeopleAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
@@ -181,10 +182,12 @@
 <span class="sd">    Attributes:</span>
 <span class="sd">        face_names (list): List of names associated with each face in the set</span>
 <span class="sd">            of predefined faces</span>
-<span class="sd">        fprint (numpy array): A numpy array giving the embedding vectors for the</span>
-<span class="sd">            predefined faces. Each row should correspond with one face id and</span>
-<span class="sd">            the number of columns should match the number of columns in your</span>
-<span class="sd">            embedding.</span>
+<span class="sd">        fprint (numpy array): A numpy array giving the embedding vectors for</span>
+<span class="sd">            the predefined faces. Each row should correspond with one face id</span>
+<span class="sd">            and the number of columns should match the number of columns in</span>
+<span class="sd">            your embedding.</span>
+<span class="sd">        name (str): A description of the aggregator. Used as a key in the</span>
+<span class="sd">            output data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;people&quot;</span>
@@ -196,7 +199,7 @@
 
         <span class="k">assert</span> <span class="bp">self</span><span class="o">.</span><span class="n">fprint</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">face_names</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="PeopleAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/people.html#dvt.aggregate.people.PeopleAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Aggregate faces.</span>
@@ -210,6 +213,8 @@
 <span class="sd">            A dictionary frame giving the detected people, with one row per</span>
 <span class="sd">            detected face.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># make sure annotators have been run</span>
+        <span class="n">_check_data_exists</span><span class="p">(</span><span class="n">ldframe</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">])</span>
 
         <span class="c1"># grab the data and create new output</span>
         <span class="n">ops</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">]</span>

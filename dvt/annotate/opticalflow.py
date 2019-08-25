@@ -51,6 +51,8 @@ class OpticalFlowAnnotator(FrameAnnotator):
             None, the default, to preserve the size as given in the input file.
             Given as the desired height; the width will be scaled to keep the
             aspect ratio.
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
     """
 
     name = "opticalflow"
@@ -62,7 +64,7 @@ class OpticalFlowAnnotator(FrameAnnotator):
         self.output_dir = _check_out_dir(kwargs.get("output_dir", None))
         self.size = kwargs.get('size', None)
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     def annotate(self, batch):
         """Annotate the batch of frames with the optical flow annotator.

@@ -34,6 +34,7 @@ Aggregators
 .. toctree::
    :maxdepth: 4
 
+   aggregate/audio
    aggregate/cut
    aggregate/display
    aggregate/length

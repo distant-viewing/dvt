@@ -173,13 +173,15 @@
 <span class="kn">from</span> <span class="nn">..annotate.cielab</span> <span class="k">import</span> <span class="n">CIElabAnnotator</span>
 <span class="kn">from</span> <span class="nn">..annotate.face</span> <span class="k">import</span> <span class="n">FaceAnnotator</span><span class="p">,</span> <span class="n">FaceDetectMtcnn</span><span class="p">,</span> <span class="n">FaceEmbedVgg2</span>
 <span class="kn">from</span> <span class="nn">..annotate.obj</span> <span class="k">import</span> <span class="n">ObjectAnnotator</span><span class="p">,</span> <span class="n">ObjectDetectRetinaNet</span>
+<span class="kn">from</span> <span class="nn">..aggregate.audio</span> <span class="k">import</span> <span class="n">PowerToneAggregator</span>
 <span class="kn">from</span> <span class="nn">..aggregate.cut</span> <span class="k">import</span> <span class="n">CutAggregator</span>
 <span class="kn">from</span> <span class="nn">..aggregate.people</span> <span class="k">import</span> <span class="n">PeopleAggregator</span><span class="p">,</span> <span class="n">make_fprint_from_images</span>
 <span class="kn">from</span> <span class="nn">..aggregate.length</span> <span class="k">import</span> <span class="n">ShotLengthAggregator</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span><span class="p">(</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">setup_tensorflow</span><span class="p">,</span>
     <span class="n">_expand_path</span><span class="p">,</span>
-    <span class="n">_check_exists</span>
+    <span class="n">_check_exists</span><span class="p">,</span>
+    <span class="n">_check_out_dir</span>
 <span class="p">)</span>
 
 
@@ -200,6 +202,10 @@
 <span class="sd">            of the sampling</span>
 <span class="sd">        path_to_faces (str): Path to directory containing protype faces</span>
 <span class="sd">            (optional).</span>
+<span class="sd">        path_to_audio (str): Path to a wav file with audio data. See tutorial</span>
+<span class="sd">            on the commandline interface for more details.</span>
+<span class="sd">        path_to_subtitle (str): Path to a src file with subtitle data. See</span>
+<span class="sd">            tutorial on the commandline interface for more details.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
@@ -209,7 +215,9 @@
         <span class="n">diff_cutoff</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">cut_min_length</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
         <span class="n">frequency</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">path_to_faces</span><span class="o">=</span><span class="kc">None</span>
+        <span class="n">path_to_faces</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">path_to_audio</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">path_to_subtitle</span><span class="o">=</span><span class="kc">None</span>
     <span class="p">):</span>
 
         <span class="n">setup_tensorflow</span><span class="p">()</span>
@@ -219,7 +227,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span> <span class="o">=</span> <span class="n">DataExtraction</span><span class="p">(</span><span class="n">FrameInput</span><span class="p">(</span>
             <span class="n">input_path</span><span class="o">=</span><span class="n">input_path</span><span class="p">,</span>
             <span class="n">bsize</span><span class="o">=</span><span class="mi">128</span>
-        <span class="p">))</span>
+        <span class="p">),</span> <span class="n">ainput</span><span class="o">=</span><span class="n">path_to_audio</span><span class="p">,</span> <span class="n">sinput</span><span class="o">=</span><span class="n">path_to_subtitle</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">([],</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
         <span class="c1"># process and prepare the output directory</span>
@@ -237,6 +245,8 @@
             <span class="s2">&quot;diff_cutoff&quot;</span><span class="p">:</span> <span class="n">diff_cutoff</span><span class="p">,</span>
             <span class="s2">&quot;cut_min_length&quot;</span><span class="p">:</span> <span class="n">cut_min_length</span><span class="p">,</span>
             <span class="s2">&quot;path_to_faces&quot;</span><span class="p">:</span> <span class="n">path_to_faces</span><span class="p">,</span>
+            <span class="s2">&quot;path_to_audio&quot;</span><span class="p">:</span> <span class="n">path_to_audio</span><span class="p">,</span>
+            <span class="s2">&quot;path_to_subtitle&quot;</span><span class="p">:</span> <span class="n">path_to_subtitle</span><span class="p">,</span>
             <span class="s2">&quot;frequency&quot;</span><span class="p">:</span> <span class="n">frequency</span><span class="p">,</span>
         <span class="p">}</span>
 
@@ -257,14 +267,28 @@
             <span class="n">frames</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">][</span><span class="s1">&#39;mpoint&#39;</span><span class="p">]</span>
         <span class="p">))</span>
 
+        <span class="c1"># if audio file, process</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_audio&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">breaks</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">][</span><span class="s1">&#39;frame_end&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_audio_annotator</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">PowerToneAggregator</span><span class="p">(</span><span class="n">breaks</span><span class="o">=</span><span class="n">breaks</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;audio&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;audiometa&#39;</span><span class="p">)</span>
+
+        <span class="c1"># if subtitle file, process</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_subtitle&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_subtitle_annotator</span><span class="p">()</span>
+
         <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;csv&quot;</span><span class="p">)):</span>
             <span class="n">makedirs</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;csv&quot;</span><span class="p">))</span>
 
         <span class="c1"># output dataset as CSV files</span>
         <span class="n">ldframe</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+        <span class="n">_check_out_dir</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;data&quot;</span><span class="p">))</span>
         <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ldframe</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">value</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
-                <span class="n">path_or_buf</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">),</span>
+                <span class="n">path_or_buf</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">key</span> <span class="o">+</span> <span class="s2">&quot;.csv&quot;</span><span class="p">),</span>
                 <span class="n">index</span><span class="o">=</span><span class="kc">False</span>
             <span class="p">)</span></div>
 
@@ -272,10 +296,9 @@
     <span class="k">def</span> <span class="nf">get_argparser</span><span class="p">():</span>
         <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
             <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;python3 -m dvt video-viz&quot;</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span>
-            <span class="s2">&quot;Given a single video file, this pipeline extracts metadata and&quot;</span>
-            <span class="s2">&quot;saves the output as a set of CSV files. This is a useful format&quot;</span>
-            <span class="s2">&quot;for later computational analysis.&quot;</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Given a single video file, this pipeline extracts &quot;</span>
+            <span class="s2">&quot;metadata and saves the output as a set of CSV files. This is a &quot;</span>
+            <span class="s2">&quot;useful format for later computational analysis.&quot;</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
             <span class="s2">&quot;finput&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;path to the video file to process&quot;</span>
@@ -318,6 +341,22 @@
             <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to directory containing protype faces (optional). See &quot;</span>
             <span class="s2">&quot;tutorial on the commandline interface for more details.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--path-to-audio&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to a wav file corresponding to the video input &quot;</span>
+            <span class="s2">&quot;(optional). See tutorial on the commandline interface for more &quot;</span>
+            <span class="s2">&quot;details.&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+            <span class="s2">&quot;--path-to-subtitle&quot;</span><span class="p">,</span>
+            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to a srt file corresponding to the subtitle input &quot;</span>
+            <span class="s2">&quot;(optional). See tutorial on the commandline interface for more &quot;</span>
+            <span class="s2">&quot;details.&quot;</span><span class="p">,</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">parser</span></div>

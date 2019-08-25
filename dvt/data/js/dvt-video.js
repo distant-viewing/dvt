@@ -35,9 +35,9 @@ function createFrameData(jsonObj) {
     let lobj = jsonObj['length'][i];
 
     cln.children[0].children[0].src =
-      'img-display/frame-' + padZeros(frame_num, 6) + ".png";
+      'img/display/frame-' + padZeros(frame_num, 6) + ".png";
     cln.children[0].children[1].src =
-      'img-flow/frame-' + padZeros(frame_num, 6) + ".png";
+      'img/flow/frame-' + padZeros(frame_num, 6) + ".png";
     cln.children[0].children[0].id = 'img' + (frame_num).toString();
 
     let ulist = cln.children[1].children[0].children;
@@ -62,5 +62,5 @@ oReq.onreadystatechange = function () {
   }
 };
 
-oReq.open("GET", "data.json");
+oReq.open("GET", "data/viz-data.json");
 oReq.send(null);

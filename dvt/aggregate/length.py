@@ -30,6 +30,8 @@ class ShotLengthAggregator(Aggregator):
             (vertical) of face size to the entire shot. Should be an increasing
             list starting at zero and the same length as shot_names. Set to
             None to use the default settings.
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
     """
 
     name = "length"
@@ -55,7 +57,7 @@ class ShotLengthAggregator(Aggregator):
 
         assert len(self.shot_sizes) == len(self.shot_names)
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     def aggregate(self, ldframe, **kwargs):
         """Determine shot lengths using detected faces and objects.

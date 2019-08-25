@@ -95,6 +95,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#core-functions">Core Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#annotations">Annotations</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="audio.html">Audio Aggregators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cut.html">Cut Aggregators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="display.html">Display Aggregators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="length.html">Length Aggregators</a></li>
@@ -202,15 +203,30 @@ of predefined faces</p>
 <dl class="attribute">
 <dt id="dvt.aggregate.people.PeopleAggregator.fprint">
 <code class="descname">fprint</code><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator.fprint" title="Permalink to this definition">¶</a></dt>
-<dd><p>A numpy array giving the embedding vectors for the
-predefined faces. Each row should correspond with one face id and
-the number of columns should match the number of columns in your
-embedding.</p>
+<dd><p>A numpy array giving the embedding vectors for
+the predefined faces. Each row should correspond with one face id
+and the number of columns should match the number of columns in
+your embedding.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.aggregate.people.PeopleAggregator.name">
+<code class="descname">name</code><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>A description of the aggregator. Used as a key in the
+output data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
 </tr>
 </tbody>
 </table>
@@ -236,8 +252,8 @@ detected face.</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.aggregate.people.PeopleAggregator.name">
-<code class="descname">name</code><em class="property"> = 'people'</em><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator.name" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">name</code><em class="property"> = 'people'</em></dt>
 <dd></dd></dl>
 
 </dd></dl>

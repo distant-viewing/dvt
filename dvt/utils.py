@@ -17,9 +17,20 @@ from os.path import (
     splitext
 )
 from os import makedirs, walk
+from re import compile as re_compile, sub
 
 from pandas import DataFrame
-from numpy import ndarray, array, isin, flatnonzero, uint8, vstack
+from numpy import (
+    array,
+    ceil,
+    flatnonzero,
+    floor,
+    isin,
+    int32,
+    ndarray,
+    uint8,
+    vstack
+)
 from cv2 import resize
 
 
@@ -181,8 +192,11 @@ def _data_to_json(dframe, path=None, exclude_set=None, exclude_key=None):
                 orient='records'
             ))
 
-    if not path:
+    if not path:   # pragma: no cover
         return output
+
+    if not isdir(dirname(path)):
+        makedirs(dirname(path))
 
     with open(path, "w+") as fin:
         dump(output, fin)
@@ -233,7 +247,7 @@ def _check_exists(path):
 
 def _check_exists_dir(path):
     path = abspath(expanduser(path))
-    if not isdir(path):
+    if not isdir(path):   # pragma: no cover
         raise FileNotFoundError("No such input directory found:" + path)
 
     return path
@@ -270,3 +284,44 @@ def _trim_bbox(css, image_shape):
         min(css[2], image_shape[0]),
         max(css[3], 0),
     )
+
+
+def _subtitle_data(sinput, meta):
+    with open(_expand_path(sinput)[0], "r") as fin:
+        data = fin.read().splitlines()
+
+    # split data into groups:
+    data_groups = []
+    this_group = []
+    for line in data:
+        if line == "":
+            data_groups.append(this_group)
+            this_group = []
+        else:
+            this_group.append(line)
+
+    if this_group != []:
+        data_groups.append(this_group)
+
+    output = {'time_start': [], 'time_stop': [], 'caption': []}
+    html_re = re_compile('<.*?>')
+    for group in data_groups:
+        time_stamp = group[1]
+        output['time_start'].append(_str_to_time(time_stamp))
+        output['time_stop'].append(_str_to_time(time_stamp[17:]))
+        output['caption'].append(sub(html_re, "", " ".join(group[2:])))
+
+    output = process_output_values(output)[0]
+    output['frame_start'] = int32(floor(
+        output.time_start.values * meta.fps.values[0]
+    ))
+    output['frame_stop'] = int32(ceil(
+        output.time_stop.values * meta.fps.values[0]
+    ))
+
+    return output
+
+def _str_to_time(time_stamp):
+    return (
+        int(time_stamp[0:2]) * 60  + int(time_stamp[3:5])
+    ) * 60 + int(time_stamp[6:8]) + int(time_stamp[9:12]) / 1000

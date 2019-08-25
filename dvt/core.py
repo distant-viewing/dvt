@@ -37,8 +37,12 @@ from progress.bar import Bar
 from scipy.io.wavfile import read
 
 from .abstract import VisualInput
-from .utils import process_output_values, _expand_path, _data_to_json
-
+from .utils import (
+    process_output_values,
+    _data_to_json,
+    _expand_path,
+    _subtitle_data
+)
 
 class DataExtraction:
     """The core class of the toolkit. Used to pass algorithms to visual data.
@@ -149,21 +153,46 @@ class DataExtraction:
         if msg is not None:
             progress_bar.finish()
 
-    def run_annotators_sound(self, annotators):
-        """Run a collection of annotators over audio input material.
+    def run_audio_annotator(self):
+        """Run the audio annotator.
+
+        After running this method, two new annotations are given: 'audio' and
+        'audiometa'. They contain all of the sound data as a DataFrame
+        objects.
         """
 
         # check sound exists and read
         assert self.ainput is not None
-        rate, data = read(self.ainput)
+        rate, data_in = read(self.ainput)
 
-        # cycle through sound annotators
-        for anno in annotators:
-            value = process_output_values(anno.annotate(rate, data, self.data))
-            if value:
-                self.data[anno.name] = concat(value, ignore_index=True)
-            else:
-                self.data[anno.name] = DataFrame()
+        output = {}
+        if len(data_in.shape) == 2:
+            output['data'] = (data_in[:, 0] + data_in[:, 1]) // 2
+            output['data_left'] = data_in[:, 0]
+            output['data_right'] = data_in[:, 1]
+        else:
+            output['data'] = data_in
+
+        self.data["audio"] = process_output_values(output)[0]
+        self.data["audiometa"] = process_output_values({'rate': rate})[0]
+
+    def run_subtitle_annotator(self):
+        """Run the subtitle annotator.
+
+        After running this method, a new annotation called 'subtitle' will be
+        added to the DataExtraction object. Requires that the attribue sinput
+        is set to a valid path.
+        """
+
+        # open video input to get the video metadata
+        self.vinput.open_input()
+        self.data['meta'] = process_output_values(
+            self.vinput.get_metadata()
+        )[0]
+
+        # check sound exists and get the annotation
+        assert self.sinput is not None
+        self.data["subtitle"] = _subtitle_data(self.sinput, self.data['meta'])
 
     def run_aggregator(self, aggregator):
         """Run an aggregator over the extracted annotations.

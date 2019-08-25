@@ -187,7 +187,7 @@ to interface with these objects and their methods for grabbing visual data
 inputs. See the example in DataExtraction for the basic usage of the classes.</p>
 <dl class="class">
 <dt id="dvt.core.DataExtraction">
-<em class="property">class </em><code class="descclassname">dvt.core.</code><code class="descname">DataExtraction</code><span class="sig-paren">(</span><em>vinput</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/core.html#DataExtraction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.core.DataExtraction" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.core.</code><code class="descname">DataExtraction</code><span class="sig-paren">(</span><em>vinput</em>, <em>ainput=None</em>, <em>sinput=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/core.html#DataExtraction"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.core.DataExtraction" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>The core class of the toolkit. Used to pass algorithms to visual data.</p>
 <p>Each instance of a data extraction is tied to a particular input object.
@@ -208,11 +208,37 @@ relevant methods to extract metadata from the associated input.</p>
 </dd></dl>
 
 <dl class="attribute">
+<dt id="dvt.core.DataExtraction.ainput">
+<code class="descname">ainput</code><a class="headerlink" href="#dvt.core.DataExtraction.ainput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to audio input as wav file. Optional.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.core.DataExtraction.sinput">
+<code class="descname">sinput</code><a class="headerlink" href="#dvt.core.DataExtraction.sinput" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to subtitle input as srt file. Optional.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
 <dt id="dvt.core.DataExtraction.data">
 <code class="descname">data</code><a class="headerlink" href="#dvt.core.DataExtraction.data" title="Permalink to this definition">¶</a></dt>
-<dd><p>Each key in the ordered dictionary is associated
-with an aggregator and annotator and contains a pandas DataFrame
-with all of the extracted metadata.</p>
+<dd><p>Extracted metadata.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -330,6 +356,24 @@ to None to supress the message</li>
 </tr>
 </tbody>
 </table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.core.DataExtraction.run_audio_annotator">
+<code class="descname">run_audio_annotator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/core.html#DataExtraction.run_audio_annotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.core.DataExtraction.run_audio_annotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the audio annotator.</p>
+<p>After running this method, two new annotations are given: ‘audio’ and
+‘audiometa’. They contain all of the sound data as a DataFrame
+objects.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.core.DataExtraction.run_subtitle_annotator">
+<code class="descname">run_subtitle_annotator</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/dvt/core.html#DataExtraction.run_subtitle_annotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.core.DataExtraction.run_subtitle_annotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Run the subtitle annotator.</p>
+<p>After running this method, a new annotation called ‘subtitle’ will be
+added to the DataExtraction object. Requires that the attribue sinput
+is set to a valid path.</p>
 </dd></dl>
 
 </dd></dl>

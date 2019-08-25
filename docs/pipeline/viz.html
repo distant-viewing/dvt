@@ -174,7 +174,7 @@
 <p>Offers similar functionality to the command line interface from within Python.</p>
 <dl class="class">
 <dt id="dvt.pipeline.viz.VideoVizPipeline">
-<em class="property">class </em><code class="descclassname">dvt.pipeline.viz.</code><code class="descname">VideoVizPipeline</code><span class="sig-paren">(</span><em>finput</em>, <em>dirout=None</em>, <em>pipeline_level=2</em>, <em>diff_cutoff=10</em>, <em>cut_min_length=30</em>, <em>frequency=0</em>, <em>path_to_faces=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/viz.html#VideoVizPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">dvt.pipeline.viz.</code><code class="descname">VideoVizPipeline</code><span class="sig-paren">(</span><em>finput</em>, <em>dirout=None</em>, <em>pipeline_level=2</em>, <em>diff_cutoff=10</em>, <em>cut_min_length=30</em>, <em>frequency=0</em>, <em>path_to_faces=None</em>, <em>path_to_audio=None</em>, <em>path_to_subtitle=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/pipeline/viz.html#VideoVizPipeline"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.Pipeline</span></code></p>
 <p>Contains a predefined annotators to process an input video file.</p>
 <dl class="attribute">
@@ -275,6 +275,36 @@ of the sampling</p>
 <dd><p>Path to directory containing protype faces
 (optional). See tutorial on the commandline interface for more
 details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.pipeline.viz.VideoVizPipeline.path_to_audio">
+<code class="descname">path_to_audio</code><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.path_to_audio" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to a wav file with audio data. See tutorial
+on the commandline interface for more details.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.pipeline.viz.VideoVizPipeline.path_to_subtitle">
+<code class="descname">path_to_subtitle</code><a class="headerlink" href="#dvt.pipeline.viz.VideoVizPipeline.path_to_subtitle" title="Permalink to this definition">¶</a></dt>
+<dd><p>Path to a src file with subtitle data. See
+tutorial on the commandline interface for more details.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
