@@ -41,5 +41,5 @@ oReq.onreadystatechange = function () {
   }
 };
 
-oReq.open("GET", "data/viz-data.json");
+oReq.open("GET", "data.json");
 oReq.send(null);

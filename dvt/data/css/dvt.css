@@ -14,9 +14,16 @@ body {
 }
 
 .media-body {
-    padding: 1rem;
+    padding-top: 1rem;
 }
 
 .frame-img {
-  height:250px;
+  height:155px;
+  cursor: pointer;
+}
+
+.modal-body > .img-responsive {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
 }

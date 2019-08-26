@@ -4,7 +4,7 @@
 Command Line Options
 ###################################
 
-The minimal demo shows how to use the command line interface to produce a
+The minimal demo showed how to use the command line interface to produce a
 visualization of a video file. While the default options in the command line
 tool often produce reasonable outputs, is can be useful to modify some of
 these values. This tutorial introduces some of the most common options and
@@ -53,8 +53,28 @@ unreliable when working with other sources. Manipulating the cut-off scores
 (or, if that fails, just setting a frequency) allows users to still make use of
 the command line interface.
 
-One final option in the command line tool is to do facial recognition for known
-people in the input video. To start, create a directory on your machine with
+Three final option in the command line tool allow users to pass additional data
+to the pipeline: known faces, an audio track, and subtitles. Adding audio
+and/or subtitle data just requires passing an additional path to the interface.
+Assuming that we have a file video-clip.wav with audio data and a file
+video-clip.srt with subtitle data, the following runs the pipeline with just
+these inputs:
+
+python3 -m dvt video-viz video-clip.mp4 \
+    --dirout=dvt-output-data \
+    --pipeline-level=2 \
+    --diff-cutoff=10 \
+    --cut-min-length=30 \
+    --frequency=0 \
+    --path-to-audio=video-clip.wav \
+    --path-to-subtitle=video-clip.srt
+
+Note that the pipeline currently only support wav files (audio) and srt files
+(subtitles) as inputs. It is possible to only specify the audio file or to
+only specify the subtitle file, but the pipeline does always require a video
+input file.
+
+In order to include face recognition, create a directory on your machine with
 one image per person that you would like to detect. Name the files with the
 desired name of the person; for example, if you want to detect images of
 Oprah Winfrey, you may add an image titled "oprah-winfrey.png". Then, assuming
@@ -71,3 +91,5 @@ you can include these in the pipeline as follows::
 
 Note that the annotation process will take slightly longer when detecting
 faces, but you will (potentially) have more rich data included in the output.
+The face detection option can be combined with the audio and subtitles when
+available.

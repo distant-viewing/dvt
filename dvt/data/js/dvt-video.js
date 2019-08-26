@@ -36,9 +36,61 @@ function createFrameData(jsonObj) {
 
     cln.children[0].children[0].src =
       'img/display/frame-' + padZeros(frame_num, 6) + ".png";
+    cln.children[0].children[0].onclick = function() {
+      var hoverlay = document.getElementById("overlay-head");
+      hoverlay.children[0].textContent = "Detected objects (blue) and faces (orange)";
+
+      var overlay = document.getElementById("overlay");
+      overlay.children[0].src = this.src;
+      overlay.onclick = function() {$('#myModal').modal('hide');};
+      $('#myModal').modal('show');
+    };
+
     cln.children[0].children[1].src =
       'img/flow/frame-' + padZeros(frame_num, 6) + ".png";
-    cln.children[0].children[0].id = 'img' + (frame_num).toString();
+    cln.children[0].children[1].onclick = function() {
+      var hoverlay = document.getElementById("overlay-head");
+      hoverlay.children[0].textContent = "Optical flow";
+
+      var overlay = document.getElementById("overlay");
+      overlay.children[0].src = this.src;
+      overlay.onclick = function() {$('#myModal').modal('hide');};
+      $('#myModal').modal('show');
+    };
+
+    if ("power" in jsonObj) {
+      cln.children[0].children[0].style = "";
+      cln.children[0].children[1].style = "";
+      cln.children[0].style = "width:888px";
+      cln.children[1].style = "font-size: x-small;";
+
+      cln.children[0].children[2].src =
+        'img/tone/frame-' + padZeros(i, 6) + ".png";
+      cln.children[0].children[2].style = "";
+      cln.children[0].children[2].onclick = function() {
+        var hoverlay = document.getElementById("overlay-head");
+        hoverlay.children[0].textContent = "Audio tone";
+
+
+        var overlay = document.getElementById("overlay");
+        overlay.children[0].src = this.src;
+        overlay.onclick = function() {$('#myModal').modal('hide');};
+        $('#myModal').modal('show');
+      };
+
+      cln.children[0].children[3].src =
+        'img/spec/frame-' + padZeros(i, 6) + ".png";
+      cln.children[0].children[3].style = "";
+      cln.children[0].children[3].onclick = function() {
+        var hoverlay = document.getElementById("overlay-head");
+        hoverlay.children[0].textContent = "Spectrogram";
+
+        var overlay = document.getElementById("overlay");
+        overlay.children[0].src = this.src;
+        overlay.onclick = function() {$('#myModal').modal('hide');};
+        $('#myModal').modal('show');
+      };
+    }
 
     let ulist = cln.children[1].children[0].children;
     ulist[0].children[1].textContent = formatTime(time_start);
@@ -49,9 +101,22 @@ function createFrameData(jsonObj) {
     ulist[5].children[1].textContent = lobj['shot_length'].toString();
     ulist[6].children[1].textContent = lobj['people'].toString();
 
+    let btn = cln.children[1].children[1].children[0];
+    btn.onclick = function() {
+      var hoverlay = document.getElementById("overlay-head");
+      hoverlay.children[0].textContent = "Original frame";
+
+      var overlay = document.getElementById("overlay");
+      overlay.children[0].src = 'img/frames/frame-' + padZeros(frame_num, 6) + ".png";
+      overlay.onclick = function() {$('#myModal').modal('hide');};
+      $('#myModal').modal('show');
+    }
+
     container.appendChild(cln);
   }
+
 }
+
 
 oReq.onreadystatechange = function () {
   var DONE = this.DONE || 4;

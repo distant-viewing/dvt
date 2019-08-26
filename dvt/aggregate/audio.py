@@ -8,7 +8,9 @@ values making it possible to translate from the audio samples to visual frames.
 
 from os.path import join
 
-from matplotlib.pyplot import close, pcolormesh, savefig, plot, xlabel, ylabel
+from matplotlib.pyplot import (
+    close, pcolormesh, savefig, plot, xlabel, ylabel, ylim
+)
 from matplotlib import use
 from numpy import (
     arange, int64, log10, mean as np_mean, sqrt, transpose, vstack
@@ -149,6 +151,7 @@ class PowerToneAggregator(Aggregator):
                 time_array = time_array / rate
 
                 plot(time_array + stime, audio, color='k')
+                ylim([-32768, 32767])
                 xlabel("Time (seconds)")
                 ylabel("Amplitude")
                 savefig(opath)

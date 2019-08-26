@@ -11,8 +11,9 @@ extract semantic metadata from digitized collections. Extracted information
 can be visualized for search and discovery as well as aggregated and analyzed to find
 patterns across a corpus.
 
-More information about the toolkit and project is available on the following
-pages:
+Both the high-level command-line interface and the low-level object-oriented API
+are introduced below. More information about the toolkit and project is available on the
+following pages:
 
 * Search and discovery interface example: [DVT Video Visualization](https://www.distantviewing.org/labs/)
 * Example analysis using aggregated metadata: ["Visual Style in Two Network Era Sitcoms"](https://doi.org/10.22148/16.043)
@@ -49,7 +50,7 @@ pip install dvt
 Additional Python requirements should be installed automatically
 through PyPI.
 
-## Minimal Demo
+## High-level command-line usage: Minimal Demo
 
 The following code assumes that you have installed the dvt toolkit and have
 the video file
@@ -78,7 +79,7 @@ mind that it may take some time (often several times the length of the input
 video file) to finish. You can see an example of the toolkit's output on
 several video files [here](https://www.distantviewing.org/labs/).
 
-## Getting started with the Python API
+## Low-level API: Getting started with the Python interface
 
 The command line tools provide a fast way to get started with the toolkit,
 and there is much more functionality available when using the full Python
@@ -153,16 +154,18 @@ Pipelines as well as pre-bundled sequences of annotators and aggregators are als
 included in the package. Currently available implementations in the toolkit
 are:
 
-| Annotators           | Aggregators           | Pipelines      |
-| -------------------- |---------------------- | -------------- |
-| CIElabAnnotator      | CutAggregator         | VideoPipeline  |
-| DiffAnnotator        | DisplayAggregator     |                |
-| EmbedAnnotator       | ShotLengthAggregator  |                |
-| FaceAnnotator        | PeopleAggregator      |                |
-| HOFMAnnotator        |                       |                |
-| ObjectAnnotator      |                       |                |
-| OpticalFlowAnnotator |                       |                |
-| PngAnnotator         |                       |                |
+| Annotators                    | Aggregators           | Pipelines         |
+| ----------------------------- |---------------------- | ----------------- |
+| CIElabAnnotator               | CutAggregator         | ImageVizPipeline  |
+| DiffAnnotator                 | DisplayAggregator     | VideoCsvPipeline  |
+| EmbedAnnotator                | ShotLengthAggregator  | VideoVizPipeline  |
+| FaceAnnotator                 | PeopleAggregator      |                   |
+| HOFMAnnotator                 |                       |                   |
+| ObjectAnnotator               |                       |                   |
+| OpticalFlowAnnotator          |                       |                   |
+| PngAnnotator                  |                       |                   |
+| AudioAnnotator<sup>*</sup>    |                       |                   |
+| SubtitleAnnotator<sup>*</sup> |                       |                   |
 
 Details of these implementations can be found in the full
 [API documentation](https://distant-viewing.github.io/dvt/). Additionally, it
@@ -171,6 +174,77 @@ are available in [this tutorial](https://distant-viewing.github.io/dvt/tutorial/
 If you develop an object that you think
 may be useful to others, consider [contributing](#contributing) your code to
 the toolkit.
+
+(*) **Special Annotators**: The audio and subtitle annotators have a special format
+because they require additional inputs (metadata about the video file and
+access to the raw audio and subtitle data, respectively). To use these
+annotators, specify the location of the audio and/or subtitle inputs when
+creating the DataExtraction object. Next, run the corresponding DataExtraction
+methods, as follows:
+
+```
+from dvt.core import DataExtraction, FrameInput
+
+dextra = DataExtraction(
+  vinput=FrameInput(input_path="video-clip.mp4"),
+  ainput="video-clip.wav",
+  sinput="video-clip.srt"
+)
+dextra.run_audio_annotator()
+dextra.run_subtitle_annotator()
+```
+
+The audio data will be stored in an annotation named "audio":
+
+```
+dextra.get_data()['audio'].head()
+```
+```
+data  data_left  data_right
+0 -1076      -1098       -1054
+1 -1363      -1382       -1344
+2 -1149      -1129       -1168
+3 -1112      -1124       -1099
+4 -1146      -1166       -1125
+```
+
+And subtitle information will be stored in an annotation named "subtitle":
+
+```
+dextra.get_data()['subtitle']
+```
+```
+time_start  time_stop                                            caption  \
+0       0.585      2.588              You guy's are messing with me, right?
+1       5.145      7.100                                               Yeah
+2       8.224      9.789  That was a good one. For a second there, I was...
+
+frame_start  frame_stop
+0           17          78
+1          154         213
+2          246         294
+```
+
+Aggregators can be written that further analyze the audio and subtitle data.
+These aggregators are written no differently than aggregators that work with
+just the video data; in fact, we can build aggregators that put together audio,
+textual, and visual information. The pipeline does include several common
+audio-based annotators. For example, the PowerToneAggregator calculates the
+RMS of the audio power across pre-defined blocks of the audio source (indexed
+by frame):
+
+```
+from dvt.aggregate.audio import PowerToneAggregator
+
+dextra.run_aggregator(PowerToneAggregator(breaks=[0, 50, 200, 220]))
+dextra.get_data()['power']
+```
+```
+frame_start  frame_end          rms
+0            0         50   920.067885
+1           50        200  1212.694262
+2          200        220  1004.910663
+```
 
 ## Citation
 

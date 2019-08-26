@@ -26,7 +26,9 @@
                 the visual material. Below are selected frames from the input video
                 file.  The first frame shows detected objects and people; the second
                 frame illustrates movement (hue is direction and saturation is speed)
-                using optical flow. Other extracted fields are shown on the right.
+                using optical flow. If sound sources were included, the next two images
+                show the tone and spectrogram. Other extracted fields are shown on
+                the right.
                 See the <a href="https://distantviewing.org" target="_blank"
                 rel="noopener noreferrer">distant viewing project</a>
                 page for further information.
@@ -37,6 +39,12 @@
               </a>]
             </p>
         </div>
+
+        <div style="text-align: center">
+          <h3 style="color: #d33682">
+            click on an image to enlarge
+        </h3>
+      </div>
 
     <div style="text-align: left; padding: 2rem 10rem" id="help">
     <p class="lead">
@@ -54,11 +62,13 @@
     </div>
 
     <div class="media" id="frame-default" style="display: none;">
-        <span class="media-left">
-    <img class="frame-img" src="" alt="..." id="">
-    <img class="frame-img" src="" alt="..." id="">
+        <span class="media-center" style="width:800px">
+          <img class="frame-img" src="" alt="..." id="" style="height: 250px;">
+          <img class="frame-img" src="" alt="..." id="" style="height: 250px;">
+          <img class="frame-img" src="" alt="..." id="" style="display: none;">
+          <img class="frame-img" src="" alt="..." id="" style="display: none;">
         </span>
-        <div class="media-body">
+        <div class="media-body" style="">
             <ul>
               <li><b>Time start:</b> <span></span></li>
               <li><b>Time end:</b> <span></span></li>
@@ -68,7 +78,30 @@
               <li><b>Shot length:</b> <span></span></li>
               <li><b>People:</b> <span></span></li>
             </ul>
+
+            <div style="text-align:center;">
+              <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#myModal">
+                Original Image
+              </button>
+          </div>
         </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+          <div class="modal-header" id="overlay-head">
+            <h5 class="modal-title">Modal title</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body" id="overlay">
+            <img class="img-responsive" src="" alt="..." id="" style="height: 400px">
+          </div>
+        </div>
+      </div>
     </div>
 
   </main><!-- /.container -->
