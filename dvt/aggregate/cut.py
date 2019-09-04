@@ -6,6 +6,7 @@ where cuts in the video occur.
 """
 
 from ..abstract import Aggregator
+from ..utils import _check_data_exists
 
 
 class CutAggregator(Aggregator):
@@ -26,17 +27,19 @@ class CutAggregator(Aggregator):
             considered a cut. Keys indicate the variables in the differences
             output and values are the cutoffs. Setting to None (default) will
             return no cuts.
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
     """
 
     name = "cut"
 
-    def __init__(self, **kargs):
+    def __init__(self, **kwargs):
 
-        self.ignore_vals = kargs.get("ignore_vals", {})
-        self.cut_vals = kargs.get("cut_vals", None)
-        self.min_len = kargs.get("min_len", 1)
+        self.ignore_vals = kwargs.get("ignore_vals", {})
+        self.cut_vals = kwargs.get("cut_vals", None)
+        self.min_len = kwargs.get("min_len", 1)
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     def aggregate(self, ldframe, **kwargs):
         """Aggregate difference annotator.
@@ -49,6 +52,9 @@ class CutAggregator(Aggregator):
         Returns:
             A dictionary frame giving the detected cuts.
         """
+
+        # make sure annotators have been run
+        _check_data_exists(ldframe, ["diff"])
 
         # grab the data, initialize counters, and create output `cuts`
         ops = ldframe["diff"]

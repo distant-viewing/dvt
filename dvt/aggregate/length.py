@@ -9,6 +9,7 @@ and objects for each frame.
 from numpy import argmax, array, max as npmax, nonzero
 
 from ..abstract import Aggregator
+from ..utils import _check_data_exists
 
 
 class ShotLengthAggregator(Aggregator):
@@ -29,6 +30,8 @@ class ShotLengthAggregator(Aggregator):
             (vertical) of face size to the entire shot. Should be an increasing
             list starting at zero and the same length as shot_names. Set to
             None to use the default settings.
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
     """
 
     name = "length"
@@ -54,7 +57,7 @@ class ShotLengthAggregator(Aggregator):
 
         assert len(self.shot_sizes) == len(self.shot_names)
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     def aggregate(self, ldframe, **kwargs):
         """Determine shot lengths using detected faces and objects.
@@ -70,6 +73,8 @@ class ShotLengthAggregator(Aggregator):
             A dictionary frame giving the detected people, with one row per
             frame in the original input.
         """
+        # make sure annotators have been run
+        _check_data_exists(ldframe, ["face", "obj", "meta"])
 
         # grab the data sets
         face = ldframe["face"]

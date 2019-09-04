@@ -9,6 +9,7 @@ from the entire media and from multiple annotators at once.
 
 from __future__ import absolute_import
 
+from . import audio
 from . import cut
 from . import length
 from . import display

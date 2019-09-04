@@ -1,0 +1,13 @@
+1
+00:00:00,585 --> 00:00:02,588
+<font size="24">You guy's are messing
+with me, right?</font>
+
+2
+00:00:05,145 --> 00:00:07,100
+<font size="24">Yeah</font>
+
+3
+00:00:08,224 --> 00:00:09,789
+<font size="24">That was a good one. For
+a second there, I was like, 'Whoa!'.</font>

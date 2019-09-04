@@ -3,6 +3,8 @@ from pandas import DataFrame
 from pandas.util.testing import assert_frame_equal
 import pytest
 
+from dvt.aggregate.length import ShotLengthAggregator
+from dvt.core import DataExtraction, FrameInput
 from dvt.utils import process_output_values, sub_image
 
 
@@ -84,6 +86,18 @@ class TestProcessOutput:
         assert type(output) == list
         assert len(output) == 1
         assert_frame_equal(output[0], DataFrame(input, index=[0]))
+
+
+class TestMisc:
+
+    def test_bad_key(self):
+
+        de = DataExtraction(FrameInput(
+            input_path="test-data/video-clip.mp4", bsize=256
+        ))
+
+        with pytest.raises(KeyError) as e_info:
+            de.run_aggregator(ShotLengthAggregator())
 
 
 if __name__ == "__main__":

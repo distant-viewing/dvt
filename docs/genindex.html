@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; dvt 0.0.9 documentation</title>
+  <title>Index &mdash; dvt 0.0.10 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.0.9
+                0.0.10
               </div>
             
           
@@ -183,6 +183,10 @@
       <li><a href="abstract.html#dvt.abstract.Aggregator.aggregate">aggregate() (dvt.abstract.Aggregator method)</a>
 
       <ul>
+        <li><a href="aggregate/audio.html#dvt.aggregate.audio.PowerToneAggregator.aggregate">(dvt.aggregate.audio.PowerToneAggregator method)</a>
+</li>
+        <li><a href="aggregate/audio.html#dvt.aggregate.audio.SpectrogramAggregator.aggregate">(dvt.aggregate.audio.SpectrogramAggregator method)</a>
+</li>
         <li><a href="aggregate/cut.html#dvt.aggregate.cut.CutAggregator.aggregate">(dvt.aggregate.cut.CutAggregator method)</a>
 </li>
         <li><a href="aggregate/display.html#dvt.aggregate.display.DisplayAggregator.aggregate">(dvt.aggregate.display.DisplayAggregator method)</a>
@@ -194,8 +198,12 @@
       </ul></li>
       <li><a href="abstract.html#dvt.abstract.Aggregator">Aggregator (class in dvt.abstract)</a>
 </li>
+      <li><a href="core.html#dvt.core.DataExtraction.ainput">ainput (dvt.core.DataExtraction attribute)</a>
+</li>
       <li><a href="annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator.ang_buckets">ang_buckets (dvt.annotate.hofm.HOFMAnnotator attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="abstract.html#dvt.abstract.FrameAnnotator.annotate">annotate() (dvt.abstract.FrameAnnotator method)</a>
 
       <ul>
@@ -228,10 +236,16 @@
 </li>
       <li><a href="annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator.blocks">blocks (dvt.annotate.hofm.HOFMAnnotator attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="core.html#dvt.core.FrameBatch.bnum">bnum (dvt.core.FrameBatch attribute)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="aggregate/audio.html#dvt.aggregate.audio.PowerToneAggregator.breaks">breaks (dvt.aggregate.audio.PowerToneAggregator attribute)</a>
+
+      <ul>
+        <li><a href="aggregate/audio.html#dvt.aggregate.audio.SpectrogramAggregator.breaks">(dvt.aggregate.audio.SpectrogramAggregator attribute)</a>
+</li>
+      </ul></li>
       <li><a href="core.html#dvt.core.FrameBatch.bsize">bsize (dvt.core.FrameBatch attribute)</a>
 </li>
   </ul></td>
@@ -244,8 +258,12 @@
 </li>
       <li><a href="core.html#dvt.core.FrameBatch.continue_read">continue_read (dvt.core.FrameBatch attribute)</a>
 </li>
-      <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.cut_min_length">cut_min_length (dvt.pipeline.viz.VideoVizPipeline attribute)</a>
+      <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline.cut_min_length">cut_min_length (dvt.pipeline.csv.VideoCsvPipeline attribute)</a>
+
+      <ul>
+        <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.cut_min_length">(dvt.pipeline.viz.VideoVizPipeline attribute)</a>
 </li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="aggregate/cut.html#dvt.aggregate.cut.CutAggregator.cut_vals">cut_vals (dvt.aggregate.cut.CutAggregator attribute)</a>
@@ -280,15 +298,21 @@
         <li><a href="annotate/obj.html#dvt.annotate.obj.ObjectAnnotator.detector">(dvt.annotate.obj.ObjectAnnotator attribute)</a>
 </li>
       </ul></li>
-      <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.diff_cutoff">diff_cutoff (dvt.pipeline.viz.VideoVizPipeline attribute)</a>
+      <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline.diff_cutoff">diff_cutoff (dvt.pipeline.csv.VideoCsvPipeline attribute)</a>
+
+      <ul>
+        <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.diff_cutoff">(dvt.pipeline.viz.VideoVizPipeline attribute)</a>
 </li>
+      </ul></li>
       <li><a href="annotate/diff.html#dvt.annotate.diff.DiffAnnotator">DiffAnnotator (class in dvt.annotate.diff)</a>
 </li>
       <li><a href="pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.dinput">dinput (dvt.pipeline.viz.ImageVizPipeline attribute)</a>
 </li>
-      <li><a href="pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.dirout">dirout (dvt.pipeline.viz.ImageVizPipeline attribute)</a>
+      <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline.dirout">dirout (dvt.pipeline.csv.VideoCsvPipeline attribute)</a>
 
       <ul>
+        <li><a href="pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.dirout">(dvt.pipeline.viz.ImageVizPipeline attribute)</a>
+</li>
         <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.dirout">(dvt.pipeline.viz.VideoVizPipeline attribute)</a>
 </li>
       </ul></li>
@@ -296,12 +320,14 @@
 </li>
       <li><a href="abstract.html#module-dvt.abstract">dvt.abstract (module)</a>
 </li>
-      <li><a href="aggregate/cut.html#module-dvt.aggregate.cut">dvt.aggregate.cut (module)</a>
+      <li><a href="aggregate/audio.html#module-dvt.aggregate.audio">dvt.aggregate.audio (module)</a>
 </li>
-      <li><a href="aggregate/display.html#module-dvt.aggregate.display">dvt.aggregate.display (module)</a>
+      <li><a href="aggregate/cut.html#module-dvt.aggregate.cut">dvt.aggregate.cut (module)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="aggregate/display.html#module-dvt.aggregate.display">dvt.aggregate.display (module)</a>
+</li>
       <li><a href="aggregate/length.html#module-dvt.aggregate.length">dvt.aggregate.length (module)</a>
 </li>
       <li><a href="aggregate/people.html#module-dvt.aggregate.people">dvt.aggregate.people (module)</a>
@@ -327,6 +353,8 @@
       <li><a href="cli.html#module-dvt.cli">dvt.cli (module)</a>
 </li>
       <li><a href="core.html#module-dvt.core">dvt.core (module)</a>
+</li>
+      <li><a href="pipeline/csv.html#module-dvt.pipeline.csv">dvt.pipeline.csv (module)</a>
 </li>
       <li><a href="pipeline/viz.html#module-dvt.pipeline.viz">dvt.pipeline.viz (module)</a>
 </li>
@@ -374,8 +402,12 @@
 </li>
       <li><a href="annotate/face.html#dvt.annotate.face.FaceEmbedVgg2">FaceEmbedVgg2 (class in dvt.annotate.face)</a>
 </li>
-      <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.finput">finput (dvt.pipeline.viz.VideoVizPipeline attribute)</a>
+      <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline.finput">finput (dvt.pipeline.csv.VideoCsvPipeline attribute)</a>
+
+      <ul>
+        <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.finput">(dvt.pipeline.viz.VideoVizPipeline attribute)</a>
 </li>
+      </ul></li>
       <li><a href="core.html#dvt.core.FrameBatch.fnames">fnames (dvt.core.FrameBatch attribute)</a>
 </li>
       <li><a href="aggregate/people.html#dvt.aggregate.people.PeopleAggregator.fprint">fprint (dvt.aggregate.people.PeopleAggregator attribute)</a>
@@ -392,6 +424,8 @@
         <li><a href="annotate/face.html#dvt.annotate.face.FaceAnnotator.frames">(dvt.annotate.face.FaceAnnotator attribute)</a>
 </li>
         <li><a href="annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator.frames">(dvt.annotate.hofm.HOFMAnnotator attribute)</a>
+</li>
+        <li><a href="annotate/img.html#dvt.annotate.img.ImgAnnotator.frames">(dvt.annotate.img.ImgAnnotator attribute)</a>
 </li>
         <li><a href="annotate/obj.html#dvt.annotate.obj.ObjectAnnotator.frames">(dvt.annotate.obj.ObjectAnnotator attribute)</a>
 </li>
@@ -411,11 +445,15 @@
 </li>
         <li><a href="annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator.freq">(dvt.annotate.hofm.HOFMAnnotator attribute)</a>
 </li>
+        <li><a href="annotate/img.html#dvt.annotate.img.ImgAnnotator.freq">(dvt.annotate.img.ImgAnnotator attribute)</a>
+</li>
         <li><a href="annotate/obj.html#dvt.annotate.obj.ObjectAnnotator.freq">(dvt.annotate.obj.ObjectAnnotator attribute)</a>
 </li>
         <li><a href="annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator.freq">(dvt.annotate.opticalflow.OpticalFlowAnnotator attribute)</a>
 </li>
         <li><a href="annotate/png.html#dvt.annotate.png.PngAnnotator.freq">(dvt.annotate.png.PngAnnotator attribute)</a>
+</li>
+        <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline.freq">(dvt.pipeline.csv.VideoCsvPipeline attribute)</a>
 </li>
         <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.freq">(dvt.pipeline.viz.VideoVizPipeline attribute)</a>
 </li>
@@ -426,18 +464,20 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.get_argparser">get_argparser() (dvt.pipeline.viz.ImageVizPipeline static method)</a>
+      <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline.get_argparser">get_argparser() (dvt.pipeline.csv.VideoCsvPipeline static method)</a>
 
       <ul>
+        <li><a href="pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.get_argparser">(dvt.pipeline.viz.ImageVizPipeline static method)</a>
+</li>
         <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.get_argparser">(dvt.pipeline.viz.VideoVizPipeline static method)</a>
 </li>
       </ul></li>
       <li><a href="core.html#dvt.core.FrameBatch.get_batch">get_batch() (dvt.core.FrameBatch method)</a>
 </li>
-      <li><a href="core.html#dvt.core.DataExtraction.get_data">get_data() (dvt.core.DataExtraction method)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="core.html#dvt.core.DataExtraction.get_data">get_data() (dvt.core.DataExtraction method)</a>
+</li>
       <li><a href="core.html#dvt.core.FrameBatch.get_frame_names">get_frame_names() (dvt.core.FrameBatch method)</a>
 </li>
       <li><a href="core.html#dvt.core.FrameBatch.get_frames">get_frames() (dvt.core.FrameBatch method)</a>
@@ -515,31 +555,35 @@
       <ul>
         <li><a href="abstract.html#dvt.abstract.FrameAnnotator.name">(dvt.abstract.FrameAnnotator attribute)</a>
 </li>
-        <li><a href="aggregate/cut.html#dvt.aggregate.cut.CutAggregator.name">(dvt.aggregate.cut.CutAggregator attribute)</a>
+        <li><a href="aggregate/audio.html#dvt.aggregate.audio.PowerToneAggregator.name">(dvt.aggregate.audio.PowerToneAggregator attribute)</a>, <a href="aggregate/audio.html#dvt.aggregate.audio.PowerToneAggregator.name">[1]</a>
 </li>
-        <li><a href="aggregate/display.html#dvt.aggregate.display.DisplayAggregator.name">(dvt.aggregate.display.DisplayAggregator attribute)</a>
+        <li><a href="aggregate/audio.html#dvt.aggregate.audio.SpectrogramAggregator.name">(dvt.aggregate.audio.SpectrogramAggregator attribute)</a>, <a href="aggregate/audio.html#dvt.aggregate.audio.SpectrogramAggregator.name">[1]</a>
 </li>
-        <li><a href="aggregate/length.html#dvt.aggregate.length.ShotLengthAggregator.name">(dvt.aggregate.length.ShotLengthAggregator attribute)</a>
+        <li><a href="aggregate/cut.html#dvt.aggregate.cut.CutAggregator.name">(dvt.aggregate.cut.CutAggregator attribute)</a>, <a href="aggregate/cut.html#dvt.aggregate.cut.CutAggregator.name">[1]</a>
 </li>
-        <li><a href="aggregate/people.html#dvt.aggregate.people.PeopleAggregator.name">(dvt.aggregate.people.PeopleAggregator attribute)</a>
+        <li><a href="aggregate/display.html#dvt.aggregate.display.DisplayAggregator.name">(dvt.aggregate.display.DisplayAggregator attribute)</a>, <a href="aggregate/display.html#dvt.aggregate.display.DisplayAggregator.name">[1]</a>
 </li>
-        <li><a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.name">(dvt.annotate.cielab.CIElabAnnotator attribute)</a>
+        <li><a href="aggregate/length.html#dvt.aggregate.length.ShotLengthAggregator.name">(dvt.aggregate.length.ShotLengthAggregator attribute)</a>, <a href="aggregate/length.html#dvt.aggregate.length.ShotLengthAggregator.name">[1]</a>
 </li>
-        <li><a href="annotate/diff.html#dvt.annotate.diff.DiffAnnotator.name">(dvt.annotate.diff.DiffAnnotator attribute)</a>
+        <li><a href="aggregate/people.html#dvt.aggregate.people.PeopleAggregator.name">(dvt.aggregate.people.PeopleAggregator attribute)</a>, <a href="aggregate/people.html#dvt.aggregate.people.PeopleAggregator.name">[1]</a>
 </li>
-        <li><a href="annotate/embed.html#dvt.annotate.embed.EmbedAnnotator.name">(dvt.annotate.embed.EmbedAnnotator attribute)</a>
+        <li><a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.name">(dvt.annotate.cielab.CIElabAnnotator attribute)</a>, <a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.name">[1]</a>
 </li>
-        <li><a href="annotate/face.html#dvt.annotate.face.FaceAnnotator.name">(dvt.annotate.face.FaceAnnotator attribute)</a>
+        <li><a href="annotate/diff.html#dvt.annotate.diff.DiffAnnotator.name">(dvt.annotate.diff.DiffAnnotator attribute)</a>, <a href="annotate/diff.html#dvt.annotate.diff.DiffAnnotator.name">[1]</a>
 </li>
-        <li><a href="annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator.name">(dvt.annotate.hofm.HOFMAnnotator attribute)</a>
+        <li><a href="annotate/embed.html#dvt.annotate.embed.EmbedAnnotator.name">(dvt.annotate.embed.EmbedAnnotator attribute)</a>, <a href="annotate/embed.html#dvt.annotate.embed.EmbedAnnotator.name">[1]</a>
 </li>
-        <li><a href="annotate/img.html#dvt.annotate.img.ImgAnnotator.name">(dvt.annotate.img.ImgAnnotator attribute)</a>
+        <li><a href="annotate/face.html#dvt.annotate.face.FaceAnnotator.name">(dvt.annotate.face.FaceAnnotator attribute)</a>, <a href="annotate/face.html#dvt.annotate.face.FaceAnnotator.name">[1]</a>
 </li>
-        <li><a href="annotate/obj.html#dvt.annotate.obj.ObjectAnnotator.name">(dvt.annotate.obj.ObjectAnnotator attribute)</a>
+        <li><a href="annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator.name">(dvt.annotate.hofm.HOFMAnnotator attribute)</a>, <a href="annotate/hofm.html#dvt.annotate.hofm.HOFMAnnotator.name">[1]</a>
 </li>
-        <li><a href="annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator.name">(dvt.annotate.opticalflow.OpticalFlowAnnotator attribute)</a>
+        <li><a href="annotate/img.html#dvt.annotate.img.ImgAnnotator.name">(dvt.annotate.img.ImgAnnotator attribute)</a>, <a href="annotate/img.html#dvt.annotate.img.ImgAnnotator.name">[1]</a>
 </li>
-        <li><a href="annotate/png.html#dvt.annotate.png.PngAnnotator.name">(dvt.annotate.png.PngAnnotator attribute)</a>
+        <li><a href="annotate/obj.html#dvt.annotate.obj.ObjectAnnotator.name">(dvt.annotate.obj.ObjectAnnotator attribute)</a>, <a href="annotate/obj.html#dvt.annotate.obj.ObjectAnnotator.name">[1]</a>
+</li>
+        <li><a href="annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator.name">(dvt.annotate.opticalflow.OpticalFlowAnnotator attribute)</a>, <a href="annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator.name">[1]</a>
+</li>
+        <li><a href="annotate/png.html#dvt.annotate.png.PngAnnotator.name">(dvt.annotate.png.PngAnnotator attribute)</a>, <a href="annotate/png.html#dvt.annotate.png.PngAnnotator.name">[1]</a>
 </li>
       </ul></li>
   </ul></td>
@@ -562,15 +606,19 @@
 </li>
       <li><a href="abstract.html#dvt.abstract.VisualInput.open_input">open_input() (dvt.abstract.VisualInput method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator">OpticalFlowAnnotator (class in dvt.annotate.opticalflow)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="annotate/embed.html#dvt.annotate.embed.EmbedFrameKeras.outlayer">outlayer (dvt.annotate.embed.EmbedFrameKeras attribute)</a>
 </li>
-      <li><a href="annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator.output_dir">output_dir (dvt.annotate.opticalflow.OpticalFlowAnnotator attribute)</a>
+      <li><a href="aggregate/audio.html#dvt.aggregate.audio.PowerToneAggregator.output_dir">output_dir (dvt.aggregate.audio.PowerToneAggregator attribute)</a>
 
       <ul>
+        <li><a href="aggregate/audio.html#dvt.aggregate.audio.SpectrogramAggregator.output_dir">(dvt.aggregate.audio.SpectrogramAggregator attribute)</a>
+</li>
+        <li><a href="annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator.output_dir">(dvt.annotate.opticalflow.OpticalFlowAnnotator attribute)</a>
+</li>
         <li><a href="annotate/png.html#dvt.annotate.png.PngAnnotator.output_dir">(dvt.annotate.png.PngAnnotator attribute)</a>
 </li>
       </ul></li>
@@ -580,14 +628,30 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.path_to_faces">path_to_faces (dvt.pipeline.viz.ImageVizPipeline attribute)</a>
+      <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline.path_to_audio">path_to_audio (dvt.pipeline.csv.VideoCsvPipeline attribute)</a>
 
       <ul>
+        <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.path_to_audio">(dvt.pipeline.viz.VideoVizPipeline attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline.path_to_faces">path_to_faces (dvt.pipeline.csv.VideoCsvPipeline attribute)</a>
+
+      <ul>
+        <li><a href="pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.path_to_faces">(dvt.pipeline.viz.ImageVizPipeline attribute)</a>
+</li>
         <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.path_to_faces">(dvt.pipeline.viz.VideoVizPipeline attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline.path_to_subtitle">path_to_subtitle (dvt.pipeline.csv.VideoCsvPipeline attribute)</a>
+
+      <ul>
+        <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.path_to_subtitle">(dvt.pipeline.viz.VideoVizPipeline attribute)</a>
 </li>
       </ul></li>
       <li><a href="utils.html#dvt.utils.pd_col_asarray">pd_col_asarray() (in module dvt.utils)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="aggregate/people.html#dvt.aggregate.people.PeopleAggregator">PeopleAggregator (class in dvt.aggregate.people)</a>
 </li>
       <li><a href="pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.pipeline_level">pipeline_level (dvt.pipeline.viz.ImageVizPipeline attribute)</a>
@@ -596,9 +660,9 @@
         <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.pipeline_level">(dvt.pipeline.viz.VideoVizPipeline attribute)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="annotate/png.html#dvt.annotate.png.PngAnnotator">PngAnnotator (class in dvt.annotate.png)</a>
+</li>
+      <li><a href="aggregate/audio.html#dvt.aggregate.audio.PowerToneAggregator">PowerToneAggregator (class in dvt.aggregate.audio)</a>
 </li>
       <li><a href="annotate/embed.html#dvt.annotate.embed.EmbedFrameKeras.preprocess_input">preprocess_input (dvt.annotate.embed.EmbedFrameKeras attribute)</a>
 
@@ -626,9 +690,11 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator.raw">raw (dvt.annotate.opticalflow.OpticalFlowAnnotator attribute)</a>
 </li>
-      <li><a href="pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.run">run() (dvt.pipeline.viz.ImageVizPipeline method)</a>
+      <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline.run">run() (dvt.pipeline.csv.VideoCsvPipeline method)</a>
 
       <ul>
+        <li><a href="pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.run">(dvt.pipeline.viz.ImageVizPipeline method)</a>
+</li>
         <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.run">(dvt.pipeline.viz.VideoVizPipeline method)</a>
 </li>
       </ul></li>
@@ -638,7 +704,11 @@
 </li>
       <li><a href="core.html#dvt.core.DataExtraction.run_annotators">run_annotators() (dvt.core.DataExtraction method)</a>
 </li>
+      <li><a href="core.html#dvt.core.DataExtraction.run_audio_annotator">run_audio_annotator() (dvt.core.DataExtraction method)</a>
+</li>
       <li><a href="cli.html#dvt.cli.run_cli">run_cli() (in module dvt.cli)</a>
+</li>
+      <li><a href="core.html#dvt.core.DataExtraction.run_subtitle_annotator">run_subtitle_annotator() (dvt.core.DataExtraction method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -662,6 +732,8 @@
       </ul></li>
       <li><a href="aggregate/length.html#dvt.aggregate.length.ShotLengthAggregator">ShotLengthAggregator (class in dvt.aggregate.length)</a>
 </li>
+      <li><a href="core.html#dvt.core.DataExtraction.sinput">sinput (dvt.core.DataExtraction attribute)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="aggregate/display.html#dvt.aggregate.display.DisplayAggregator.size">size (dvt.aggregate.display.DisplayAggregator attribute)</a>
@@ -674,6 +746,10 @@
         <li><a href="annotate/png.html#dvt.annotate.png.PngAnnotator.size">(dvt.annotate.png.PngAnnotator attribute)</a>
 </li>
       </ul></li>
+      <li><a href="aggregate/audio.html#dvt.aggregate.audio.SpectrogramAggregator.spectrogram">spectrogram (dvt.aggregate.audio.SpectrogramAggregator attribute)</a>
+</li>
+      <li><a href="aggregate/audio.html#dvt.aggregate.audio.SpectrogramAggregator">SpectrogramAggregator (class in dvt.aggregate.audio)</a>
+</li>
       <li><a href="core.html#dvt.core.FrameBatch.start">start (dvt.core.FrameBatch attribute)</a>
 </li>
       <li><a href="utils.html#dvt.utils.sub_image">sub_image() (in module dvt.utils)</a>
@@ -684,6 +760,8 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="pipeline/csv.html#dvt.pipeline.csv.VideoCsvPipeline">VideoCsvPipeline (class in dvt.pipeline.csv)</a>
+</li>
       <li><a href="pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline">VideoVizPipeline (class in dvt.pipeline.viz)</a>
 </li>
   </ul></td>

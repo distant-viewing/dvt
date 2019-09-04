@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.aggregate.cut &mdash; dvt 0.0.9 documentation</title>
+  <title>dvt.aggregate.cut &mdash; dvt 0.0.10 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.9
+                0.0.10
               </div>
             
           
@@ -162,6 +162,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">Aggregator</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_check_data_exists</span>
 
 
 <div class="viewcode-block" id="CutAggregator"><a class="viewcode-back" href="../../../aggregate/cut.html#dvt.aggregate.cut.CutAggregator">[docs]</a><span class="k">class</span> <span class="nc">CutAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
@@ -182,17 +183,19 @@
 <span class="sd">            considered a cut. Keys indicate the variables in the differences</span>
 <span class="sd">            output and values are the cutoffs. Setting to None (default) will</span>
 <span class="sd">            return no cuts.</span>
+<span class="sd">        name (str): A description of the aggregator. Used as a key in the</span>
+<span class="sd">            output data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;cut&quot;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kargs</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_vals</span> <span class="o">=</span> <span class="n">kargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ignore_vals&quot;</span><span class="p">,</span> <span class="p">{})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">cut_vals</span> <span class="o">=</span> <span class="n">kargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cut_vals&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">min_len</span> <span class="o">=</span> <span class="n">kargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min_len&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ignore_vals</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ignore_vals&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cut_vals</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cut_vals&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_len</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;min_len&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CutAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/cut.html#dvt.aggregate.cut.CutAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Aggregate difference annotator.</span>
@@ -205,6 +208,9 @@
 <span class="sd">        Returns:</span>
 <span class="sd">            A dictionary frame giving the detected cuts.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># make sure annotators have been run</span>
+        <span class="n">_check_data_exists</span><span class="p">(</span><span class="n">ldframe</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;diff&quot;</span><span class="p">])</span>
 
         <span class="c1"># grab the data, initialize counters, and create output `cuts`</span>
         <span class="n">ops</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;diff&quot;</span><span class="p">]</span>

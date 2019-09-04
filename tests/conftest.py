@@ -16,6 +16,8 @@ from dvt.annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from dvt.annotate.opticalflow import OpticalFlowAnnotator
 from dvt.annotate.png import PngAnnotator
 
+from dvt.aggregate.audio import SpectrogramAggregator, PowerToneAggregator
+
 @pytest.fixture(scope="session")
 def run_setup_tensorflow():
     setup_tensorflow()
@@ -82,7 +84,8 @@ def get_video_frame_annotation():
         HOFMAnnotator(frames=frames),
         ObjectAnnotator(detector=ObjectDetectRetinaNet(), frames=frames),
         OpticalFlowAnnotator(output_dir=oflow_output, frames=frames),
-        PngAnnotator(output_dir=png_output, frames=frames)
+        PngAnnotator(output_dir=png_output, frames=frames),
+        ImgAnnotator()
     ])
 
     return de, output_dir
@@ -111,5 +114,34 @@ def get_image_annotation():
         PngAnnotator(output_dir=png_output, size=229),
         ImgAnnotator()
     ])
+
+    return de, output_dir
+
+
+@pytest.fixture(scope="session")
+def get_audio_subtitle_annotation():
+    setup_tensorflow()
+
+    output_dir = mkdtemp()
+    spec_output = join(output_dir, "spec")
+    tone_output = join(output_dir, "tone")
+
+    de = DataExtraction(FrameInput(
+        input_path="test-data/video-clip.mp4", bsize=256
+    ), ainput="test-data/video-clip.wav", sinput="test-data/video-clip.srt")
+
+    de.run_audio_annotator()
+    de.run_subtitle_annotator()
+
+    breaks = [0, 20, 150, 200]
+    de.run_aggregator(SpectrogramAnnotator(
+        output_dir=spec_output, breaks=breaks
+    ))
+    de.run_aggregator(SpectrogramAnnotator(
+        spectrogram=True, breaks=breaks, name="spec-data"
+    ))
+    de.run_aggregator(PowerToneAnnotator(
+        output_dir=tone_output, breaks=breaks
+    ))
 
     return de, output_dir

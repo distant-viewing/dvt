@@ -34,10 +34,15 @@ from cv2 import (
 from numpy import zeros, uint8, stack, zeros_like
 from pandas import concat, DataFrame
 from progress.bar import Bar
+from scipy.io.wavfile import read
 
 from .abstract import VisualInput
-from .utils import process_output_values, _expand_path, _data_to_json
-
+from .utils import (
+    process_output_values,
+    _data_to_json,
+    _expand_path,
+    _subtitle_data
+)
 
 class DataExtraction:
     """The core class of the toolkit. Used to pass algorithms to visual data.
@@ -48,9 +53,9 @@ class DataExtraction:
 
     Attributes:
         vinput (VisualInput): The input object associated with the dataset.
-        data (OrderedDict): Each key in the ordered dictionary is associated
-            with an aggregator and annotator and contains a pandas DataFrame
-            with all of the extracted metadata.
+        ainput (str): Path to audio input as wav file. Optional.
+        sinput (str): Path to subtitle input as srt file. Optional.
+        data (OrderedDict): Extracted metadata.
 
     Example:
         Assuming we have an input named "input.mp4", the following example
@@ -82,9 +87,13 @@ class DataExtraction:
 
     """
 
-    def __init__(self, vinput):
+    def __init__(self, vinput, ainput=None, sinput=None):
         self.vinput = vinput
-        self.data = OrderedDict()
+        self.ainput = ainput
+        self.sinput = sinput
+        self.data = OrderedDict({
+            "meta": process_output_values(self.vinput.get_metadata())
+        })
 
     def run_annotators(self, annotators, max_batch=None, msg="Progress: "):
         """Run a collection of annotators over the input material.
@@ -107,7 +116,7 @@ class DataExtraction:
 
         pipeline = {anno.name: anno for anno in annotators}
         output = OrderedDict({key: [] for key in pipeline.keys()})
-        output['meta'] = process_output_values(self.vinput.get_metadata())
+        output["meta"] = process_output_values(self.vinput.get_metadata())
 
         # setup progress bar
         mbatch = self.vinput.max_batch
@@ -143,6 +152,47 @@ class DataExtraction:
 
         if msg is not None:
             progress_bar.finish()
+
+    def run_audio_annotator(self):
+        """Run the audio annotator.
+
+        After running this method, two new annotations are given: 'audio' and
+        'audiometa'. They contain all of the sound data as a DataFrame
+        objects.
+        """
+
+        # check sound exists and read
+        assert self.ainput is not None
+        rate, data_in = read(self.ainput)
+
+        output = {}
+        if len(data_in.shape) == 2:
+            output['data'] = (data_in[:, 0] + data_in[:, 1]) // 2
+            output['data_left'] = data_in[:, 0]
+            output['data_right'] = data_in[:, 1]
+        else:
+            output['data'] = data_in
+
+        self.data["audio"] = process_output_values(output)[0]
+        self.data["audiometa"] = process_output_values({'rate': rate})[0]
+
+    def run_subtitle_annotator(self):
+        """Run the subtitle annotator.
+
+        After running this method, a new annotation called 'subtitle' will be
+        added to the DataExtraction object. Requires that the attribue sinput
+        is set to a valid path.
+        """
+
+        # open video input to get the video metadata
+        self.vinput.open_input()
+        self.data['meta'] = process_output_values(
+            self.vinput.get_metadata()
+        )[0]
+
+        # check sound exists and get the annotation
+        assert self.sinput is not None
+        self.data["subtitle"] = _subtitle_data(self.sinput, self.data['meta'])
 
     def run_aggregator(self, aggregator):
         """Run an aggregator over the extracted annotations.
@@ -245,7 +295,6 @@ class FrameBatch:
             A list of names of length equal to the batch size.
         """
         return self.fnames
-
 
 
 class FrameInput(VisualInput):

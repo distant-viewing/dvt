@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.annotate.opticalflow &mdash; dvt 0.0.9 documentation</title>
+  <title>dvt.annotate.opticalflow &mdash; dvt 0.0.10 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.9
+                0.0.10
               </div>
             
           
@@ -160,7 +160,7 @@
 
 <span class="kn">import</span> <span class="nn">os</span>
 
-<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span><span class="p">(</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">arctan2</span><span class="p">,</span>
     <span class="n">arange</span><span class="p">,</span>
     <span class="n">array</span><span class="p">,</span>
@@ -172,9 +172,9 @@
     <span class="n">square</span><span class="p">,</span>
     <span class="n">stack</span><span class="p">,</span>
     <span class="n">uint8</span><span class="p">,</span>
-    <span class="n">zeros</span><span class="p">,</span>
+    <span class="n">zeros</span>
 <span class="p">)</span>
-<span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span><span class="p">(</span>
+<span class="kn">from</span> <span class="nn">cv2</span> <span class="k">import</span> <span class="p">(</span>
     <span class="n">calcOpticalFlowFarneback</span><span class="p">,</span>
     <span class="n">cvtColor</span><span class="p">,</span>
     <span class="n">imwrite</span><span class="p">,</span>
@@ -207,6 +207,8 @@
 <span class="sd">            None, the default, to preserve the size as given in the input file.</span>
 <span class="sd">            Given as the desired height; the width will be scaled to keep the</span>
 <span class="sd">            aspect ratio.</span>
+<span class="sd">        name (str): A description of the aggregator. Used as a key in the</span>
+<span class="sd">            output data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;opticalflow&quot;</span>
@@ -218,7 +220,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">_check_out_dir</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;output_dir&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">size</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;size&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="OpticalFlowAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/opticalflow.html#dvt.annotate.opticalflow.OpticalFlowAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the optical flow annotator.</span>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>People Aggregators &mdash; dvt 0.0.9 documentation</title>
+  <title>People Aggregators &mdash; dvt 0.0.10 documentation</title>
   
 
   
@@ -36,7 +36,7 @@
   
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Pipeline for Building Interactive Visualizations" href="../pipeline/viz.html" />
+    <link rel="next" title="Pipeline for Extracting Metadata" href="../pipeline/csv.html" />
     <link rel="prev" title="Length Aggregators" href="length.html" /> 
 </head>
 
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.0.9
+                0.0.10
               </div>
             
           
@@ -95,6 +95,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#core-functions">Core Functions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#annotations">Annotations</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#aggregators">Aggregators</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="audio.html">Audio Aggregators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="cut.html">Cut Aggregators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="display.html">Display Aggregators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="length.html">Length Aggregators</a></li>
@@ -202,15 +203,30 @@ of predefined faces</p>
 <dl class="attribute">
 <dt id="dvt.aggregate.people.PeopleAggregator.fprint">
 <code class="descname">fprint</code><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator.fprint" title="Permalink to this definition">¶</a></dt>
-<dd><p>A numpy array giving the embedding vectors for the
-predefined faces. Each row should correspond with one face id and
-the number of columns should match the number of columns in your
-embedding.</p>
+<dd><p>A numpy array giving the embedding vectors for
+the predefined faces. Each row should correspond with one face id
+and the number of columns should match the number of columns in
+your embedding.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">numpy array</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.aggregate.people.PeopleAggregator.name">
+<code class="descname">name</code><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>A description of the aggregator. Used as a key in the
+output data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
 </tr>
 </tbody>
 </table>
@@ -236,8 +252,8 @@ detected face.</td>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.aggregate.people.PeopleAggregator.name">
-<code class="descname">name</code><em class="property"> = 'people'</em><a class="headerlink" href="#dvt.aggregate.people.PeopleAggregator.name" title="Permalink to this definition">¶</a></dt>
+<dt>
+<code class="descname">name</code><em class="property"> = 'people'</em></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -274,7 +290,7 @@ names of the people in the images.</td>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="../pipeline/viz.html" class="btn btn-neutral float-right" title="Pipeline for Building Interactive Visualizations" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="../pipeline/csv.html" class="btn btn-neutral float-right" title="Pipeline for Extracting Metadata" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="length.html" class="btn btn-neutral float-left" title="Length Aggregators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

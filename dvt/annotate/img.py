@@ -13,6 +13,15 @@ from ..utils import _proc_frame_list, _which_frames
 
 class ImgAnnotator(FrameAnnotator):
     """Annotator for grabbing metadata about the images in the batch.
+
+    Attributes:
+        freq (int): How often to perform the embedding. For example, setting
+            the frequency to 2 will computer every other frame in the batch.
+        frames (array of ints): An optional list of frames to process. This
+            should be a list of integers or a 1D numpy array of integers. If
+            set to something other than None, the freq input is ignored.
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
     """
 
     name = "img"
@@ -21,10 +30,10 @@ class ImgAnnotator(FrameAnnotator):
         self.freq = _proc_frame_list(kwargs.get('freq', 1))
         self.frames = _proc_frame_list(kwargs.get('frames', None))
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     def annotate(self, batch):
-        """Annotate the batch of frames with the difference annotator.
+        """Annotate the batch of frames with the image annotator.
 
         Args:
             batch (FrameBatch): A batch of images to annotate.

@@ -35,6 +35,8 @@ class DiffAnnotator(FrameAnnotator):
             image.
         bins (int): How many bins to include in the histogram differences. Will
             make this many bins for each of hue, saturation, and value.
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
     """
 
     name = "diff"
@@ -44,7 +46,7 @@ class DiffAnnotator(FrameAnnotator):
         self.quantiles = kwargs.get("quantiles", [])
         self.size = kwargs.get("size", 32)
         self.bins = kwargs.get("bins", 16)
-        super().__init__()
+        super().__init__(**kwargs)
 
     def annotate(self, batch):
         """Annotate the batch of frames with the difference annotator.

@@ -27,6 +27,8 @@ class CIElabAnnotator(FrameAnnotator):
         frames (array of ints): An optional list of frames to process. This
             should be a list of integers or a 1D numpy array of integers. If
             set to something other than None, the freq input is ignored.
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
     """
 
     name = "cielab"
@@ -38,7 +40,7 @@ class CIElabAnnotator(FrameAnnotator):
         self.num_dominant = kwargs.get("num_dominant", 5)
         self.frames = _proc_frame_list(kwargs.get("frames", None))
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     def annotate(self, batch):
         """Annotate the batch of frames with the cielab annotator.

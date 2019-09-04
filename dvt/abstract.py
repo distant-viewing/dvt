@@ -71,7 +71,8 @@ class FrameAnnotator(ABC):   # pragma: no cover
     def __init__(self, **kwargs):    # pylint: disable=W0613
         """Create a new annotator object, with possible keyword arguments.
         """
-        return
+
+        self.name = kwargs.get("name", self.name)
 
     @abstractmethod
     def annotate(self, batch):
@@ -85,7 +86,7 @@ class FrameAnnotator(ABC):   # pragma: no cover
             batch (FrameBatch): A batch of images to annotate.
 
         Returns:
-            The method should return item that can be processed by the
+            The method should return an item that can be processed by the
             utility function process_output_values.
         """
         return
@@ -108,7 +109,8 @@ class Aggregator(ABC):    # pragma: no cover
     def __init__(self, **kwargs):     # pylint: disable=W0613
         """Create a new empty Aggregator.
         """
-        return
+
+        self.name = kwargs.get("name", self.name)
 
     @abstractmethod
     def aggregate(self, ldframe, **kwargs):

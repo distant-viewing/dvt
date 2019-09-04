@@ -1,0 +1,371 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>dvt.aggregate.audio &mdash; dvt 0.0.10 documentation</title>
+  
+
+  
+  
+  
+  
+
+  <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+
+  
+  <script type="text/javascript" src="../../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../../_static/doctools.js"></script>
+        <script type="text/javascript" src="../../../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+
+    
+
+  
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search"  style="background: #268bd2" >
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home" alt="Documentation Home"> dvt
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.0.10
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../index.html"> Home</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../install.html"> Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo.html"> Minimal Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../tutorial/index.html"> Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dvt.html"> API Documentation</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">dvt</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+        
+      <li>dvt.aggregate.audio</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for dvt.aggregate.audio</h1><div class="highlight"><pre>
+<span></span><span class="c1"># -*- coding: utf-8 -*-</span>
+<span class="sd">&quot;&quot;&quot;Audio annotation objects.</span>
+
+<span class="sd">This module provides audio aggregators. We generally use frame numbers</span>
+<span class="sd">as the reference point, with the frames per second and audio sampling rate</span>
+<span class="sd">values making it possible to translate from the audio samples to visual frames.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">join</span>
+
+<span class="kn">from</span> <span class="nn">matplotlib.pyplot</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">close</span><span class="p">,</span> <span class="n">pcolormesh</span><span class="p">,</span> <span class="n">savefig</span><span class="p">,</span> <span class="n">plot</span><span class="p">,</span> <span class="n">xlabel</span><span class="p">,</span> <span class="n">ylabel</span><span class="p">,</span> <span class="n">ylim</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="k">import</span> <span class="n">use</span>
+<span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="p">(</span>
+    <span class="n">arange</span><span class="p">,</span> <span class="n">int64</span><span class="p">,</span> <span class="n">log10</span><span class="p">,</span> <span class="n">mean</span> <span class="k">as</span> <span class="n">np_mean</span><span class="p">,</span> <span class="n">sqrt</span><span class="p">,</span> <span class="n">transpose</span><span class="p">,</span> <span class="n">vstack</span>
+<span class="p">)</span>
+<span class="kn">from</span> <span class="nn">scipy.signal</span> <span class="k">import</span> <span class="n">spectrogram</span>
+
+<span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">Aggregator</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_check_data_exists</span><span class="p">,</span> <span class="n">_check_out_dir</span>
+
+
+<div class="viewcode-block" id="SpectrogramAggregator"><a class="viewcode-back" href="../../../aggregate/audio.html#dvt.aggregate.audio.SpectrogramAggregator">[docs]</a><span class="k">class</span> <span class="nc">SpectrogramAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute a spectrogram on the audio input.</span>
+
+<span class="sd">    A spectrogram shows how the spectrum of frequencies varies with time. This</span>
+<span class="sd">    aggregator optionaly produces two types of output: png files visualizing</span>
+<span class="sd">    the audio track, and an array of numbers describing the spectrogram.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        breaks (list): An increasing list of break points given by frame</span>
+<span class="sd">            numbers. When given N+1 breaks, the annotator will produce N</span>
+<span class="sd">            outputs.</span>
+<span class="sd">        spectrogram (bool): Should the numeric spectrogram be returned.</span>
+<span class="sd">            Defaults to False.</span>
+<span class="sd">        output_dir (str): Directory pointing to where to store the output</span>
+<span class="sd">            spectrogram. Set to None (the default), to suppress the creation</span>
+<span class="sd">            of output PNG files.</span>
+<span class="sd">        name (str): A description of the aggregator. Used as a key in the</span>
+<span class="sd">            output data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;spectrogram&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">breaks</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;breaks&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spectrogram</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;spectrogram&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;output_dir&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="SpectrogramAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/audio.html#dvt.aggregate.audio.SpectrogramAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run a collection of annotators over the input material.</span>
+
+<span class="sd">        If output_dir is not none, produces PNG files of the spectrograms for</span>
+<span class="sd">        each group in the desired output location. If spectrogram is set to</span>
+<span class="sd">        True, will return the numeric spectrograms. Otherwise returns an</span>
+<span class="sd">        empty output.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_check_data_exists</span><span class="p">(</span><span class="n">ldframe</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">,</span> <span class="s2">&quot;audio&quot;</span><span class="p">,</span> <span class="s2">&quot;audiometa&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_check_out_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">use</span><span class="p">(</span><span class="s2">&quot;template&quot;</span><span class="p">)</span>
+
+        <span class="n">dta</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s1">&#39;audio&#39;</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">rate</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s1">&#39;audiometa&#39;</span><span class="p">][</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">saved_times</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">saved_specs</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">stime</span><span class="p">,</span> <span class="n">audio</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_audio_chunks</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">breaks</span><span class="p">,</span> <span class="n">dta</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;fps&#39;</span><span class="p">]</span>
+        <span class="p">):</span>
+
+            <span class="n">frequencies</span><span class="p">,</span> <span class="n">times</span><span class="p">,</span> <span class="n">spec</span> <span class="o">=</span> <span class="n">spectrogram</span><span class="p">(</span><span class="n">audio</span><span class="p">,</span> <span class="n">fs</span><span class="o">=</span><span class="n">rate</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">opath</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+
+                <span class="n">pcolormesh</span><span class="p">(</span><span class="n">times</span> <span class="o">+</span> <span class="nb">int</span><span class="p">(</span><span class="n">stime</span><span class="p">),</span> <span class="n">frequencies</span><span class="p">,</span> <span class="mi">10</span> <span class="o">*</span> <span class="n">log10</span><span class="p">(</span><span class="n">spec</span><span class="p">))</span>
+                <span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time (seconds)&quot;</span><span class="p">)</span>
+                <span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">)</span>
+                <span class="n">savefig</span><span class="p">(</span><span class="n">opath</span><span class="p">)</span>
+                <span class="n">close</span><span class="p">()</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spectrogram</span><span class="p">:</span>
+                <span class="n">saved_times</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">times</span> <span class="o">+</span> <span class="n">stime</span><span class="p">)</span>
+                <span class="n">saved_specs</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">transpose</span><span class="p">(</span><span class="n">spec</span><span class="p">)])</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spectrogram</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s1">&#39;times&#39;</span><span class="p">:</span> <span class="n">saved_times</span><span class="p">,</span>
+                <span class="s1">&#39;spectrogram&#39;</span><span class="p">:</span> <span class="n">vstack</span><span class="p">(</span><span class="n">saved_specs</span><span class="p">)</span>
+            <span class="p">}</span>
+
+        <span class="k">return</span> <span class="kc">None</span></div></div>
+
+
+<div class="viewcode-block" id="PowerToneAggregator"><a class="viewcode-back" href="../../../aggregate/audio.html#dvt.aggregate.audio.PowerToneAggregator">[docs]</a><span class="k">class</span> <span class="nc">PowerToneAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Computes the RMS of power and optionally plot the tone of chunks.</span>
+
+<span class="sd">    The RMS of the tone gives a rough measurement of how loud the input audio</span>
+<span class="sd">    track is. The tone PNG files visualize the sound wave over time.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        breaks (list): An increasing list of break points given by frame</span>
+<span class="sd">            numbers. When given N+1 breaks, the annotator will produce N</span>
+<span class="sd">            outputs.</span>
+<span class="sd">        output_dir (str): Directory pointing to where to store the output</span>
+<span class="sd">            spectrogram. Set to None (the default), to suppress the creation</span>
+<span class="sd">            of output PNG files.</span>
+<span class="sd">        name (str): A description of the aggregator. Used as a key in the</span>
+<span class="sd">            output data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;power&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">breaks</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s1">&#39;breaks&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;output_dir&#39;</span><span class="p">)</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+<div class="viewcode-block" id="PowerToneAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/audio.html#dvt.aggregate.audio.PowerToneAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Run a collection of annotators over the input material.</span>
+
+<span class="sd">        If output_dir is not none, produces PNG files of the tone for</span>
+<span class="sd">        each group in the desired output location. Then returns the RMS power</span>
+<span class="sd">        calculated for each batch of the audio.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">_check_data_exists</span><span class="p">(</span><span class="n">ldframe</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;meta&quot;</span><span class="p">,</span> <span class="s2">&quot;audio&quot;</span><span class="p">,</span> <span class="s2">&quot;audiometa&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_check_out_dir</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+            <span class="n">use</span><span class="p">(</span><span class="s2">&quot;template&quot;</span><span class="p">)</span>
+
+        <span class="n">dta</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s1">&#39;audio&#39;</span><span class="p">][</span><span class="s1">&#39;data&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+        <span class="n">rate</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s1">&#39;audiometa&#39;</span><span class="p">][</span><span class="s1">&#39;rate&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">output</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;frame_start&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;frame_end&#39;</span><span class="p">:</span> <span class="p">[],</span> <span class="s1">&#39;rms&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+        <span class="k">for</span> <span class="n">stime</span><span class="p">,</span> <span class="n">audio</span><span class="p">,</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">_audio_chunks</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">breaks</span><span class="p">,</span> <span class="n">dta</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">[</span><span class="s1">&#39;meta&#39;</span><span class="p">][</span><span class="s1">&#39;fps&#39;</span><span class="p">]</span>
+        <span class="p">):</span>
+
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">opath</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+                <span class="n">time_array</span> <span class="o">=</span> <span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">audio</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="n">time_array</span> <span class="o">=</span> <span class="n">time_array</span> <span class="o">/</span> <span class="n">rate</span>
+
+                <span class="n">plot</span><span class="p">(</span><span class="n">time_array</span> <span class="o">+</span> <span class="n">stime</span><span class="p">,</span> <span class="n">audio</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">)</span>
+                <span class="n">ylim</span><span class="p">([</span><span class="o">-</span><span class="mi">32768</span><span class="p">,</span> <span class="mi">32767</span><span class="p">])</span>
+                <span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Time (seconds)&quot;</span><span class="p">)</span>
+                <span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Amplitude&quot;</span><span class="p">)</span>
+                <span class="n">savefig</span><span class="p">(</span><span class="n">opath</span><span class="p">)</span>
+                <span class="n">close</span><span class="p">()</span>
+
+            <span class="n">output</span><span class="p">[</span><span class="s1">&#39;frame_start&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">breaks</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">output</span><span class="p">[</span><span class="s1">&#39;frame_end&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">breaks</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">output</span><span class="p">[</span><span class="s1">&#39;rms&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np_mean</span><span class="p">(</span><span class="n">int64</span><span class="p">(</span><span class="n">audio</span><span class="p">)</span><span class="o">**</span><span class="mi">2</span><span class="p">)))</span>
+
+        <span class="k">return</span> <span class="n">output</span></div></div>
+
+
+<span class="k">def</span> <span class="nf">_audio_chunks</span><span class="p">(</span><span class="n">breaks</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">fps</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">breaks</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">time_start</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">breaks</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">/</span> <span class="n">fps</span><span class="p">)</span>
+        <span class="n">time_end</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">breaks</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="n">fps</span><span class="p">)</span>
+        <span class="n">index_start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_start</span> <span class="o">*</span> <span class="n">rate</span><span class="p">)</span>
+        <span class="n">index_end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">time_end</span> <span class="o">*</span> <span class="n">rate</span><span class="p">)</span>
+
+        <span class="k">yield</span> <span class="n">time_start</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="n">index_start</span><span class="p">:</span><span class="n">index_end</span><span class="p">],</span> <span class="n">i</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+
+    </p>
+  </div> 
+
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.annotate.img &mdash; dvt 0.0.9 documentation</title>
+  <title>dvt.annotate.img &mdash; dvt 0.0.10 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.9
+                0.0.10
               </div>
             
           
@@ -169,6 +169,15 @@
 
 <div class="viewcode-block" id="ImgAnnotator"><a class="viewcode-back" href="../../../annotate/img.html#dvt.annotate.img.ImgAnnotator">[docs]</a><span class="k">class</span> <span class="nc">ImgAnnotator</span><span class="p">(</span><span class="n">FrameAnnotator</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Annotator for grabbing metadata about the images in the batch.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        freq (int): How often to perform the embedding. For example, setting</span>
+<span class="sd">            the frequency to 2 will computer every other frame in the batch.</span>
+<span class="sd">        frames (array of ints): An optional list of frames to process. This</span>
+<span class="sd">            should be a list of integers or a 1D numpy array of integers. If</span>
+<span class="sd">            set to something other than None, the freq input is ignored.</span>
+<span class="sd">        name (str): A description of the aggregator. Used as a key in the</span>
+<span class="sd">            output data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;img&quot;</span>
@@ -177,10 +186,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">freq</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;freq&#39;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">frames</span> <span class="o">=</span> <span class="n">_proc_frame_list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;frames&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ImgAnnotator.annotate"><a class="viewcode-back" href="../../../annotate/img.html#dvt.annotate.img.ImgAnnotator.annotate">[docs]</a>    <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the difference annotator.</span>
+        <span class="sd">&quot;&quot;&quot;Annotate the batch of frames with the image annotator.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            batch (FrameBatch): A batch of images to annotate.</span>

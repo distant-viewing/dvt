@@ -8,6 +8,19 @@ from dvt.cli import run_cli
 
 
 class TestCli:
+    def test_help(self):
+        run_cli()
+        run_cli(["python"])
+
+        with pytest.raises(SystemExit):
+            run_cli(["python", "video-viz", "-h"])
+
+        with pytest.raises(SystemExit):
+            run_cli(["python", "image-viz", "-h"])
+
+        with pytest.raises(SystemExit):
+            run_cli(["python", "video-csv", "-h"])
+
     def test_with_default(self):
         finput = abspath(join("test-data", "video-clip.mp4"))
         dname = tempfile.mkdtemp()  # creates directory
@@ -16,10 +29,10 @@ class TestCli:
 
         assert exists(join(dname, "video-clip"))
         assert exists(join(dname, "video-clip", "img"))
-        assert exists(join(dname, "video-clip", "img-display"))
-        assert exists(join(dname, "video-clip", "img-thumb"))
-        assert exists(join(dname, "video-clip", "img-flow"))
-        assert exists(join(dname, "video-clip", "data.json"))
+        assert exists(join(dname, "video-clip", "img", "display"))
+        assert exists(join(dname, "video-clip", "img", "thumb"))
+        assert exists(join(dname, "video-clip", "img", "flow"))
+        assert exists(join(dname, "video-clip", "data", "viz-data.json"))
 
     def test_input_not_found(self):
         finput = abspath(join("test-data", "video-clip-fake.mp4"))

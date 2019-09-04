@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.abstract &mdash; dvt 0.0.9 documentation</title>
+  <title>dvt.abstract &mdash; dvt 0.0.10 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.9
+                0.0.10
               </div>
             
           
@@ -227,7 +227,8 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>    <span class="c1"># pylint: disable=W0613</span>
         <span class="sd">&quot;&quot;&quot;Create a new annotator object, with possible keyword arguments.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="FrameAnnotator.annotate"><a class="viewcode-back" href="../../abstract.html#dvt.abstract.FrameAnnotator.annotate">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">annotate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">batch</span><span class="p">):</span>
@@ -241,7 +242,7 @@
 <span class="sd">            batch (FrameBatch): A batch of images to annotate.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            The method should return item that can be processed by the</span>
+<span class="sd">            The method should return an item that can be processed by the</span>
 <span class="sd">            utility function process_output_values.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span></div></div>
@@ -264,7 +265,8 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>     <span class="c1"># pylint: disable=W0613</span>
         <span class="sd">&quot;&quot;&quot;Create a new empty Aggregator.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Aggregator.aggregate"><a class="viewcode-back" href="../../abstract.html#dvt.abstract.Aggregator.aggregate">[docs]</a>    <span class="nd">@abstractmethod</span>
     <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>

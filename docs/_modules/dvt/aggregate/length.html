@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.aggregate.length &mdash; dvt 0.0.9 documentation</title>
+  <title>dvt.aggregate.length &mdash; dvt 0.0.10 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.0.9
+                0.0.10
               </div>
             
           
@@ -165,6 +165,7 @@
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">argmax</span><span class="p">,</span> <span class="n">array</span><span class="p">,</span> <span class="nb">max</span> <span class="k">as</span> <span class="n">npmax</span><span class="p">,</span> <span class="n">nonzero</span>
 
 <span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">Aggregator</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="k">import</span> <span class="n">_check_data_exists</span>
 
 
 <div class="viewcode-block" id="ShotLengthAggregator"><a class="viewcode-back" href="../../../aggregate/length.html#dvt.aggregate.length.ShotLengthAggregator">[docs]</a><span class="k">class</span> <span class="nc">ShotLengthAggregator</span><span class="p">(</span><span class="n">Aggregator</span><span class="p">):</span>
@@ -185,6 +186,8 @@
 <span class="sd">            (vertical) of face size to the entire shot. Should be an increasing</span>
 <span class="sd">            list starting at zero and the same length as shot_names. Set to</span>
 <span class="sd">            None to use the default settings.</span>
+<span class="sd">        name (str): A description of the aggregator. Used as a key in the</span>
+<span class="sd">            output data.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;length&quot;</span>
@@ -210,7 +213,7 @@
 
         <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shot_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">shot_names</span><span class="p">)</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ShotLengthAggregator.aggregate"><a class="viewcode-back" href="../../../aggregate/length.html#dvt.aggregate.length.ShotLengthAggregator.aggregate">[docs]</a>    <span class="k">def</span> <span class="nf">aggregate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ldframe</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Determine shot lengths using detected faces and objects.</span>
@@ -226,6 +229,8 @@
 <span class="sd">            A dictionary frame giving the detected people, with one row per</span>
 <span class="sd">            frame in the original input.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># make sure annotators have been run</span>
+        <span class="n">_check_data_exists</span><span class="p">(</span><span class="n">ldframe</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">,</span> <span class="s2">&quot;obj&quot;</span><span class="p">,</span> <span class="s2">&quot;meta&quot;</span><span class="p">])</span>
 
         <span class="c1"># grab the data sets</span>
         <span class="n">face</span> <span class="o">=</span> <span class="n">ldframe</span><span class="p">[</span><span class="s2">&quot;face&quot;</span><span class="p">]</span>

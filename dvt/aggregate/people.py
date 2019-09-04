@@ -13,6 +13,7 @@ from numpy.linalg import norm
 from ..abstract import Aggregator
 from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
 from ..core import DataExtraction, ImageInput
+from ..utils import _check_data_exists
 
 
 class PeopleAggregator(Aggregator):
@@ -25,10 +26,12 @@ class PeopleAggregator(Aggregator):
     Attributes:
         face_names (list): List of names associated with each face in the set
             of predefined faces
-        fprint (numpy array): A numpy array giving the embedding vectors for the
-            predefined faces. Each row should correspond with one face id and
-            the number of columns should match the number of columns in your
-            embedding.
+        fprint (numpy array): A numpy array giving the embedding vectors for
+            the predefined faces. Each row should correspond with one face id
+            and the number of columns should match the number of columns in
+            your embedding.
+        name (str): A description of the aggregator. Used as a key in the
+            output data.
     """
 
     name = "people"
@@ -40,7 +43,7 @@ class PeopleAggregator(Aggregator):
 
         assert self.fprint.shape[0] == len(self.face_names)
 
-        super().__init__()
+        super().__init__(**kwargs)
 
     def aggregate(self, ldframe, **kwargs):
         """Aggregate faces.
@@ -54,6 +57,8 @@ class PeopleAggregator(Aggregator):
             A dictionary frame giving the detected people, with one row per
             detected face.
         """
+        # make sure annotators have been run
+        _check_data_exists(ldframe, ["face"])
 
         # grab the data and create new output
         ops = ldframe["face"]

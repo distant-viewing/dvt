@@ -16,106 +16,179 @@ authors:
     orcid: 0000-0003-4629-8888
     affiliation: 2
 affiliations:
- - name: University of Richmond, Department of Mathematics and Computer Science
-   index: 1
- - name: University of Richmond, Department of Rhetoric and Communication Studies
-   index: 2
+  - name: University of Richmond, Department of Mathematics and Computer Science
+    index: 1
+  - name: University of Richmond, Department of Rhetoric and Communication Studies
+    index: 2
 date: 4 August 2019
 bibliography: paper.bib
 ---
 
 # Summary
 
-Moving images have served as a dominant form of cultural expression in the
-U.S. since the beginning of the 20th century. However, with currently
-available tools, the formal analysis of moving images has been restricted to
-close analyses of a relatively small set of works. The project "Distant
-Viewing Toolkit (DVT) for the Cultural Analysis of Moving Images" allows
-scholars to work with large-scale collections by building an open source
-software library to facilitate the algorithmic production of metadata
-summarizing the content (e.g., people/actors, dialogue, scenes, objects) and
-style (e.g., shot angle, shot length, lighting, framing, sound) of time-based
-media. The software allows scholars to explore media in many forms, including
+The Distant Viewing Toolkit is a Python package designed to facilitate the
+computational analysis of visual culture. It addresses the challenges of
+working with moving images through the automated
+extraction and visualization of metadata summarizing the content
+(e.g., people/actors, dialogue, scenes, objects) and style (e.g., shot angle,
+shot length, lighting, framing, sound) of time-based
+media. The software allows users to explore media in many forms, including
 films, news broadcasts, and television, revealing how moving images
-shape cultural norms. To illustrate DVT's ability to address humanities
-questions, the project will conduct case studies and extensive testing in
-cooperation with a group of scholars.
+shape cultural norms.
 
-The DVT software library addresses the challenges of working with moving
-images by summarizing media objects through the automated detection of
-stylistic and content-driven metadata. It algorithmically
-approximates the ways in which humans process moving images by
-identifying and tracking objects, people, sound, and dialogue. As a
-result of advances over the past two years in deep learning and computer
-vision, it is now possible to build models capable of automatically
-performing these annotation tasks with human-like accuracy
-(He 2016; Szegedy 2017). These advances, combined with the recent increased
-interest in and access to large corpora of moving images, make this the
-perfect time for building an automated annotation tool specifically designed
-for application in the humanities.
+Many open-source projects provide implementations of state-of-the-art computer
+vision algorithms. However, there are limited options for users looking to
+quickly build end-to-end pipelines that link together common visual annotations.
+Different algorithms require varying dependencies, different input formats, and
+produce output using different schemas. Also, it is not easy to keep up with
+recent advances across a the many sub-fields of computer vision, it can be
+difficult to determine which algorithms to use, and a significant amount of work
+to manually test every available option. These problems are exacerbated
+when working with moving images because most available computer vision
+libraries take still images as inputs.
+The Distant Viewing Toolkit fills this need by
+(1) constructing an object-oriented framework for applying a collection of
+algorithms to moving images and (2) packages together common sound and computer
+vision algorithms in order to provide out-of-the-box functionality for common
+tasks in the computational analysis of moving images. Currently provided
+algorithms include functionaltiy for: shot detection [@pal2015video],
+object detection [@li2018recurrent], face detection [@jiang2017face],
+face identification [@cao2018vggface2], color analysis [@karasek2015color],
+image similarity [@szegedy2017inception], optical flow [@farneback2003two], and
+shot distance analysis [@butler2012television].
 
-The DVT software library will work by allowing users to input raw media
-files in a variety of formats. The input files will then be analyzed to
-detect the following features: (1) the dominant colors and lighting
-over each shot; (2) time codes for shot and scene breaks; (3) bounding boxes
-for faces and other common objects; (4) consistent identifiers and descriptors
-for scenes, faces, and objects over time; (5) time codes and descriptions of
-diegetic and non-diegetic sound; and (6) a transcript of the spoken dialogue.
-These features serve as building blocks for the analysis of moving images in
-the same way words are the foundation for text analysis. From these extracted
-elements, higher-level features such as camera movement, framing, blocking,
-and narrative style can be derived and analyzed.
+The Distant Viewing Toolkit provides two interfaces. The first is a high-level
+command line interface designed to be accessible to users with limited
+programming experience. The second interface, a direct Python API, provides
+for customized and advanced processing of visual data. The package includes a
+custom JavaScript visualization engine that can be run on a user's machine to
+visualize the metadata for search and discovery. Metadata produced by either
+interface can also be further aggregated and analyzed to find patterns across
+a corpus. Together, these provide tools for the increasingly popular
+application of computational methods to the study of visual
+culture [@wevers2019visual].
 
-DVT offers two output formats. The first provides data stored as a
-self-contained interactive website. The page can be opened locally
-in any web browser and requires no technical programming expertise from the
-user. This format provides tools to explore and visualize the extracted
-information. The second output format consists of a collection of plain-text
-JSON files. These files are optimal for technical users looking to integrate
-the output into larger analytic pipelines such as building a visual search
-interface within a public-facing archive. In either output format, the
-generated metadata is significantly smaller in size compared to the raw media
-files, making it easy to share and publish the resulting data files.
+The following sections give a general introduction to the ideas behind the
+package and its development. Detailed documentation and tutorials are
+provided in the package's documentation:
+[https://distant-viewing.github.io/dvt/](https://distant-viewing.github.io/dvt/).
 
-In order to extract the metadata elements, DVT will make direct use of
-several specific deep learning frameworks and models. The toolkit
-utilizes the architecture of three open source programming libraries: dlib
-(King 2009), ffmpeg (Tomar 2006), and TensorFlow (Abadi et al. 2016). Within
-these frameworks, novel computer vision and sound processing algorithms
-extract the required features. Specifically, the project draws from OpenFace
-(Amos et al. 2016) for face detection; YOLO9000 for object detection (Redmon
-2017); the Places-CNN (Zhou et al. 2016) for scene detection; Colorization
-(Zhang et al. 2016) for working with black and white images; GOTURN for
-object tracking (Held 2016); and CMUSphinx (Lamere 2003) for converting sound
-to text. These specific algorithms were chosen due to their open-source
-licenses, use of the most up-to-date techniques, and the institutional support
-behind the algorithms at CMU, MIT, and Berkeley. Our work in building DVT
-consists in modifying and stitching together these six models for our
-specific humanities-centric needs. For example, only one of these models works
-directly with moving images, taking only still images as inputs, and only one
-is able to process black and white images. Our toolkit will extract individual
-frames, colorize if necessary, apply each algorithm to the frames, and then
-intelligently combine the results into a single cohesive structure.
+# High-level Command Line Interface
 
-The six models we are building in the DVT software library will allow for the
-use of new, domain specific data to improve the performance of a generically
-trained algorithm. This process, known as transfer learning, is one of the key
-reasons for the popularity of deep learning in machine learning. A major part
-of building the DVT library will be applying transfer learning to tweak the
-open-source computer vision algorithms to better function on moving images.
-This will be done by first hand-labeling a training set of 10,000 still frames
-with information about common objects and characters found in each frame
-(tasks 3 & 4). Likewise, sound and shot break information will be
-hand-recorded from several hours of raw material (tasks 2 & 5). Time coded
-closed captioning is available for some of our source materials and can be
-used to create training data for speech recognition (task 6). These hand
-labeled datasets can be used to apply transfer learning to the base model,
-updating them for our specific humanities-focused application tasks. Putting
-the models together, along with extensive documentation, yields the DVT
-software library, capable of creating summary metadata directly from raw
-media files.
+![Example index page from the Distant Viewing Toolkit's command line video
+visualization. Clicking on an image opens a new page to display the extracted
+data from each individual input.](./img/dvt-main-view.png){ width=13.5cm }
 
-See [@network-era; @distant-viewing].
+![Example video page from the Distant Viewing Toolkit's command line
+video visualization from the South Korean movie *The Contact* (1997).
+Three shots are shown; scrolling up and down shows the other
+detected shots. For each shot, an annotated thumbnail, optical flow, audio tone,
+and spectrogram are shown along with metadata such as the start and stop time,
+number of detected faces, and the estimated shot length. Clicking on any image
+opens a pop-over div with a larger version of the image. The original image can
+be shown by clicking on the blue button marked
+"Original Image".](./img/dvt-video-view.png){ width=13.5cm }
+
+The command line tools provide a fast way to get started with the toolkit. It
+can be utilized by users with no experience programming or knowledge of
+machine learning. It is ideal for quickly getting
+meaningful results. Users call the command line by directly executing the
+Python module (e.g., "python -m dvt"), specifying the desired pipeline, and
+pointed to a video file or directory of images. The output data
+can be visualized using a local webserver. Figure 1 shows an example landing
+page with six annotated video files. Clicking on an image opens a video-specific
+page (Figure 2), visualizing metadata about each cut. While the command line
+interface is meant to be easy to run out-of-the-box, it also affords a
+high-level of customization through command line options. These are documented
+within the toolkit using the **argparse** package. It is also possible to
+modify the visualization using custom CSS and JavaScript code. This makes the
+command-line interface particularly well-suited for classroom use, following
+the task-driven paradigm popular in Digital Humanities pedagogy
+[@birnbaum2017task].
+
+# Low-level Python API
+
+While command line tools provide a fast way to get started with the toolkit,
+there is much more functionality available when using the full Python API.
+Using the distant viewing toolkit starts by constructing a `DataExtraction`
+object that is associated with input data (either a video file or a
+collection of still images). Algorithms are then applied to the extraction
+object, with results are stored as Pandas DataFrames that can be exported as
+CSV or JSON files. There are two distinct types of algorithms:
+
+- **annotators**: algorithms that work directly with the source data
+but are able to only work with a small subset of frames or still images
+- **aggregators**: algorithms that have access to information extracted
+from all previously run annotators and aggregators across across the entire
+input, but cannot directly access the visual data
+
+The separation of algorithms into these two parts makes it easier to write
+straightforward, error-free code and closely mirrors the theory of
+*Distant Viewing* [@arnold2019distant]:
+
+> Distant viewing is distinguished from other approaches by making explicit
+> the interpretive nature of extracting semantic metadata from images.
+> In other words, one must 'view' visual materials before studying them.
+> Viewing,  which  we  define  as an interpretive action taken by either a
+> person or a model, is necessitated by  the  way  in  which  information  is
+> transferred  in visual materials. Therefore, in order to view images
+> computationally,  a  representation  of  elements  contained within the
+> visual material—a code system in semiotics  or,  similarly,  a  metadata
+> schema  in  informatics—must  be  constructed.  Algorithms  capable  of
+> automatically  converting  raw  images  into the  established  representation
+> are  then  needed  to apply  the  approach  at  scale.
+
+The annotator algorithms conduct the process of 'viewing' the material whereas
+the aggregator algorithms perform a 'distant' (e.g., separated from the raw
+materials) analysis of the visual inputs.
+
+There are many annotators and aggregators currently available in the toolkit.
+Pipelines---pre-bundled sequences of annotators and aggregators---are also
+included in the package.  Details of these implementations can be in API
+documentation. Users can construct custom Annotator and Aggregator objects,
+as described in the documentation's tutorial.
+
+![Schematic of the Distant Viewing Toolkit's internal architecture. Algorithms
+are split into two types: annotators that have access to small chunks of the
+raw inputs and aggregators that have access to all of the extracted annotations
+but not the input data itself.](./img/process.png){ width=13cm }
+
+# Process and Development
+
+Development of the Distant Viewing Toolkit follows best-practices for
+open-source software development [@wilson2014best].
+Development of the software is done publicly through our GitHub repository,
+which has both a stable master branch and experimental development branch.
+The project includes an open-source license (GPL-2), uses the Contributor
+Covenant Code of Conduct (v1.4), and has user templates for submitting issues
+and pull requests [@tourani2017code].
+We make use of integrated unit testing through the **pytest** package and
+TravisCL. The code passes checks for conforming to the common
+Python coding styles (checked with **pycodestyle**) and the relatively
+aggressive checks provided by **pylint** [@reitz2016hitchhiker]. JavaScript
+coding style was verified with the static checkers JSHint and JSLint
+[@santos2015using]. Stable
+versions of the package are posted to PyPI as both source packages and
+pre-compiled wheels to make installation as straightforward as possible.
+
+Because much of our audience is relatively non-technical, we have made every
+attempt to keep the installation process as simple as possible. The package
+can be installed using a fresh version of Anaconda Python and packages
+available through the pip command on PyPI (both of which can be installed
+through GUIs if preferred). We have kept dependencies to a minimum, and have
+avoided software that is known to be difficult to install. For example, all of
+the included deep-learning algorithms are built using Tensorflow to avoid
+requiring multiple deep-learning libraries [@abadi2016tensorflow]. While
+Tensorflow can occasionally throw errors, we have found the CPU-version to be
+relatively error-free for non-technical users to install on both Windows and
+macOS relative to popular alternatives such as Caffe and Torch.
+
+As version 0.2.0, we consider the core architecture of the toolkit to be
+relatively stable. We plan to continue work on both specific algorithms
+available and improvements to the interactive, web-based interface. We also
+continue to utilize the toolkit for specific applications with research
+partnerships. Our first published example application looks at Network-Era
+Sitcoms in the United States [@arnold2019visual].
 
 # Acknowledgements
 
