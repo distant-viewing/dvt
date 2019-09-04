@@ -17,6 +17,7 @@ pages:
 - Example analysis using aggregated metadata: https://doi.org/10.22148/16.043
 - Theory of the project: https://www.distantviewing.org/pdf/distant-viewing.pdf
 - Project homepage: https://distantviewing.org
+- Software Whitepaper: https://github.com/distant-viewing/dvt/blob/master/paper/paper.pdf
 - Documentation: https://distant-viewing.github.io/dvt/
 - Source code: https://github.com/distant-viewing/dvt
 
@@ -53,7 +54,7 @@ extras = {
 
 setup(
     name="dvt",
-    version="0.0.10",
+    version="0.1.0",
     description="Cultural Analysis of Moving Images",
     long_description=long_description,
     author="Taylor Anold, Lauren Tilton",
@@ -63,7 +64,7 @@ setup(
     install_requires=required,
     extras_require=extras,
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",
         "Intended Audience :: Education",
         "Intended Audience :: Science/Research",

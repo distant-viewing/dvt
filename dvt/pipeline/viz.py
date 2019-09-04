@@ -556,11 +556,5 @@ def _copy_web(dirout, index_name="index-video.html"):
     copyfile(join(data_dir, "css", "dvt.css"),
              join(toc_level, "css", "dvt.css"))
 
-    copyfile(join(data_dir, "js", "dvt-main.js"),
-             join(toc_level, "js", "dvt-main.js"))
-
-    copyfile(join(data_dir, "js", "dvt-video.js"),
-             join(toc_level, "js", "dvt-video.js"))
-
-    copyfile(join(data_dir, "js", "dvt-image.js"),
-             join(toc_level, "js", "dvt-image.js"))
+    copyfile(join(data_dir, "js", "dvt.js"),
+             join(toc_level, "js", "dvt.js"))
