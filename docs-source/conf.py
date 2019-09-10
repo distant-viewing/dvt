@@ -26,9 +26,9 @@ copyright = "2019, Taylor Arnold and Lauren Tilton"
 author = "Taylor Arnold and Lauren Tilton"
 
 # The short X.Y version
-version = "0.0.10"
+version = "0.2.0"
 # The full version, including alpha/beta/rc tags
-release = "0.0.10"
+release = "0.2.0"
 
 
 # -- General configuration ---------------------------------------------------
