@@ -41,8 +41,6 @@ def run_cli(args=None):
         key = args[1]
         if key == "video-viz":
             pipeline = VideoVizPipeline.create_from_cli(args[2:])
-        elif key == "image-viz":
-            pipeline = ImageVizPipeline.create_from_cli(args[2:])
         elif key == "video-csv":
             pipeline = VideoCsvPipeline.create_from_cli(args[2:])
         else:
@@ -70,11 +68,6 @@ Currently available pipelines:
                  various metadata using the toolkit. The output is
                  stored locally as JSON and PNG files that can be
                  viewed locally using the interactive web interface.
-
-  image-viz      given a collection of images, extracts various
-                 metadata using the toolkit. The output is stored
-                 locally as JSON and PNG files that can be viewed
-                 locally using the interactive web interface.
 
   video-csv      a pipeline used when extracting metadata for the
                  analysis of visual style across a larger corpus.

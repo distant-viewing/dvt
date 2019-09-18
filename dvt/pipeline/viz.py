@@ -16,11 +16,10 @@ from numpy import array, append, int32
 from pandas import DataFrame
 
 from ..abstract import Pipeline
-from ..core import DataExtraction, FrameInput, ImageInput
+from ..core import DataExtraction, FrameInput
 from ..annotate.diff import DiffAnnotator
 from ..annotate.cielab import CIElabAnnotator
 from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
-from ..annotate.img import ImgAnnotator
 from ..annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from ..annotate.opticalflow import OpticalFlowAnnotator
 from ..annotate.png import PngAnnotator
@@ -33,9 +32,7 @@ from ..utils import (
     setup_tensorflow,
     get_data_location,
     _expand_path,
-    _check_exists,
-    _check_exists_dir,
-    _find_containing_images
+    _check_exists
 )
 
 
@@ -370,203 +367,6 @@ class VideoVizPipeline(Pipeline):
             face_names=fnames,
             fprint=fembed,
             frames=frames
-        ))
-
-
-class ImageVizPipeline(Pipeline):
-    """Contains a predefined annotators to process a corpus of images.
-
-    Attributes:
-        dinput (str): directory of the input images. Will take all image
-            files (png, jpg, jpeg, tif, tiff) from within the parent directory.
-        dirout (str): output directory. If set to None (default), will be
-            a directory named "dvt-output-data" in the current working
-            directory
-        pipeline_level (int): interger code (0, 1, or 2) describing how much
-            data to parse. 0 creates just metadata, 1 creates just images and
-            metadata, 2 or more creates the interactive website
-        path_to_faces (str): Path to directory containing protype faces
-            (optional). See tutorial on the commandline interface for more
-            details.
-    """
-
-    def __init__(
-        self,
-        dinput,
-        dirout=None,
-        pipeline_level=2,
-        path_to_faces=None
-    ):
-
-        setup_tensorflow()
-
-        # create data extraction object and get metadata for the input
-        dinput = _check_exists_dir(dinput)
-        finput = _find_containing_images(dinput)
-        fname = _expand_path(dinput)[1]
-
-        self.dextra = DataExtraction(ImageInput(input_paths=finput))
-        self.dextra.run_annotators([], max_batch=1, msg=None)
-        self.pipeline_level = pipeline_level
-
-        # process and prepare the output directory
-        if dirout is None:
-            dirout = join(getcwd(), "dvt-output-data")
-
-        if not exists(dirout):
-            makedirs(dirout)
-
-        # grab parameters and store as class attribute
-        self.attrib = {
-            "fname": fname,
-            "finput": finput,
-            "dirout": dirout,
-            "path_to_faces": path_to_faces
-        }
-
-        super().__init__()
-
-    def run(self):
-        """Run the pipeline over the input image objects.
-        """
-        # run the main annotations
-        self._run_annotation()
-
-        # run aggregators
-        if self.attrib['path_to_faces'] is not None:
-            self._proc_faces()
-
-        self.dextra.run_aggregator(ShotLengthAggregator(
-            frames=list(range(len(self.attrib['finput'])))
-        ))
-
-        self.dextra.run_aggregator(DisplayAggregator(
-            input_dir=join(
-                self.attrib['dirout'],
-                "img",
-                self.attrib['fname'],
-                "frames"
-            ),
-            output_dir=join(
-                self.attrib['dirout'],
-                "img",
-                self.attrib['fname'],
-                "display"
-            ),
-            size=250
-        ))
-
-        # output dataset as a JSON file
-        self.dextra.get_json(
-            join(
-                self.attrib['dirout'],
-                "data",
-                self.attrib['fname'] + ".json"
-            )
-        )
-        _json_toc(
-            self.attrib['dirout'],
-            self.attrib['fname']
-        )
-
-        # if desired, push web-specific files
-        if self.pipeline_level >= 2:
-            _copy_web(self.attrib['dirout'])
-
-    @staticmethod
-    def get_argparser():
-        parser = ArgumentParser(
-            prog="python3 -m dvt video-viz",
-            description="Given a single video file, this pipeline selects a "
-            "set of frames (by default, one frame in each shot) and extracts "
-            "metadata using the toolkit's annotators and aggregators. "
-            "The output is stored locally as JSON and PNG files that can be "
-            "viewed locally using the interactive web interface.",
-        )
-        parser.add_argument(
-            "dinput",
-            type=str,
-            help="directory of the input images. Will take all image files "
-                 "(png, jpg, jpeg, tif, tiff) from within this parent"
-                 "directory."
-        )
-        parser.add_argument(
-            "--dirout",
-            "-d",
-            type=str,
-            help="base directory in which to store the output",
-            default="dvt-output-data",
-        )
-        parser.add_argument(
-            "--pipeline-level",
-            "-l",
-            type=int,
-            help="interger code (0, 1, or 2) describing how much data to "
-            "parse; 0 creates just metadata, 1 creates just images and "
-            "metadata, 2 or more creates the interactive website "
-            "(default: 2)",
-            default=2,
-        )
-        parser.add_argument(
-            "--path-to-faces",
-            type=str,
-            default=None,
-            help="Path to directory containing protype faces (optional). See "
-            "tutorial on the commandline interface for more details.",
-        )
-
-        return parser
-
-    def _run_annotation(self):
-
-        annotators = [
-            CIElabAnnotator(num_dominant=5),
-            ObjectAnnotator(detector=ObjectDetectRetinaNet()),
-            ImgAnnotator()
-        ]
-
-        if self.pipeline_level >= 1:
-            annotators.append(PngAnnotator(
-                output_dir=join(
-                    self.attrib['dirout'],
-                    "img",
-                    self.attrib['fname'],
-                    "frames"
-                )
-            ))
-            thumb = PngAnnotator(
-                output_dir=join(
-                    self.attrib['dirout'],
-                    "img",
-                    self.attrib['fname'],
-                    "thumb"
-                ),
-                size=150
-            )
-            thumb.name = "thumb"
-            annotators.append(thumb)
-
-        if self.attrib['path_to_faces'] is not None:
-            annotators.append(FaceAnnotator(
-                    detector=FaceDetectMtcnn(),
-                    embedding=FaceEmbedVgg2()
-            ))
-        else:
-            annotators.append(FaceAnnotator(
-                detector=FaceDetectMtcnn()
-            ))
-
-        self.dextra.run_annotators(
-            annotators,
-            msg="Processing annotators: "
-        )
-
-    def _proc_faces(self):
-        fembed, fnames = make_fprint_from_images(self.attrib['path_to_faces'])
-
-        self.dextra.run_aggregator(PeopleAggregator(
-            face_names=fnames,
-            fprint=fembed
         ))
 
 

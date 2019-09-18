@@ -3,6 +3,6 @@ Pipeline for Building Interactive Visualizations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.pipeline.viz
-    :members: VideoVizPipeline, ImageVizPipeline
+    :members: VideoVizPipeline
     :undoc-members:
     :show-inheritance:

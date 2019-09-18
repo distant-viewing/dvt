@@ -3,7 +3,7 @@ from os.path import exists, join, abspath
 import tempfile
 
 from dvt.pipeline.csv import VideoCsvPipeline
-from dvt.pipeline.viz import VideoVizPipeline, ImageVizPipeline
+from dvt.pipeline.viz import VideoVizPipeline
 
 
 class TestPipelines:
@@ -45,14 +45,6 @@ class TestPipelines:
     def test_video_viz_with_cwd(self):
         finput = abspath(join("test-data", "video-clip.mp4"))
         wp = VideoVizPipeline(finput)
-
-    def test_image_viz(self):
-        finput = abspath(join("test-data", "img"))
-
-        dname = tempfile.mkdtemp()  # creates directory
-
-        wp = ImageVizPipeline(finput, dname)
-        wp.run()
 
     def test_video_csv(self):
         finput = abspath(join("test-data", "video-clip.mp4"))
