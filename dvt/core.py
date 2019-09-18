@@ -44,6 +44,7 @@ from .utils import (
     _subtitle_data
 )
 
+
 class DataExtraction:
     """The core class of the toolkit. Used to pass algorithms to visual data.
 

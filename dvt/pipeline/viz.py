@@ -6,9 +6,11 @@ Offers similar functionality to the command line interface from within Python.
 
 from argparse import ArgumentParser
 from json import dump, load
-from os import getcwd, makedirs
-from os.path import dirname, exists, isdir, join
-from shutil import copyfile
+from os import getcwd, listdir, makedirs
+from os.path import exists, isdir, join
+from shutil import move
+from tempfile import mkdtemp
+from zipfile import ZipFile
 
 from numpy import array, append, int32
 from pandas import DataFrame
@@ -99,7 +101,7 @@ class VideoVizPipeline(Pipeline):
         self.attrib = {
             "finput": _check_exists(finput),
             "fname": fname,
-            "dirout": join(dirout, fname),
+            "dirout": dirout,
             "diff_cutoff": diff_cutoff,
             "cut_min_length": cut_min_length,
             "path_to_faces": path_to_faces,
@@ -126,8 +128,18 @@ class VideoVizPipeline(Pipeline):
         ))
 
         self.dextra.run_aggregator(DisplayAggregator(
-            input_dir=join(self.attrib['dirout'], "img", "frames"),
-            output_dir=join(self.attrib['dirout'], "img", "display"),
+            input_dir=join(
+                self.attrib['dirout'],
+                "img",
+                self.attrib['fname'],
+                "frames"
+            ),
+            output_dir=join(
+                self.attrib['dirout'],
+                "img",
+                self.attrib['fname'],
+                "display"
+            ),
             frames=self.dextra.data['cut']['mpoint'],
             size=250
         ))
@@ -135,8 +147,18 @@ class VideoVizPipeline(Pipeline):
         # if audio file, process
         if self.attrib['path_to_audio'] is not None:
             breaks = [0] + self.dextra.data['cut']['frame_end'].tolist()
-            spec_output = join(self.attrib['dirout'], "img", "spec")
-            tone_output = join(self.attrib['dirout'], "img", "tone")
+            spec_output = join(
+                self.attrib['dirout'],
+                "img",
+                self.attrib['fname'],
+                "spec"
+            )
+            tone_output = join(
+                self.attrib['dirout'],
+                "img",
+                self.attrib['fname'],
+                "tone"
+            )
 
             self.dextra.run_audio_annotator()
             self.dextra.run_aggregator(SpectrogramAggregator(
@@ -154,19 +176,21 @@ class VideoVizPipeline(Pipeline):
 
         # output dataset as a JSON file
         self.dextra.get_json(
-            join(self.attrib['dirout'], "data", "viz-data.json"),
+            join(
+                self.attrib['dirout'],
+                "data",
+                self.attrib['fname'] + ".json"
+            ),
             exclude_set=["opticalflow"]
         )
-        miter = len(self.dextra.get_data()["cut"]["mpoint"].values) // 2
         _json_toc(
             self.attrib['dirout'],
-            self.attrib['fname'],
-            self.dextra.get_data()["cut"]["mpoint"].values[miter]
+            self.attrib['fname']
         )
 
         # if desired, push web-specific files
         if self.pipeline_level >= 2:
-            _copy_web(self.attrib['dirout'], "index-video.html")
+            _copy_web(self.attrib['dirout'])
 
     @staticmethod
     def get_argparser():
@@ -291,18 +315,33 @@ class VideoVizPipeline(Pipeline):
 
         if self.pipeline_level >= 1:
             annotators.append(PngAnnotator(
-                output_dir=join(self.attrib['dirout'], "img", "frames"),
+                output_dir=join(
+                    self.attrib['dirout'],
+                    "img",
+                    self.attrib['fname'],
+                    "frames"
+                ),
                 frames=frames
             ))
             thumb = PngAnnotator(
-                output_dir=join(self.attrib['dirout'], "img", "thumb"),
+                output_dir=join(
+                    self.attrib['dirout'],
+                    "img",
+                    self.attrib['fname'],
+                    "thumb"
+                ),
                 frames=frames,
                 size=150
             )
             thumb.name = "thumb"
             annotators.append(thumb)
             annotators.append(OpticalFlowAnnotator(
-                output_dir=join(self.attrib['dirout'], "img", "flow"),
+                output_dir=join(
+                    self.attrib['dirout'],
+                    "img",
+                    self.attrib['fname'],
+                    "flow"
+                ),
                 frames=frames,
                 size=150
             ))
@@ -381,7 +420,7 @@ class ImageVizPipeline(Pipeline):
         self.attrib = {
             "fname": fname,
             "finput": finput,
-            "dirout": join(dirout, fname),
+            "dirout": dirout,
             "path_to_faces": path_to_faces
         }
 
@@ -402,24 +441,37 @@ class ImageVizPipeline(Pipeline):
         ))
 
         self.dextra.run_aggregator(DisplayAggregator(
-            input_dir=join(self.attrib['dirout'], "img", "frames"),
-            output_dir=join(self.attrib['dirout'], "img", "display"),
+            input_dir=join(
+                self.attrib['dirout'],
+                "img",
+                self.attrib['fname'],
+                "frames"
+            ),
+            output_dir=join(
+                self.attrib['dirout'],
+                "img",
+                self.attrib['fname'],
+                "display"
+            ),
             size=250
         ))
 
         # output dataset as a JSON file
         self.dextra.get_json(
-            join(self.attrib['dirout'], "data", "viz-data.json")
+            join(
+                self.attrib['dirout'],
+                "data",
+                self.attrib['fname'] + ".json"
+            )
         )
         _json_toc(
             self.attrib['dirout'],
-            self.attrib['fname'],
-            0
+            self.attrib['fname']
         )
 
         # if desired, push web-specific files
         if self.pipeline_level >= 2:
-            _copy_web(self.attrib['dirout'], "index-image.html")
+            _copy_web(self.attrib['dirout'])
 
     @staticmethod
     def get_argparser():
@@ -475,10 +527,20 @@ class ImageVizPipeline(Pipeline):
 
         if self.pipeline_level >= 1:
             annotators.append(PngAnnotator(
-                output_dir=join(self.attrib['dirout'], "img", "frames")
+                output_dir=join(
+                    self.attrib['dirout'],
+                    "img",
+                    self.attrib['fname'],
+                    "frames"
+                )
             ))
             thumb = PngAnnotator(
-                output_dir=join(self.attrib['dirout'], "img", "thumb"),
+                output_dir=join(
+                    self.attrib['dirout'],
+                    "img",
+                    self.attrib['fname'],
+                    "thumb"
+                ),
                 size=150
             )
             thumb.name = "thumb"
@@ -508,8 +570,11 @@ class ImageVizPipeline(Pipeline):
         ))
 
 
-def _json_toc(dirout, fname, frame_num):
-    toc_path = join(dirname(dirout), "toc.json")
+def _json_toc(dirout, fname):
+    if not isdir(join(dirout, "data")):
+        makedirs(join(dirout, "data"))
+
+    toc_path = join(dirout, "data", "toc.json")
 
     data = []
     if exists(toc_path):
@@ -521,12 +586,6 @@ def _json_toc(dirout, fname, frame_num):
     data.extend(
         [
             {
-                "thumb_path": join(
-                    fname,
-                    "img",
-                    "frames",
-                    "frame-{0:06d}.png".format(frame_num),
-                ),
                 "video_name": fname,
                 "video_name_long": fname
             }
@@ -537,24 +596,13 @@ def _json_toc(dirout, fname, frame_num):
         dump(data, finput, indent=4)
 
 
-def _copy_web(dirout, index_name="index-video.html"):
+def _copy_web(dirout):
     data_dir = get_data_location()
-    toc_level = dirname(dirout)
+    output_dir = mkdtemp()
 
-    if not isdir(join(toc_level, "js")):
-        makedirs(join(toc_level, "js"))
+    with ZipFile(join(data_dir, "build.zip"), "r") as zip_ref:
+        zip_ref.extractall(output_dir)
 
-    if not isdir(join(toc_level, "css")):
-        makedirs(join(toc_level, "css"))
-
-    copyfile(join(data_dir, "html", "index-main.html"),
-             join(toc_level, "index.html"))
-
-    copyfile(join(data_dir, "html", index_name),
-             join(dirout, "index.html"))
-
-    copyfile(join(data_dir, "css", "dvt.css"),
-             join(toc_level, "css", "dvt.css"))
-
-    copyfile(join(data_dir, "js", "dvt.js"),
-             join(toc_level, "js", "dvt.js"))
+    for path in listdir(join(output_dir, "build")):
+        if not exists(join(dirout, path)):
+            move(join(output_dir, "build", path), dirout)

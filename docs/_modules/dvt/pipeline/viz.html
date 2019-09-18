@@ -162,9 +162,11 @@
 
 <span class="kn">from</span> <span class="nn">argparse</span> <span class="k">import</span> <span class="n">ArgumentParser</span>
 <span class="kn">from</span> <span class="nn">json</span> <span class="k">import</span> <span class="n">dump</span><span class="p">,</span> <span class="n">load</span>
-<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">getcwd</span><span class="p">,</span> <span class="n">makedirs</span>
-<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">dirname</span><span class="p">,</span> <span class="n">exists</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">join</span>
-<span class="kn">from</span> <span class="nn">shutil</span> <span class="k">import</span> <span class="n">copyfile</span>
+<span class="kn">from</span> <span class="nn">os</span> <span class="k">import</span> <span class="n">getcwd</span><span class="p">,</span> <span class="n">listdir</span><span class="p">,</span> <span class="n">makedirs</span>
+<span class="kn">from</span> <span class="nn">os.path</span> <span class="k">import</span> <span class="n">exists</span><span class="p">,</span> <span class="n">isdir</span><span class="p">,</span> <span class="n">join</span>
+<span class="kn">from</span> <span class="nn">shutil</span> <span class="k">import</span> <span class="n">move</span>
+<span class="kn">from</span> <span class="nn">tempfile</span> <span class="k">import</span> <span class="n">mkdtemp</span>
+<span class="kn">from</span> <span class="nn">zipfile</span> <span class="k">import</span> <span class="n">ZipFile</span>
 
 <span class="kn">from</span> <span class="nn">numpy</span> <span class="k">import</span> <span class="n">array</span><span class="p">,</span> <span class="n">append</span><span class="p">,</span> <span class="n">int32</span>
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">DataFrame</span>
@@ -255,7 +257,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;finput&quot;</span><span class="p">:</span> <span class="n">_check_exists</span><span class="p">(</span><span class="n">finput</span><span class="p">),</span>
             <span class="s2">&quot;fname&quot;</span><span class="p">:</span> <span class="n">fname</span><span class="p">,</span>
-            <span class="s2">&quot;dirout&quot;</span><span class="p">:</span> <span class="n">join</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="n">fname</span><span class="p">),</span>
+            <span class="s2">&quot;dirout&quot;</span><span class="p">:</span> <span class="n">dirout</span><span class="p">,</span>
             <span class="s2">&quot;diff_cutoff&quot;</span><span class="p">:</span> <span class="n">diff_cutoff</span><span class="p">,</span>
             <span class="s2">&quot;cut_min_length&quot;</span><span class="p">:</span> <span class="n">cut_min_length</span><span class="p">,</span>
             <span class="s2">&quot;path_to_faces&quot;</span><span class="p">:</span> <span class="n">path_to_faces</span><span class="p">,</span>
@@ -282,8 +284,18 @@
         <span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">DisplayAggregator</span><span class="p">(</span>
-            <span class="n">input_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;frames&quot;</span><span class="p">),</span>
-            <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;display&quot;</span><span class="p">),</span>
+            <span class="n">input_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;frames&quot;</span>
+            <span class="p">),</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;display&quot;</span>
+            <span class="p">),</span>
             <span class="n">frames</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">][</span><span class="s1">&#39;mpoint&#39;</span><span class="p">],</span>
             <span class="n">size</span><span class="o">=</span><span class="mi">250</span>
         <span class="p">))</span>
@@ -291,8 +303,18 @@
         <span class="c1"># if audio file, process</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_audio&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">breaks</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">][</span><span class="s1">&#39;frame_end&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-            <span class="n">spec_output</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;spec&quot;</span><span class="p">)</span>
-            <span class="n">tone_output</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;tone&quot;</span><span class="p">)</span>
+            <span class="n">spec_output</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;spec&quot;</span>
+            <span class="p">)</span>
+            <span class="n">tone_output</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;tone&quot;</span>
+            <span class="p">)</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_audio_annotator</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">SpectrogramAggregator</span><span class="p">(</span>
@@ -310,19 +332,21 @@
 
         <span class="c1"># output dataset as a JSON file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span>
-            <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;viz-data.json&quot;</span><span class="p">),</span>
+            <span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span>
+            <span class="p">),</span>
             <span class="n">exclude_set</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;opticalflow&quot;</span><span class="p">]</span>
         <span class="p">)</span>
-        <span class="n">miter</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="s2">&quot;mpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">//</span> <span class="mi">2</span>
         <span class="n">_json_toc</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s2">&quot;cut&quot;</span><span class="p">][</span><span class="s2">&quot;mpoint&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">miter</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">]</span>
         <span class="p">)</span>
 
         <span class="c1"># if desired, push web-specific files</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">_copy_web</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;index-video.html&quot;</span><span class="p">)</span></div>
+            <span class="n">_copy_web</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="VideoVizPipeline.get_argparser"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.VideoVizPipeline.get_argparser">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_argparser</span><span class="p">():</span>
@@ -447,18 +471,33 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PngAnnotator</span><span class="p">(</span>
-                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;frames&quot;</span><span class="p">),</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;frames&quot;</span>
+                <span class="p">),</span>
                 <span class="n">frames</span><span class="o">=</span><span class="n">frames</span>
             <span class="p">))</span>
             <span class="n">thumb</span> <span class="o">=</span> <span class="n">PngAnnotator</span><span class="p">(</span>
-                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;thumb&quot;</span><span class="p">),</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;thumb&quot;</span>
+                <span class="p">),</span>
                 <span class="n">frames</span><span class="o">=</span><span class="n">frames</span><span class="p">,</span>
                 <span class="n">size</span><span class="o">=</span><span class="mi">150</span>
             <span class="p">)</span>
             <span class="n">thumb</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;thumb&quot;</span>
             <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thumb</span><span class="p">)</span>
             <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">OpticalFlowAnnotator</span><span class="p">(</span>
-                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;flow&quot;</span><span class="p">),</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;flow&quot;</span>
+                <span class="p">),</span>
                 <span class="n">frames</span><span class="o">=</span><span class="n">frames</span><span class="p">,</span>
                 <span class="n">size</span><span class="o">=</span><span class="mi">150</span>
             <span class="p">))</span>
@@ -537,7 +576,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;fname&quot;</span><span class="p">:</span> <span class="n">fname</span><span class="p">,</span>
             <span class="s2">&quot;finput&quot;</span><span class="p">:</span> <span class="n">finput</span><span class="p">,</span>
-            <span class="s2">&quot;dirout&quot;</span><span class="p">:</span> <span class="n">join</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="n">fname</span><span class="p">),</span>
+            <span class="s2">&quot;dirout&quot;</span><span class="p">:</span> <span class="n">dirout</span><span class="p">,</span>
             <span class="s2">&quot;path_to_faces&quot;</span><span class="p">:</span> <span class="n">path_to_faces</span>
         <span class="p">}</span>
 
@@ -558,24 +597,37 @@
         <span class="p">))</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">DisplayAggregator</span><span class="p">(</span>
-            <span class="n">input_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;frames&quot;</span><span class="p">),</span>
-            <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;display&quot;</span><span class="p">),</span>
+            <span class="n">input_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;frames&quot;</span>
+            <span class="p">),</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;display&quot;</span>
+            <span class="p">),</span>
             <span class="n">size</span><span class="o">=</span><span class="mi">250</span>
         <span class="p">))</span>
 
         <span class="c1"># output dataset as a JSON file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span>
-            <span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;viz-data.json&quot;</span><span class="p">)</span>
+            <span class="n">join</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span>
+            <span class="p">)</span>
         <span class="p">)</span>
         <span class="n">_json_toc</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
-            <span class="mi">0</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">]</span>
         <span class="p">)</span>
 
         <span class="c1"># if desired, push web-specific files</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">_copy_web</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;index-image.html&quot;</span><span class="p">)</span></div>
+            <span class="n">_copy_web</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">])</span></div>
 
 <div class="viewcode-block" id="ImageVizPipeline.get_argparser"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.get_argparser">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">get_argparser</span><span class="p">():</span>
@@ -631,10 +683,20 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PngAnnotator</span><span class="p">(</span>
-                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;frames&quot;</span><span class="p">)</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;frames&quot;</span>
+                <span class="p">)</span>
             <span class="p">))</span>
             <span class="n">thumb</span> <span class="o">=</span> <span class="n">PngAnnotator</span><span class="p">(</span>
-                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span> <span class="s2">&quot;img&quot;</span><span class="p">,</span> <span class="s2">&quot;thumb&quot;</span><span class="p">),</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;img&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
+                    <span class="s2">&quot;thumb&quot;</span>
+                <span class="p">),</span>
                 <span class="n">size</span><span class="o">=</span><span class="mi">150</span>
             <span class="p">)</span>
             <span class="n">thumb</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;thumb&quot;</span>
@@ -664,8 +726,11 @@
         <span class="p">))</span></div>
 
 
-<span class="k">def</span> <span class="nf">_json_toc</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">frame_num</span><span class="p">):</span>
-    <span class="n">toc_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dirname</span><span class="p">(</span><span class="n">dirout</span><span class="p">),</span> <span class="s2">&quot;toc.json&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">_json_toc</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="n">fname</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)):</span>
+        <span class="n">makedirs</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">))</span>
+
+    <span class="n">toc_path</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="s2">&quot;toc.json&quot;</span><span class="p">)</span>
 
     <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">exists</span><span class="p">(</span><span class="n">toc_path</span><span class="p">):</span>
@@ -677,12 +742,6 @@
     <span class="n">data</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
         <span class="p">[</span>
             <span class="p">{</span>
-                <span class="s2">&quot;thumb_path&quot;</span><span class="p">:</span> <span class="n">join</span><span class="p">(</span>
-                    <span class="n">fname</span><span class="p">,</span>
-                    <span class="s2">&quot;img&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;frames&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;frame-</span><span class="si">{0:06d}</span><span class="s2">.png&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">frame_num</span><span class="p">),</span>
-                <span class="p">),</span>
                 <span class="s2">&quot;video_name&quot;</span><span class="p">:</span> <span class="n">fname</span><span class="p">,</span>
                 <span class="s2">&quot;video_name_long&quot;</span><span class="p">:</span> <span class="n">fname</span>
             <span class="p">}</span>
@@ -693,27 +752,16 @@
         <span class="n">dump</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">finput</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
 
 
-<span class="k">def</span> <span class="nf">_copy_web</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="n">index_name</span><span class="o">=</span><span class="s2">&quot;index-video.html&quot;</span><span class="p">):</span>
+<span class="k">def</span> <span class="nf">_copy_web</span><span class="p">(</span><span class="n">dirout</span><span class="p">):</span>
     <span class="n">data_dir</span> <span class="o">=</span> <span class="n">get_data_location</span><span class="p">()</span>
-    <span class="n">toc_level</span> <span class="o">=</span> <span class="n">dirname</span><span class="p">(</span><span class="n">dirout</span><span class="p">)</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">mkdtemp</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">)):</span>
-        <span class="n">makedirs</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">))</span>
+    <span class="k">with</span> <span class="n">ZipFile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;build.zip&quot;</span><span class="p">),</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
+        <span class="n">zip_ref</span><span class="o">.</span><span class="n">extractall</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">isdir</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;css&quot;</span><span class="p">)):</span>
-        <span class="n">makedirs</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;css&quot;</span><span class="p">))</span>
-
-    <span class="n">copyfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="s2">&quot;index-main.html&quot;</span><span class="p">),</span>
-             <span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;index.html&quot;</span><span class="p">))</span>
-
-    <span class="n">copyfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="n">index_name</span><span class="p">),</span>
-             <span class="n">join</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="s2">&quot;index.html&quot;</span><span class="p">))</span>
-
-    <span class="n">copyfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;css&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt.css&quot;</span><span class="p">),</span>
-             <span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;css&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt.css&quot;</span><span class="p">))</span>
-
-    <span class="n">copyfile</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">data_dir</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt.js&quot;</span><span class="p">),</span>
-             <span class="n">join</span><span class="p">(</span><span class="n">toc_level</span><span class="p">,</span> <span class="s2">&quot;js&quot;</span><span class="p">,</span> <span class="s2">&quot;dvt.js&quot;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">listdir</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">dirout</span><span class="p">,</span> <span class="n">path</span><span class="p">)):</span>
+            <span class="n">move</span><span class="p">(</span><span class="n">join</span><span class="p">(</span><span class="n">output_dir</span><span class="p">,</span> <span class="s2">&quot;build&quot;</span><span class="p">,</span> <span class="n">path</span><span class="p">),</span> <span class="n">dirout</span><span class="p">)</span>
 </pre></div>
 
            </div>

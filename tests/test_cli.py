@@ -27,12 +27,12 @@ class TestCli:
 
         run_cli(["python", "video-viz", "--dirout", dname, finput])
 
-        assert exists(join(dname, "video-clip"))
-        assert exists(join(dname, "video-clip", "img"))
-        assert exists(join(dname, "video-clip", "img", "display"))
-        assert exists(join(dname, "video-clip", "img", "thumb"))
-        assert exists(join(dname, "video-clip", "img", "flow"))
-        assert exists(join(dname, "video-clip", "data", "viz-data.json"))
+        assert exists(join(dname, "img"))
+        assert exists(join(dname, "img", "video-clip"))
+        assert exists(join(dname, "img", "video-clip", "display"))
+        assert exists(join(dname, "img", "video-clip", "thumb"))
+        assert exists(join(dname, "img", "video-clip", "flow"))
+        assert exists(join(dname, "data", "video-clip.json"))
 
     def test_input_not_found(self):
         finput = abspath(join("test-data", "video-clip-fake.mp4"))

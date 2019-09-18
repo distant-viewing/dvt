@@ -75,7 +75,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     package_data={
-          'dvt': ['data/*/*'],
+          'dvt': ['data/build.zip'],
      },
     packages=find_packages(),
 )
