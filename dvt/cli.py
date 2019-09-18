@@ -23,7 +23,7 @@ Example:
 
 from sys import argv
 
-from .pipeline.viz import VideoVizPipeline, ImageVizPipeline
+from .pipeline.viz import VideoVizPipeline
 from .pipeline.csv import VideoCsvPipeline
 
 
