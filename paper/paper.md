@@ -32,12 +32,10 @@ working with moving images through the automated
 extraction and visualization of metadata summarizing the content
 (e.g., people/actors, dialogue, scenes, objects) and style (e.g., shot angle,
 shot length, lighting, framing, sound) of time-based
-media. The software allows users to explore media
-such as film and television with formats such as movies, serials, and
-news broadcasts.  This toolkit is optimized for two purposes:
+media. This toolkit is optimized for two purposes:
 (1) scholarly inquiry of visual culture from the humanities and social sciences,
-and (2) search and discovery of collections within galleries, libraries, archives, and museums (GLAM).
-
+and (2) search and discovery of collections within libraries, archives, and
+museums.
 
 Many open-source projects provide implementations of state-of-the-art computer
 vision algorithms. However, there are limited options for users looking to
@@ -45,7 +43,7 @@ quickly build end-to-end pipelines that link together common visual annotations.
 Different algorithms require varying dependencies, different input formats, and
 produce outputs using different schemas. Because of the rapid pace of
 scholarship across the many sub-fields of computer vision, it can be
-difficult to determine which algorithms to use as well as a significant amount of work
+difficult to determine which algorithms to use and a significant amount of work
 to manually test every option. These challenges are exacerbated
 when working with moving images because most available computer vision
 libraries take still images as inputs.   
@@ -63,34 +61,25 @@ image similarity [@szegedy2017inception], optical flow [@farneback2003two], and
 shot distance analysis [@butler2012television].  
 
 The Distant Viewing Toolkit provides two interfaces.
-The Low-level Python API, a direct Python API, provides
-for customized and advanced processing of visual data.  
-The High-level Command Line Interface is designed to be accessible to users with limited
-programming experience. Metadata produced by either interface can also be further
-aggregated and analyzed to find patterns across a corpus.
-Drawing on theories of exploratory data analysis,  the package includes a
-custom JavaScript visualization engine that can be run on a user's machine to
-visualize the metadata for search and discovery. Together, these provide tools for
-the increasingly popular application of computational methods to the study of visual
-culture [@wevers2019visual].  The following sections provide further explaination
-of the interfaces and visualization engine followed by a section on the process
-and development of the package. Detailed documentation and tutorials are
-provided in the package's documentation:
+The low-level Python API provides for customized and advanced processing of
+visual data.  The high-level command line interface is designed to be
+accessible to users with limited programming experience. Metadata produced by
+either interface can also be further aggregated and analyzed to find patterns
+across a corpus. Drawing on theories of exploratory data analysis,
+the package includes a custom JavaScript visualization engine that can be run
+on a user's machine to visualize the metadata for search and discovery.
+Together, these provide tools for the increasingly popular application of
+computational methods to the study of visual culture [@wevers2019visual].
+The following sections provide further explaination of the interfaces and
+visualization engine followed by a section on the process and development of
+the package. Detailed documentation and tutorials are provided in the package's
+documentation:
 [https://distant-viewing.github.io/dvt/](https://distant-viewing.github.io/dvt/).
 
-![Example index page from the Distant Viewing Toolkit's command line video
-visualization. Clicking on an image opens a new page to display the extracted
-data from each individual input.](./img/dvt-main-view.png){ width=13.5cm }
-
-![Example video page from the Distant Viewing Toolkit's command line
-video visualization from the South Korean movie *The Contact* (1997).
-Three shots are shown; scrolling up and down shows the other
-detected shots. For each shot, an annotated thumbnail, optical flow, audio tone,
-and spectrogram are shown along with metadata such as the start and stop time,
-number of detected faces, and the estimated shot length. Clicking on any image
-opens a pop-over div with a larger version of the image. The original image can
-be shown by clicking on the blue button marked
-"Original Image".](./img/dvt-video-view.png){ width=13.5cm }
+![Schematic of the Distant Viewing Toolkit's internal architecture. Algorithms
+are split into two types: annotators that have access to small chunks of the
+raw inputs and aggregators that have access to all of the extracted annotations
+but not the input data itself.](./img/process.png){ width=13cm }
 
 # Low-level Python API
 
@@ -125,20 +114,24 @@ straightforward, error-free code and closely mirrors the theory of
 
 The annotator algorithms conduct the process of "viewing" the material whereas
 the aggregator algorithms perform a "distant" (e.g., separated from the raw
-materials) analysis of the visual inputs.
+materials) analysis of the visual inputs. The schematic in Figure 1 shows the
+relationship between these algorithms and the respective input and output
+formats.
 
 There are many annotators and aggregators currently available in the toolkit.
 Pipelines---pre-bundled sequences of annotators and aggregators---are also
-included in the package.  Details of these implementations can be found in the API
+included in the package. Details of these implementations can be found in the API
 documentation. Users can also construct custom Annotator and Aggregator objects,
 as described in the documentation's tutorial.
 
-![Schematic of the Distant Viewing Toolkit's internal architecture. Algorithms
-are split into two types: annotators that have access to small chunks of the
-raw inputs and aggregators that have access to all of the extracted annotations
-but not the input data itself.](./img/process.png){ width=13cm }
-
 # High-level Command Line Interface
+
+![Example video page from the Distant Viewing Toolkit's command line
+video visualization applied to a short test clip. For each extracted frame, an
+annotated thumbnail, optical flow, audio tone, and spectrogram are shown along
+with metadata such as the start and stop time, number of detected faces, and
+the estimated shot length. Clicking on any image
+opens larger version of the image.](./img/dvt-view.png){ width=13.5cm }
 
 The command line tools provide a fast way to get started with the toolkit.
 Designed for users with no experience programming and minimal knowledge of
@@ -146,9 +139,8 @@ machine learning, it is ideal for quickly getting
 meaningful results. Users call the command line by directly executing the
 Python module (e.g., "python -m dvt"), specifying the desired pipeline, and
 pointing to a video file or directory of images. The output data
-can be visualized using a local webserver. Figure 1 shows an example landing
-page with six annotated video files. Clicking on an image opens a video-specific
-page (Figure 2), which visualizes metadata about each cut. While the command line
+can be visualized using a local webserver. Figure 2 shows an example of the
+video visualization using a short video clip. While the command line
 interface is meant to be easy to run out-of-the-box, it also affords a
 high-level of customization through command line options. These are documented
 within the toolkit using the **argparse** package. It is also possible to
