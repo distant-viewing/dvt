@@ -16,9 +16,6 @@ class TestCli:
             run_cli(["python", "video-viz", "-h"])
 
         with pytest.raises(SystemExit):
-            run_cli(["python", "image-viz", "-h"])
-
-        with pytest.raises(SystemExit):
             run_cli(["python", "video-csv", "-h"])
 
     def test_with_default(self):
