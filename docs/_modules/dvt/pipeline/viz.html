@@ -172,11 +172,10 @@
 <span class="kn">from</span> <span class="nn">pandas</span> <span class="k">import</span> <span class="n">DataFrame</span>
 
 <span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">Pipeline</span>
-<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">DataExtraction</span><span class="p">,</span> <span class="n">FrameInput</span><span class="p">,</span> <span class="n">ImageInput</span>
+<span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">DataExtraction</span><span class="p">,</span> <span class="n">FrameInput</span>
 <span class="kn">from</span> <span class="nn">..annotate.diff</span> <span class="k">import</span> <span class="n">DiffAnnotator</span>
 <span class="kn">from</span> <span class="nn">..annotate.cielab</span> <span class="k">import</span> <span class="n">CIElabAnnotator</span>
 <span class="kn">from</span> <span class="nn">..annotate.face</span> <span class="k">import</span> <span class="n">FaceAnnotator</span><span class="p">,</span> <span class="n">FaceDetectMtcnn</span><span class="p">,</span> <span class="n">FaceEmbedVgg2</span>
-<span class="kn">from</span> <span class="nn">..annotate.img</span> <span class="k">import</span> <span class="n">ImgAnnotator</span>
 <span class="kn">from</span> <span class="nn">..annotate.obj</span> <span class="k">import</span> <span class="n">ObjectAnnotator</span><span class="p">,</span> <span class="n">ObjectDetectRetinaNet</span>
 <span class="kn">from</span> <span class="nn">..annotate.opticalflow</span> <span class="k">import</span> <span class="n">OpticalFlowAnnotator</span>
 <span class="kn">from</span> <span class="nn">..annotate.png</span> <span class="k">import</span> <span class="n">PngAnnotator</span>
@@ -189,9 +188,7 @@
     <span class="n">setup_tensorflow</span><span class="p">,</span>
     <span class="n">get_data_location</span><span class="p">,</span>
     <span class="n">_expand_path</span><span class="p">,</span>
-    <span class="n">_check_exists</span><span class="p">,</span>
-    <span class="n">_check_exists_dir</span><span class="p">,</span>
-    <span class="n">_find_containing_images</span>
+    <span class="n">_check_exists</span>
 <span class="p">)</span>
 
 
@@ -526,203 +523,6 @@
             <span class="n">face_names</span><span class="o">=</span><span class="n">fnames</span><span class="p">,</span>
             <span class="n">fprint</span><span class="o">=</span><span class="n">fembed</span><span class="p">,</span>
             <span class="n">frames</span><span class="o">=</span><span class="n">frames</span>
-        <span class="p">))</span></div>
-
-
-<div class="viewcode-block" id="ImageVizPipeline"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline">[docs]</a><span class="k">class</span> <span class="nc">ImageVizPipeline</span><span class="p">(</span><span class="n">Pipeline</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Contains a predefined annotators to process a corpus of images.</span>
-
-<span class="sd">    Attributes:</span>
-<span class="sd">        dinput (str): directory of the input images. Will take all image</span>
-<span class="sd">            files (png, jpg, jpeg, tif, tiff) from within the parent directory.</span>
-<span class="sd">        dirout (str): output directory. If set to None (default), will be</span>
-<span class="sd">            a directory named &quot;dvt-output-data&quot; in the current working</span>
-<span class="sd">            directory</span>
-<span class="sd">        pipeline_level (int): interger code (0, 1, or 2) describing how much</span>
-<span class="sd">            data to parse. 0 creates just metadata, 1 creates just images and</span>
-<span class="sd">            metadata, 2 or more creates the interactive website</span>
-<span class="sd">        path_to_faces (str): Path to directory containing protype faces</span>
-<span class="sd">            (optional). See tutorial on the commandline interface for more</span>
-<span class="sd">            details.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">dinput</span><span class="p">,</span>
-        <span class="n">dirout</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">pipeline_level</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="n">path_to_faces</span><span class="o">=</span><span class="kc">None</span>
-    <span class="p">):</span>
-
-        <span class="n">setup_tensorflow</span><span class="p">()</span>
-
-        <span class="c1"># create data extraction object and get metadata for the input</span>
-        <span class="n">dinput</span> <span class="o">=</span> <span class="n">_check_exists_dir</span><span class="p">(</span><span class="n">dinput</span><span class="p">)</span>
-        <span class="n">finput</span> <span class="o">=</span> <span class="n">_find_containing_images</span><span class="p">(</span><span class="n">dinput</span><span class="p">)</span>
-        <span class="n">fname</span> <span class="o">=</span> <span class="n">_expand_path</span><span class="p">(</span><span class="n">dinput</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span> <span class="o">=</span> <span class="n">DataExtraction</span><span class="p">(</span><span class="n">ImageInput</span><span class="p">(</span><span class="n">input_paths</span><span class="o">=</span><span class="n">finput</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">([],</span> <span class="n">max_batch</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">msg</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">=</span> <span class="n">pipeline_level</span>
-
-        <span class="c1"># process and prepare the output directory</span>
-        <span class="k">if</span> <span class="n">dirout</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">dirout</span> <span class="o">=</span> <span class="n">join</span><span class="p">(</span><span class="n">getcwd</span><span class="p">(),</span> <span class="s2">&quot;dvt-output-data&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">exists</span><span class="p">(</span><span class="n">dirout</span><span class="p">):</span>
-            <span class="n">makedirs</span><span class="p">(</span><span class="n">dirout</span><span class="p">)</span>
-
-        <span class="c1"># grab parameters and store as class attribute</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;fname&quot;</span><span class="p">:</span> <span class="n">fname</span><span class="p">,</span>
-            <span class="s2">&quot;finput&quot;</span><span class="p">:</span> <span class="n">finput</span><span class="p">,</span>
-            <span class="s2">&quot;dirout&quot;</span><span class="p">:</span> <span class="n">dirout</span><span class="p">,</span>
-            <span class="s2">&quot;path_to_faces&quot;</span><span class="p">:</span> <span class="n">path_to_faces</span>
-        <span class="p">}</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">()</span>
-
-<div class="viewcode-block" id="ImageVizPipeline.run"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Run the pipeline over the input image objects.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># run the main annotations</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_run_annotation</span><span class="p">()</span>
-
-        <span class="c1"># run aggregators</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_faces&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_proc_faces</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">ShotLengthAggregator</span><span class="p">(</span>
-            <span class="n">frames</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;finput&#39;</span><span class="p">])))</span>
-        <span class="p">))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">DisplayAggregator</span><span class="p">(</span>
-            <span class="n">input_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
-                <span class="s2">&quot;img&quot;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
-                <span class="s2">&quot;frames&quot;</span>
-            <span class="p">),</span>
-            <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
-                <span class="s2">&quot;img&quot;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
-                <span class="s2">&quot;display&quot;</span>
-            <span class="p">),</span>
-            <span class="n">size</span><span class="o">=</span><span class="mi">250</span>
-        <span class="p">))</span>
-
-        <span class="c1"># output dataset as a JSON file</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">get_json</span><span class="p">(</span>
-            <span class="n">join</span><span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
-                <span class="s2">&quot;data&quot;</span><span class="p">,</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;.json&quot;</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">_json_toc</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">]</span>
-        <span class="p">)</span>
-
-        <span class="c1"># if desired, push web-specific files</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">_copy_web</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">])</span></div>
-
-<div class="viewcode-block" id="ImageVizPipeline.get_argparser"><a class="viewcode-back" href="../../../pipeline/viz.html#dvt.pipeline.viz.ImageVizPipeline.get_argparser">[docs]</a>    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">get_argparser</span><span class="p">():</span>
-        <span class="n">parser</span> <span class="o">=</span> <span class="n">ArgumentParser</span><span class="p">(</span>
-            <span class="n">prog</span><span class="o">=</span><span class="s2">&quot;python3 -m dvt video-viz&quot;</span><span class="p">,</span>
-            <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Given a single video file, this pipeline selects a &quot;</span>
-            <span class="s2">&quot;set of frames (by default, one frame in each shot) and extracts &quot;</span>
-            <span class="s2">&quot;metadata using the toolkit&#39;s annotators and aggregators. &quot;</span>
-            <span class="s2">&quot;The output is stored locally as JSON and PNG files that can be &quot;</span>
-            <span class="s2">&quot;viewed locally using the interactive web interface.&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;dinput&quot;</span><span class="p">,</span>
-            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;directory of the input images. Will take all image files &quot;</span>
-                 <span class="s2">&quot;(png, jpg, jpeg, tif, tiff) from within this parent&quot;</span>
-                 <span class="s2">&quot;directory.&quot;</span>
-        <span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;--dirout&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-d&quot;</span><span class="p">,</span>
-            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;base directory in which to store the output&quot;</span><span class="p">,</span>
-            <span class="n">default</span><span class="o">=</span><span class="s2">&quot;dvt-output-data&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;--pipeline-level&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;-l&quot;</span><span class="p">,</span>
-            <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;interger code (0, 1, or 2) describing how much data to &quot;</span>
-            <span class="s2">&quot;parse; 0 creates just metadata, 1 creates just images and &quot;</span>
-            <span class="s2">&quot;metadata, 2 or more creates the interactive website &quot;</span>
-            <span class="s2">&quot;(default: 2)&quot;</span><span class="p">,</span>
-            <span class="n">default</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="p">)</span>
-        <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-            <span class="s2">&quot;--path-to-faces&quot;</span><span class="p">,</span>
-            <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
-            <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Path to directory containing protype faces (optional). See &quot;</span>
-            <span class="s2">&quot;tutorial on the commandline interface for more details.&quot;</span><span class="p">,</span>
-        <span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">parser</span></div>
-
-    <span class="k">def</span> <span class="nf">_run_annotation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-
-        <span class="n">annotators</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">CIElabAnnotator</span><span class="p">(</span><span class="n">num_dominant</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
-            <span class="n">ObjectAnnotator</span><span class="p">(</span><span class="n">detector</span><span class="o">=</span><span class="n">ObjectDetectRetinaNet</span><span class="p">()),</span>
-            <span class="n">ImgAnnotator</span><span class="p">()</span>
-        <span class="p">]</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pipeline_level</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
-            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">PngAnnotator</span><span class="p">(</span>
-                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
-                    <span class="s2">&quot;img&quot;</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
-                    <span class="s2">&quot;frames&quot;</span>
-                <span class="p">)</span>
-            <span class="p">))</span>
-            <span class="n">thumb</span> <span class="o">=</span> <span class="n">PngAnnotator</span><span class="p">(</span>
-                <span class="n">output_dir</span><span class="o">=</span><span class="n">join</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;dirout&#39;</span><span class="p">],</span>
-                    <span class="s2">&quot;img&quot;</span><span class="p">,</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;fname&#39;</span><span class="p">],</span>
-                    <span class="s2">&quot;thumb&quot;</span>
-                <span class="p">),</span>
-                <span class="n">size</span><span class="o">=</span><span class="mi">150</span>
-            <span class="p">)</span>
-            <span class="n">thumb</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;thumb&quot;</span>
-            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thumb</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_faces&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FaceAnnotator</span><span class="p">(</span>
-                    <span class="n">detector</span><span class="o">=</span><span class="n">FaceDetectMtcnn</span><span class="p">(),</span>
-                    <span class="n">embedding</span><span class="o">=</span><span class="n">FaceEmbedVgg2</span><span class="p">()</span>
-            <span class="p">))</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">annotators</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FaceAnnotator</span><span class="p">(</span>
-                <span class="n">detector</span><span class="o">=</span><span class="n">FaceDetectMtcnn</span><span class="p">()</span>
-            <span class="p">))</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">(</span>
-            <span class="n">annotators</span><span class="p">,</span>
-            <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;Processing annotators: &quot;</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_proc_faces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">fembed</span><span class="p">,</span> <span class="n">fnames</span> <span class="o">=</span> <span class="n">make_fprint_from_images</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">attrib</span><span class="p">[</span><span class="s1">&#39;path_to_faces&#39;</span><span class="p">])</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">PeopleAggregator</span><span class="p">(</span>
-            <span class="n">face_names</span><span class="o">=</span><span class="n">fnames</span><span class="p">,</span>
-            <span class="n">fprint</span><span class="o">=</span><span class="n">fembed</span>
         <span class="p">))</span></div>
 
 

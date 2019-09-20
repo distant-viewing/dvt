@@ -131,7 +131,7 @@ video visualization applied to a short test clip. For each extracted frame, an
 annotated thumbnail, optical flow, audio tone, and spectrogram are shown along
 with metadata such as the start and stop time, number of detected faces, and
 the estimated shot length. Clicking on any image
-opens larger version of the image.](./img/dvt-view.png){ width=13.5cm }
+opens a larger version of the image.](./img/dvt-view.png){ width=13.5cm }
 
 The command line tools provide a fast way to get started with the toolkit.
 Designed for users with no experience programming and minimal knowledge of
