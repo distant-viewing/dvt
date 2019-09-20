@@ -321,7 +321,8 @@ def _subtitle_data(sinput, meta):
 
     return output
 
+
 def _str_to_time(time_stamp):
     return (
-        int(time_stamp[0:2]) * 60  + int(time_stamp[3:5])
+        int(time_stamp[0:2]) * 60 + int(time_stamp[3:5])
     ) * 60 + int(time_stamp[6:8]) + int(time_stamp[9:12]) / 1000

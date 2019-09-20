@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.cli &mdash; dvt 0.2.0 documentation</title>
+  <title>dvt.cli &mdash; dvt 0.3.0 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.2.0
+                0.3.0
               </div>
             
           
@@ -179,7 +179,7 @@
 
 <span class="kn">from</span> <span class="nn">sys</span> <span class="k">import</span> <span class="n">argv</span>
 
-<span class="kn">from</span> <span class="nn">.pipeline.viz</span> <span class="k">import</span> <span class="n">VideoVizPipeline</span><span class="p">,</span> <span class="n">ImageVizPipeline</span>
+<span class="kn">from</span> <span class="nn">.pipeline.viz</span> <span class="k">import</span> <span class="n">VideoVizPipeline</span>
 <span class="kn">from</span> <span class="nn">.pipeline.csv</span> <span class="k">import</span> <span class="n">VideoCsvPipeline</span>
 
 
@@ -197,8 +197,6 @@
         <span class="n">key</span> <span class="o">=</span> <span class="n">args</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;video-viz&quot;</span><span class="p">:</span>
             <span class="n">pipeline</span> <span class="o">=</span> <span class="n">VideoVizPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
-        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;image-viz&quot;</span><span class="p">:</span>
-            <span class="n">pipeline</span> <span class="o">=</span> <span class="n">ImageVizPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;video-csv&quot;</span><span class="p">:</span>
             <span class="n">pipeline</span> <span class="o">=</span> <span class="n">VideoCsvPipeline</span><span class="o">.</span><span class="n">create_from_cli</span><span class="p">(</span><span class="n">args</span><span class="p">[</span><span class="mi">2</span><span class="p">:])</span>
         <span class="k">else</span><span class="p">:</span>
@@ -226,11 +224,6 @@
 <span class="s2">                 various metadata using the toolkit. The output is</span>
 <span class="s2">                 stored locally as JSON and PNG files that can be</span>
 <span class="s2">                 viewed locally using the interactive web interface.</span>
-
-<span class="s2">  image-viz      given a collection of images, extracts various</span>
-<span class="s2">                 metadata using the toolkit. The output is stored</span>
-<span class="s2">                 locally as JSON and PNG files that can be viewed</span>
-<span class="s2">                 locally using the interactive web interface.</span>
 
 <span class="s2">  video-csv      a pipeline used when extracting metadata for the</span>
 <span class="s2">                 analysis of visual style across a larger corpus.</span>

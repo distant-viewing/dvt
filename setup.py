@@ -54,7 +54,7 @@ extras = {
 
 setup(
     name="dvt",
-    version="0.2.0",
+    version="0.3.0",
     description="Cultural Analysis of Moving Images",
     long_description=long_description,
     author="Taylor Anold, Lauren Tilton",
@@ -75,7 +75,7 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     package_data={
-          'dvt': ['data/*/*'],
+          'dvt': ['data/build.zip'],
      },
     packages=find_packages(),
 )
