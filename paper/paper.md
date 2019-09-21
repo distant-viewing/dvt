@@ -124,14 +124,19 @@ included in the package. Details of these implementations can be found in the AP
 documentation. Users can also construct custom Annotator and Aggregator objects,
 as described in the documentation's tutorial.
 
-# High-level Command Line Interface
-
 ![Example video page from the Distant Viewing Toolkit's command line
-video visualization applied to a short test clip. For each extracted frame, an
-annotated thumbnail, optical flow, audio tone, and spectrogram are shown along
-with metadata such as the start and stop time, number of detected faces, and
-the estimated shot length. Clicking on any image
-opens a larger version of the image.](./img/dvt-view.png){ width=13.5cm }
+video visualization applied to a short test clip. Users can click on the
+pull-down menus to select a video file and choose desired annotation type.
+Forward and backward buttons as well as a slider allow for scrolling through
+the frames within a particular video file. Hovering over an image displays the
+extracted metadata for each frame.](./img/dvt-view.png){ width=13.5cm }
+
+![Example of the overlay shown when clicking on an individual frame. Users can
+use the navigation buttons on the right to close the overlay or choose to
+scroll through adjacent frames.
+](./img/dvt-view-frame.png){ width=13.5cm }
+
+# High-level Command Line Interface
 
 The command line tools provide a fast way to get started with the toolkit.
 Designed for users with no experience programming and minimal knowledge of
@@ -139,8 +144,8 @@ machine learning, it is ideal for quickly getting
 meaningful results. Users call the command line by directly executing the
 Python module (e.g., "python -m dvt"), specifying the desired pipeline, and
 pointing to a video file or directory of images. The output data
-can be visualized using a local webserver. Figure 2 shows an example of the
-video visualization using a short video clip. While the command line
+can be visualized using a local webserver. Figures 2 and 3 show an example of
+the video visualization using a short video clip. While the command line
 interface is meant to be easy to run out-of-the-box, it also affords a
 high-level of customization through command line options. These are documented
 within the toolkit using the **argparse** package. It is also possible to
