@@ -30,7 +30,7 @@ required = [
     "numpy",
     "pandas",
     "keras",
-    "tensorflow",
+    "tensorflow==1.13.1",
     "scipy",
     "h5py",
     "opencv-python",
@@ -54,7 +54,7 @@ extras = {
 
 setup(
     name="dvt",
-    version="0.3.0",
+    version="0.3.1",
     description="Cultural Analysis of Moving Images",
     long_description=long_description,
     author="Taylor Anold, Lauren Tilton",

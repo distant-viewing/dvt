@@ -26,7 +26,7 @@ copyright = "2019, Taylor Arnold and Lauren Tilton"
 author = "Taylor Arnold and Lauren Tilton"
 
 # The short X.Y version
-version = "0.3.0"
+version = "0.3.1"
 # The full version, including alpha/beta/rc tags
 release = version
 
