@@ -22,6 +22,7 @@ Example:
 """
 
 from sys import argv
+from warnings import catch_warnings, simplefilter
 
 from .pipeline.viz import VideoVizPipeline
 from .pipeline.csv import VideoCsvPipeline
@@ -38,15 +39,17 @@ def run_cli(args=None):
         args = argv
 
     try:
-        key = args[1]
-        if key == "video-viz":
-            pipeline = VideoVizPipeline.create_from_cli(args[2:])
-        elif key == "video-csv":
-            pipeline = VideoCsvPipeline.create_from_cli(args[2:])
-        else:
-            raise IndexError("Unknown pipeline: " + key)
+        with catch_warnings():
+            simplefilter("ignore")
+            key = args[1]
+            if key == "video-viz":
+                pipeline = VideoVizPipeline.create_from_cli(args[2:])
+            elif key == "video-csv":
+                pipeline = VideoCsvPipeline.create_from_cli(args[2:])
+            else:
+                raise IndexError("Unknown pipeline: " + key)
 
-        pipeline.run()
+            pipeline.run()
 
     except IndexError:
         print_help()
