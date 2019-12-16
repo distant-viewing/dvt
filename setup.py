@@ -30,7 +30,7 @@ required = [
     "numpy",
     "pandas",
     "keras",
-    "tensorflow==1.13.1",
+    "tensorflow==1.15.0",
     "scipy",
     "h5py",
     "opencv-python",
