@@ -40,7 +40,11 @@ museums.
 Many open-source projects provide implementations of state-of-the-art computer
 vision algorithms. However, there are limited options for users looking to
 quickly build end-to-end pipelines that link together common visual annotations.
-Different algorithms require varying dependencies, different input formats, and
+Those tools that do exist focus on specific subtasks, such as as FaceNet's
+recognition of faces [@schroff2015facenet], visual embedding with PixPlot
+[@duhaime2020pixplot], and FilmColors' analysis of color
+[@flueckiger2018building]. Different algorithms require varying dependencies,
+different input formats, and
 produce outputs using different schemas. Because of the rapid pace of
 scholarship across the many sub-fields of computer vision, it can be
 difficult to determine which algorithms to use and a significant amount of work
