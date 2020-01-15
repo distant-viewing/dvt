@@ -177,15 +177,15 @@
 <p>This tool allows users to quickly apply pre-build pipelines to one or more
 media files.</p>
 <p class="rubric">Example</p>
-<p>Assuming we have an input named “input.mp4”, the following example shows
-the default usage of the command line interface:</p>
+<p>Assuming we have an input named “video-clip.mp4”, the following example
+shows the default usage of the command line interface:</p>
 <p>&gt; python3 -m dvt video-viz video-clip.mp4</p>
 <p>This may take several minutes to complete. Some minimal logging information
 should display the annotators progress in your terminal. Once finished, you
 should have a new directory dvt-output-data that contains extracted
 metadata and frames from the source material. You can view the extracted
 information by starting a local http server:</p>
-<p>&gt; python3 -m http.server –directory dvt-output-data</p>
+<p>&gt; cd dvt-output-data; python3 -m http.server –directory</p>
 <p>And opening the following: <a class="reference external" href="http://0.0.0.0:8000/">http://0.0.0.0:8000/</a></p>
 <dl class="function">
 <dt id="dvt.cli.print_help">

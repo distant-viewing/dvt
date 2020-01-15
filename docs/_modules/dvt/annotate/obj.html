@@ -176,11 +176,11 @@
     <span class="sd">&quot;&quot;&quot;Annotator for detecting objects in frames or images.</span>
 
 <span class="sd">    The annotator will return a list with one DictList item for every frame</span>
-<span class="sd">    with a detected face.</span>
+<span class="sd">    with a detected object.</span>
 
 <span class="sd">    Attributes:</span>
 <span class="sd">        detector: An object with a method called detect that takes an image</span>
-<span class="sd">            and returns a set of detect faces.</span>
+<span class="sd">            and returns a set of detect objects.</span>
 <span class="sd">        freq (int): How often to perform the embedding. For example, setting</span>
 <span class="sd">            the frequency to 2 will embed every other frame in the batch.</span>
 <span class="sd">        frames (array of ints): An optional list of frames to process. This</span>
@@ -345,7 +345,7 @@
 
 <span class="sd">        Returns:</span>
 <span class="sd">            A list of dictionaries where each dictionary represents a detected</span>
-<span class="sd">            face. Keys include the bounding box (top, left, bottom, right), a</span>
+<span class="sd">            object. Keys include the bounding box (top, left, bottom, right), a</span>
 <span class="sd">            confidence score, and the class of the object.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 

@@ -190,12 +190,12 @@ common objects.</p>
 <dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.FrameAnnotator" title="dvt.abstract.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.FrameAnnotator</span></code></a></p>
 <p>Annotator for detecting objects in frames or images.</p>
 <p>The annotator will return a list with one DictList item for every frame
-with a detected face.</p>
+with a detected object.</p>
 <dl class="attribute">
 <dt id="dvt.annotate.obj.ObjectAnnotator.detector">
 <code class="descname">detector</code><a class="headerlink" href="#dvt.annotate.obj.ObjectAnnotator.detector" title="Permalink to this definition">¶</a></dt>
 <dd><p>An object with a method called detect that takes an image
-and returns a set of detect faces.</p>
+and returns a set of detect objects.</p>
 </dd></dl>
 
 <dl class="attribute">
@@ -303,7 +303,7 @@ default is 0.5.</p>
 numpy array.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries where each dictionary represents a detected
-face. Keys include the bounding box (top, left, bottom, right), a
+object. Keys include the bounding box (top, left, bottom, right), a
 confidence score, and the class of the object.</td>
 </tr>
 </tbody>
