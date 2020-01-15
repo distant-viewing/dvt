@@ -31,8 +31,8 @@ class DiffAnnotator(FrameAnnotator):
         quantiles (list): A list of integers or floats giving the quantiles to
             return. Set to None to only return the average value of each frame.
             Inputs are given as percentiles, so [50] will return the median.
-        size (int): Size of one side of the square used for down sampling the
-            image.
+        size (int): Side length of the square that the image will be
+            downsampled to for the pixel-by-pixel comparison.
         bins (int): How many bins to include in the histogram differences. Will
             make this many bins for each of hue, saturation, and value.
         name (str): A description of the aggregator. Used as a key in the

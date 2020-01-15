@@ -49,12 +49,15 @@ Running this gives::
     dextra.run_annotators([DemoAnnotator(row=0, col=0)])
 
     dextra.get_data()['demo_anno'].head()
-        frame  red  green  blue
-     0      0    4      2     0
-     1      1    4      2     0
-     2      2    3      3     0
-     3      3    3      3     0
-     4      4    3      3     0
+
+With output of::
+
+       frame  red  green  blue
+    0      0    6      1     0
+    1      1    6      1     0
+    2      2    6      1     0
+    3      3    6      1     0
+    4      4    4      2     0
 
 Our custom aggregator will then simply take the average of the intensities
 across all of the frames::
@@ -77,8 +80,11 @@ And running this gives an output with three columns::
     dextra.run_aggregator(DemoAggregator())
 
     dextra.get_data()['demo_agg']
-    red      green       blue
-    0  14.175781  11.107422  13.236328
+
+And the output is::
+
+             red      green       blue
+    0  15.451172  11.306641  12.529297
 
 For further examples of constructing annotators and aggregators, see the
 source code the objects pre-constructed in the Distant Viewing Toolkit

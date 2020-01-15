@@ -40,8 +40,9 @@ us at tarnold2@richmond.edu and ltilton@richmond.edu.
 
 ## Installation
 
-The distant viewing toolkit has been built and tested using Python 3.7. We suggest
-installing the [Anaconda Distribution](https://www.anaconda.com/distribution/#download-section).
+The distant viewing toolkit has been built and tested using Python 3.7.
+We suggest installing the
+[Anaconda Distribution](https://www.anaconda.com/distribution/#download-section),
 The package can then be installed through PyPI:
 
 ```
@@ -142,6 +143,9 @@ video file:
 ```
 dextra.get_data()['cut']
 ```
+
+And its output:
+
 ```
 frame_start  frame_end
 0            0         74

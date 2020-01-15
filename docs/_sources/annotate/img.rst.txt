@@ -1,5 +1,5 @@
 
-Face Annotations
+Image Annotations
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. automodule:: dvt.annotate.img

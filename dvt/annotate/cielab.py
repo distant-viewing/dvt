@@ -22,7 +22,7 @@ class CIElabAnnotator(FrameAnnotator):
             the frequency to 2 will computer every other frame in the batch.
         num_buckets (tuple): A tuple of three numbers giving the maximum number
             of buckets in each color channel, Lightness, A, B. These
-            should each be divisible by 256. Default is (16, 16, 16).
+            should each be a power of 2. Default is (16, 16, 16).
         num_dominant (int): Number of dominant colors to extract. Default is 5.
         frames (array of ints): An optional list of frames to process. This
             should be a list of integers or a 1D numpy array of integers. If

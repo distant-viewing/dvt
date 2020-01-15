@@ -208,12 +208,15 @@ pixel will be determined by arguments passed to our annotator:</p>
 <span class="n">dextra</span><span class="o">.</span><span class="n">run_annotators</span><span class="p">([</span><span class="n">DemoAnnotator</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">col</span><span class="o">=</span><span class="mi">0</span><span class="p">)])</span>
 
 <span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s1">&#39;demo_anno&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
-    <span class="n">frame</span>  <span class="n">red</span>  <span class="n">green</span>  <span class="n">blue</span>
- <span class="mi">0</span>      <span class="mi">0</span>    <span class="mi">4</span>      <span class="mi">2</span>     <span class="mi">0</span>
- <span class="mi">1</span>      <span class="mi">1</span>    <span class="mi">4</span>      <span class="mi">2</span>     <span class="mi">0</span>
- <span class="mi">2</span>      <span class="mi">2</span>    <span class="mi">3</span>      <span class="mi">3</span>     <span class="mi">0</span>
- <span class="mi">3</span>      <span class="mi">3</span>    <span class="mi">3</span>      <span class="mi">3</span>     <span class="mi">0</span>
- <span class="mi">4</span>      <span class="mi">4</span>    <span class="mi">3</span>      <span class="mi">3</span>     <span class="mi">0</span>
+</pre></div>
+</div>
+<p>With output of:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>   <span class="n">frame</span>  <span class="n">red</span>  <span class="n">green</span>  <span class="n">blue</span>
+<span class="mi">0</span>      <span class="mi">0</span>    <span class="mi">6</span>      <span class="mi">1</span>     <span class="mi">0</span>
+<span class="mi">1</span>      <span class="mi">1</span>    <span class="mi">6</span>      <span class="mi">1</span>     <span class="mi">0</span>
+<span class="mi">2</span>      <span class="mi">2</span>    <span class="mi">6</span>      <span class="mi">1</span>     <span class="mi">0</span>
+<span class="mi">3</span>      <span class="mi">3</span>    <span class="mi">6</span>      <span class="mi">1</span>     <span class="mi">0</span>
+<span class="mi">4</span>      <span class="mi">4</span>    <span class="mi">4</span>      <span class="mi">2</span>     <span class="mi">0</span>
 </pre></div>
 </div>
 <p>Our custom aggregator will then simply take the average of the intensities
@@ -236,8 +239,11 @@ across all of the frames:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">dextra</span><span class="o">.</span><span class="n">run_aggregator</span><span class="p">(</span><span class="n">DemoAggregator</span><span class="p">())</span>
 
 <span class="n">dextra</span><span class="o">.</span><span class="n">get_data</span><span class="p">()[</span><span class="s1">&#39;demo_agg&#39;</span><span class="p">]</span>
-<span class="n">red</span>      <span class="n">green</span>       <span class="n">blue</span>
-<span class="mi">0</span>  <span class="mf">14.175781</span>  <span class="mf">11.107422</span>  <span class="mf">13.236328</span>
+</pre></div>
+</div>
+<p>And the output is:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>         <span class="n">red</span>      <span class="n">green</span>       <span class="n">blue</span>
+<span class="mi">0</span>  <span class="mf">15.451172</span>  <span class="mf">11.306641</span>  <span class="mf">12.529297</span>
 </pre></div>
 </div>
 <p>For further examples of constructing annotators and aggregators, see the

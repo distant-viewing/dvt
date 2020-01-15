@@ -41,6 +41,8 @@ values are all pandas data frames. Here is the difference annotator::
 
     dextra.get_data()['diff'].head()
 
+Along with its output::
+
     frame  avg_value  q40       h40
     0      0  65.614907  0.0  0.004983
     1      1  65.658474  0.0  0.007768

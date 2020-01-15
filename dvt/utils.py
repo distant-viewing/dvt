@@ -75,7 +75,8 @@ def sub_image(img, top, right, bottom, left, fct=1, output_shape=None):
     """Take a subset of an input image and return a (resized) subimage.
 
     Args:
-        img (numpy array): Image stored as a three-dimensional image.
+        img (numpy array): Image stored as a three-dimensional image (rows,
+            columns, and color channels).
         top (int): Top coordinate of the new image.
         right (int): Right coordinate of the new image.
         bottom (int): Bottom coordinate of the new image.

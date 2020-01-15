@@ -5,8 +5,8 @@ This tool allows users to quickly apply pre-build pipelines to one or more
 media files.
 
 Example:
-    Assuming we have an input named "input.mp4", the following example shows
-    the default usage of the command line interface:
+    Assuming we have an input named "video-clip.mp4", the following example
+    shows the default usage of the command line interface:
 
     > python3 -m dvt video-viz video-clip.mp4
 
@@ -16,7 +16,7 @@ Example:
     metadata and frames from the source material. You can view the extracted
     information by starting a local http server:
 
-    > python3 -m http.server --directory dvt-output-data
+    > cd dvt-output-data; python3 -m http.server --directory 
 
     And opening the following: http://0.0.0.0:8000/
 """

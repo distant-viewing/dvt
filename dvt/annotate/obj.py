@@ -20,11 +20,11 @@ class ObjectAnnotator(FrameAnnotator):
     """Annotator for detecting objects in frames or images.
 
     The annotator will return a list with one DictList item for every frame
-    with a detected face.
+    with a detected object.
 
     Attributes:
         detector: An object with a method called detect that takes an image
-            and returns a set of detect faces.
+            and returns a set of detect objects.
         freq (int): How often to perform the embedding. For example, setting
             the frequency to 2 will embed every other frame in the batch.
         frames (array of ints): An optional list of frames to process. This
@@ -189,7 +189,7 @@ class ObjectDetectRetinaNet:
 
         Returns:
             A list of dictionaries where each dictionary represents a detected
-            face. Keys include the bounding box (top, left, bottom, right), a
+            object. Keys include the bounding box (top, left, bottom, right), a
             confidence score, and the class of the object.
         """
 
