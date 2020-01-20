@@ -16,7 +16,7 @@ are introduced below. More information about the toolkit and project is availabl
 following pages:
 
 * Search and discovery interface example: [DVT Video Visualization](https://www.distantviewing.org/labs/)
-* Example analysis using aggregated metadata: ["Visual Style in Two Network Era Sitcoms"](https://doi.org/10.22148/16.043)
+* Example analysis using aggregated metadata: ["Visual Style in Two Network Era Sitcoms"](https://culturalanalytics.org/article/11045-visual-style-in-two-network-era-sitcoms)
 * Theory of the project: ["Distant Viewing: Analyzing Large Visual Corpora."](https://www.distantviewing.org/pdf/distant-viewing.pdf)
 * Project homepage: [The Distant Viewing Lab](https://distantviewing.org)
 * Software Whitepaper: [A Python Package for the Analysis of Visual Culture](https://github.com/distant-viewing/dvt/blob/master/paper/paper.pdf)
@@ -57,7 +57,7 @@ Python 3.7.
 
 The following code assumes that you have installed the dvt toolkit and have
 the video file
-[video-clip.mp4](https://github.com/distant-viewing/dvt/raw/master/tests/test-data/video-clip.mp4/)
+[video-clip.mp4](https://raw.githubusercontent.com/distant-viewing/dvt/master/tests/test-data/video-clip.mp4)
 in your working directory. Run the following command to run the default
 pipeline of annotators from dvt:
 
@@ -86,7 +86,12 @@ several video files [here](https://www.distantviewing.org/labs/).
 
 The command line tools provide a fast way to get started with the toolkit,
 and there is much more functionality available when using the full Python
-API provided by the module.
+API provided by the module. The following code assumes that you have installed
+the dvt toolkit and have the video file
+[video-clip.mp4](https://raw.githubusercontent.com/distant-viewing/dvt/master/tests/test-data/video-clip.mp4),
+audio file [video-clip.wav](https://raw.githubusercontent.com/distant-viewing/dvt/master/tests/test-data/video-clip.wav),
+and subtitle file [video-clip.srt](https://raw.githubusercontent.com/distant-viewing/dvt/master/tests/test-data/video-clip.srt)
+in your working directory.
 
 Using the distant viewing toolkit starts by constructing a `DataExtraction`
 object that is associated with input data (either a video file or a
@@ -206,12 +211,12 @@ The audio data will be stored in an annotation named "audio":
 dextra.get_data()['audio'].head()
 ```
 ```
-data  data_left  data_right
-0 -1076      -1098       -1054
-1 -1363      -1382       -1344
-2 -1149      -1129       -1168
-3 -1112      -1124       -1099
-4 -1146      -1166       -1125
+   data  data_left  data_right
+0 -1108      -1113       -1103
+1 -1546      -1552       -1539
+2 -1123      -1121       -1125
+3 -1007      -1008       -1006
+4 -1258      -1262       -1253
 ```
 
 And subtitle information will be stored in an annotation named "subtitle":
@@ -246,10 +251,10 @@ dextra.run_aggregator(PowerToneAggregator(breaks=[0, 50, 200, 220]))
 dextra.get_data()['power']
 ```
 ```
-frame_start  frame_end          rms
-0            0         50   920.067885
-1           50        200  1212.694262
-2          200        220  1004.910663
+   frame_start  frame_end          rms
+0            0         50   917.916747
+1           50        200  1208.046528
+2          200        220   997.259411
 ```
 
 ## Citation

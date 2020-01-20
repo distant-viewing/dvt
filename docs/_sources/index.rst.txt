@@ -23,7 +23,7 @@ More information about the toolkit and project is available on the following
 pages:
 
 * Search and discovery interface example: `DVT Video Visualization <https://www.distantviewing.org/labs/>`_
-* Example analysis using aggregated metadata: `"Visual Style in Two Network Era Sitcoms" <https://doi.org/10.22148/16.043>`_
+* Example analysis using aggregated metadata: `"Visual Style in Two Network Era Sitcoms" <https://culturalanalytics.org/article/11045-visual-style-in-two-network-era-sitcoms>`_
 * Theory of the project: `"Distant Viewing: Analyzing Large Visual Corpora." <https://www.distantviewing.org/pdf/distant-viewing.pdf>`_
 * Project homepage: `The Distant Viewing Lab <https://distantviewing.org>`_
 * `Source code <https://github.com/distant-viewing/dvt>`_
