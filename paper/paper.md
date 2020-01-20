@@ -169,7 +169,7 @@ The project includes an open-source license (GPL-2), uses the Contributor
 Covenant Code of Conduct (v1.4), and provides user templates for submitting issues
 and pull requests [@tourani2017code].
 We make use of integrated unit testing through the **pytest** package and
-TravisCL. The code passes checks for conforming to the common
+TravisCI. The code passes checks for conforming to the common
 Python coding styles (checked with **pycodestyle**) and the relatively
 aggressive checks provided by **pylint** [@reitz2016hitchhiker]. JavaScript
 coding style was verified with the static checkers JSHint and JSLint
