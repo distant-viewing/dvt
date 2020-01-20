@@ -40,17 +40,18 @@ us at tarnold2@richmond.edu and ltilton@richmond.edu.
 
 ## Installation
 
-The distant viewing toolkit has been built and tested using Python 3.7.
-We suggest installing the
-[Anaconda Distribution](https://www.anaconda.com/distribution/#download-section),
+The distant viewing toolkit requires Python 3.7. It is primarily built and
+tested using Anaconda Python, which we suggest installing from here:
+[Anaconda Distribution](https://www.anaconda.com/distribution/#download-section).
 The package can then be installed through PyPI:
 
 ```
 pip install dvt
 ```
 
-Additional Python requirements should be installed automatically
-through PyPI.
+Additional Python requirements should be installed automatically through PyPI.
+It should also be possible to build from a clean virtual environment under
+Python 3.7.
 
 ## High-level command-line usage: Minimal Demo
 
@@ -287,7 +288,7 @@ run the pytest unit tests, and display the coverage statistics:
 
 ```
 pip install -U pytest
-pip install .[tests,optional]
+pip install .\[tests,optional\]
 cd tests; pytest --disable-warnings --cov=dvt --cov-report term-missing .
 ```
 
