@@ -3,7 +3,7 @@
 """
 
 from numpy import vstack, stack, dtype, full, zeros, uint8, array, float32
-from cv2 import calcHist, cvtColor, COLOR_LAB2RGB, COLOR_RGB2LAB
+from cv2 import calcHist, cvtColor, COLOR_LAB2RGB, COLOR_RGB2LAB, COLOR_RGB2HSV
 from scipy.cluster.vq import kmeans
 
 from ..abstract import FrameAnnotator
@@ -63,10 +63,11 @@ class CIElabAnnotator(FrameAnnotator):
         hgrams = []
         dominant = []
         for fnum in frames:
-            img_lab = cvtColor(batch.img[fnum, :, :, :], COLOR_RGB2LAB)
+            img_hsv = cvtColor(batch.img[fnum, :, :, :], COLOR_RGB2HSV)
+            hgrams += [_get_cielab_histogram(img_hsv, self.num_buckets)]
 
-            hgrams += [_get_cielab_histogram(img_lab, self.num_buckets)]
             if self.num_dominant > 0:
+                img_lab = cvtColor(batch.img[fnum, :, :, :], COLOR_RGB2LAB)
                 dominant += [_get_cielab_dominant(img_lab, self.num_dominant)]
 
         obj = {"cielab": vstack(hgrams)}
@@ -102,6 +103,7 @@ def _get_cielab_dominant(img, num_dominant):
 
     # increasing iter would give 'better' clustering, at the cost of speed
     dominant_colors, _ = kmeans(img_flat, num_dominant, iter=5)
+    #kmeans_code = vq(img_flat, dominant_colors)
 
     if dominant_colors.shape[0] != num_dominant:         # pragma: no cover
         diff = num_dominant - dominant_colors.shape[0]
