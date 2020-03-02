@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>CieLAB Annotators &mdash; dvt 0.3.2 documentation</title>
+  <title>Color Annotators &mdash; dvt 0.3.3 documentation</title>
   
 
   
@@ -61,7 +61,7 @@
             
             
               <div class="version">
-                0.3.2
+                0.3.3
               </div>
             
           
@@ -94,7 +94,7 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../dvt.html"> API Documentation</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../dvt.html#core-functions">Core Functions</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../dvt.html#annotations">Annotations</a><ul class="current">
-<li class="toctree-l3 current"><a class="current reference internal" href="#">CieLAB Annotators</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Color Annotators</a></li>
 <li class="toctree-l3"><a class="reference internal" href="diff.html">Frame Difference Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="embed.html">Embed Image Annotations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="face.html">Face Annotations</a></li>
@@ -157,13 +157,13 @@
         
           <li><a href="../dvt.html">Distant Viewing Toolkit (DVT): API Docs</a> &raquo;</li>
         
-      <li>CieLAB Annotators</li>
+      <li>Color Annotators</li>
     
     
       <li class="wy-breadcrumbs-aside">
         
             
-            <a href="../_sources/annotate/cielab.rst.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/annotate/color.rst.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -176,21 +176,20 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="module-dvt.annotate.cielab">
-<span id="cielab-annotators"></span><h1>CieLAB Annotators<a class="headerlink" href="#module-dvt.annotate.cielab" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-dvt.annotate.color">
+<span id="color-annotators"></span><h1>Color Annotators<a class="headerlink" href="#module-dvt.annotate.color" title="Permalink to this headline">¶</a></h1>
 <p>Annotators to extract CIELAB color histograms.</p>
 <dl class="class">
-<dt id="dvt.annotate.cielab.CIElabAnnotator">
-<em class="property">class </em><code class="descclassname">dvt.annotate.cielab.</code><code class="descname">CIElabAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/cielab.html#CIElabAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.cielab.CIElabAnnotator" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.annotate.color.ColorHistogramAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.color.</code><code class="descname">ColorHistogramAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/color.html#ColorHistogramAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.color.ColorHistogramAnnotator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.FrameAnnotator" title="dvt.abstract.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.FrameAnnotator</span></code></a></p>
-<p>Annotator for constructing a color histogram and extracting the dominant
-colours for an image in CIELAB colorspace.</p>
+<p>Annotator for constructing a color histogram.</p>
 <p>The annotator will return a histogram describing the color distribution
-of an image, and a list of the most dominant colors.</p>
+of an image.</p>
 <dl class="attribute">
-<dt id="dvt.annotate.cielab.CIElabAnnotator.freq">
-<code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.cielab.CIElabAnnotator.freq" title="Permalink to this definition">¶</a></dt>
-<dd><p>How often to perform the embedding. For example, setting
+<dt id="dvt.annotate.color.ColorHistogramAnnotator.freq">
+<code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.color.ColorHistogramAnnotator.freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>How often to perform the annotator. For example, setting
 the frequency to 2 will computer every other frame in the batch.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -203,8 +202,15 @@ the frequency to 2 will computer every other frame in the batch.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.annotate.cielab.CIElabAnnotator.num_buckets">
-<code class="descname">num_buckets</code><a class="headerlink" href="#dvt.annotate.cielab.CIElabAnnotator.num_buckets" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.annotate.color.ColorHistogramAnnotator.colorspace">
+<code class="descname">colorspace</code><a class="headerlink" href="#dvt.annotate.color.ColorHistogramAnnotator.colorspace" title="Permalink to this definition">¶</a></dt>
+<dd><p>What color space to use. Currently supports “hsv”, “lab”,
+and “luv”. Default is “hsv”.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.color.ColorHistogramAnnotator.num_buckets">
+<code class="descname">num_buckets</code><a class="headerlink" href="#dvt.annotate.color.ColorHistogramAnnotator.num_buckets" title="Permalink to this definition">¶</a></dt>
 <dd><p>A tuple of three numbers giving the maximum number
 of buckets in each color channel, Lightness, A, B. These
 should each be a power of 2. Default is (16, 16, 16).</p>
@@ -219,22 +225,8 @@ should each be a power of 2. Default is (16, 16, 16).</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.annotate.cielab.CIElabAnnotator.num_dominant">
-<code class="descname">num_dominant</code><a class="headerlink" href="#dvt.annotate.cielab.CIElabAnnotator.num_dominant" title="Permalink to this definition">¶</a></dt>
-<dd><p>Number of dominant colors to extract. Default is 5.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="attribute">
-<dt id="dvt.annotate.cielab.CIElabAnnotator.frames">
-<code class="descname">frames</code><a class="headerlink" href="#dvt.annotate.cielab.CIElabAnnotator.frames" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.annotate.color.ColorHistogramAnnotator.frames">
+<code class="descname">frames</code><a class="headerlink" href="#dvt.annotate.color.ColorHistogramAnnotator.frames" title="Permalink to this definition">¶</a></dt>
 <dd><p>An optional list of frames to process. This
 should be a list of integers or a 1D numpy array of integers. If
 set to something other than None, the freq input is ignored.</p>
@@ -249,8 +241,8 @@ set to something other than None, the freq input is ignored.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="dvt.annotate.cielab.CIElabAnnotator.name">
-<code class="descname">name</code><a class="headerlink" href="#dvt.annotate.cielab.CIElabAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dt id="dvt.annotate.color.ColorHistogramAnnotator.name">
+<code class="descname">name</code><a class="headerlink" href="#dvt.annotate.color.ColorHistogramAnnotator.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>A description of the aggregator. Used as a key in the
 output data.</p>
 <table class="docutils field-list" frame="void" rules="none">
@@ -264,9 +256,9 @@ output data.</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="dvt.annotate.cielab.CIElabAnnotator.annotate">
-<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/cielab.html#CIElabAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.cielab.CIElabAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Annotate the batch of frames with the cielab annotator.</p>
+<dt id="dvt.annotate.color.ColorHistogramAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/color.html#ColorHistogramAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.color.ColorHistogramAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the batch of frames with the color histogram annotator.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
@@ -274,9 +266,8 @@ output data.</p>
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="../core.html#dvt.core.FrameBatch" title="dvt.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">A list of dictionaries containing the video name, frame, the
-CIELAB histogram of length (num_buckets[0] * num_buckets[1] *
-num_buckets[2]), and an array of dominant colors of shape
-(num_dominant, 3).</td>
+histogram of length (num_buckets[0] * num_buckets[1] *
+num_buckets[2]).</td>
 </tr>
 </tbody>
 </table>
@@ -284,7 +275,96 @@ num_buckets[2]), and an array of dominant colors of shape
 
 <dl class="attribute">
 <dt>
-<code class="descname">name</code><em class="property"> = 'cielab'</em></dt>
+<code class="descname">name</code><em class="property"> = 'colorhist'</em></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="dvt.annotate.color.DominantColorAnnotator">
+<em class="property">class </em><code class="descclassname">dvt.annotate.color.</code><code class="descname">DominantColorAnnotator</code><span class="sig-paren">(</span><em>**kwargs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/color.html#DominantColorAnnotator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.color.DominantColorAnnotator" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="../abstract.html#dvt.abstract.FrameAnnotator" title="dvt.abstract.FrameAnnotator"><code class="xref py py-class docutils literal notranslate"><span class="pre">dvt.abstract.FrameAnnotator</span></code></a></p>
+<p>Annotator for extracting the dominant colours for an image.</p>
+<p>The annotator will return a list of the most dominant colors.</p>
+<dl class="attribute">
+<dt id="dvt.annotate.color.DominantColorAnnotator.freq">
+<code class="descname">freq</code><a class="headerlink" href="#dvt.annotate.color.DominantColorAnnotator.freq" title="Permalink to this definition">¶</a></dt>
+<dd><p>How often to perform the embedding. For example, setting
+the frequency to 2 will computer every other frame in the batch.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.color.DominantColorAnnotator.num_dominant">
+<code class="descname">num_dominant</code><a class="headerlink" href="#dvt.annotate.color.DominantColorAnnotator.num_dominant" title="Permalink to this definition">¶</a></dt>
+<dd><p>Number of dominant colors to extract. Default is 5.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">int</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.color.DominantColorAnnotator.frames">
+<code class="descname">frames</code><a class="headerlink" href="#dvt.annotate.color.DominantColorAnnotator.frames" title="Permalink to this definition">¶</a></dt>
+<dd><p>An optional list of frames to process. This
+should be a list of integers or a 1D numpy array of integers. If
+set to something other than None, the freq input is ignored.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">array of ints</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="dvt.annotate.color.DominantColorAnnotator.name">
+<code class="descname">name</code><a class="headerlink" href="#dvt.annotate.color.DominantColorAnnotator.name" title="Permalink to this definition">¶</a></dt>
+<dd><p>A description of the aggregator. Used as a key in the
+output data.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Type:</th><td class="field-body">str</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="dvt.annotate.color.DominantColorAnnotator.annotate">
+<code class="descname">annotate</code><span class="sig-paren">(</span><em>batch</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/dvt/annotate/color.html#DominantColorAnnotator.annotate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#dvt.annotate.color.DominantColorAnnotator.annotate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Annotate the batch of frames with dominant colors.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>batch</strong> (<a class="reference internal" href="../core.html#dvt.core.FrameBatch" title="dvt.core.FrameBatch"><em>FrameBatch</em></a>) – A batch of images to annotate.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">An array of dominant colors given as hex strings.</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt>
+<code class="descname">name</code><em class="property"> = 'domcolor'</em></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -312,7 +392,7 @@ num_buckets[2]), and an array of dominant colors of shape
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+        &copy; Copyright 2020, Taylor Arnold and Lauren Tilton
 
     </p>
   </div> 
