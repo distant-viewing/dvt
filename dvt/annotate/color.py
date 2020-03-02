@@ -165,6 +165,7 @@ def _get_dominant(img, num_dominant):
 
     # increasing iter would give 'better' clustering, at the cost of speed
     dominant_colors, _ = kmeans(img_flat, num_dominant, iter=5)
+    #kmeans_code = vq(img_flat, dominant_colors)
 
     if dominant_colors.shape[0] != num_dominant:         # pragma: no cover
         diff = num_dominant - dominant_colors.shape[0]

@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>dvt.pipeline.csv &mdash; dvt 0.3.2 documentation</title>
+  <title>dvt.pipeline.csv &mdash; dvt 0.3.3 documentation</title>
   
 
   
@@ -59,7 +59,7 @@
             
             
               <div class="version">
-                0.3.2
+                0.3.3
               </div>
             
           
@@ -169,8 +169,8 @@
 
 <span class="kn">from</span> <span class="nn">..abstract</span> <span class="k">import</span> <span class="n">Pipeline</span>
 <span class="kn">from</span> <span class="nn">..core</span> <span class="k">import</span> <span class="n">DataExtraction</span><span class="p">,</span> <span class="n">FrameInput</span>
+<span class="kn">from</span> <span class="nn">..annotate.color</span> <span class="k">import</span> <span class="n">DominantColorAnnotator</span><span class="p">,</span> <span class="n">ColorHistogramAnnotator</span>
 <span class="kn">from</span> <span class="nn">..annotate.diff</span> <span class="k">import</span> <span class="n">DiffAnnotator</span>
-<span class="kn">from</span> <span class="nn">..annotate.cielab</span> <span class="k">import</span> <span class="n">CIElabAnnotator</span>
 <span class="kn">from</span> <span class="nn">..annotate.face</span> <span class="k">import</span> <span class="n">FaceAnnotator</span><span class="p">,</span> <span class="n">FaceDetectMtcnn</span><span class="p">,</span> <span class="n">FaceEmbedVgg2</span>
 <span class="kn">from</span> <span class="nn">..annotate.obj</span> <span class="k">import</span> <span class="n">ObjectAnnotator</span><span class="p">,</span> <span class="n">ObjectDetectRetinaNet</span>
 <span class="kn">from</span> <span class="nn">..aggregate.audio</span> <span class="k">import</span> <span class="n">PowerToneAggregator</span>
@@ -397,7 +397,8 @@
         <span class="n">frames</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dextra</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;cut&#39;</span><span class="p">][</span><span class="s1">&#39;mpoint&#39;</span><span class="p">]</span>
 
         <span class="n">annotators</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">CIElabAnnotator</span><span class="p">(</span><span class="n">frames</span><span class="o">=</span><span class="n">frames</span><span class="p">,</span> <span class="n">num_dominant</span><span class="o">=</span><span class="mi">5</span><span class="p">),</span>
+            <span class="n">ColorHistogramAnnotator</span><span class="p">(</span><span class="n">frames</span><span class="o">=</span><span class="n">frames</span><span class="p">),</span>
+            <span class="n">DominantColorAnnotator</span><span class="p">(</span><span class="n">frames</span><span class="o">=</span><span class="n">frames</span><span class="p">),</span>
             <span class="n">ObjectAnnotator</span><span class="p">(</span><span class="n">detector</span><span class="o">=</span><span class="n">ObjectDetectRetinaNet</span><span class="p">(),</span> <span class="n">frames</span><span class="o">=</span><span class="n">frames</span><span class="p">)</span>
         <span class="p">]</span>
 
@@ -439,7 +440,7 @@
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+        &copy; Copyright 2020, Taylor Arnold and Lauren Tilton
 
     </p>
   </div> 

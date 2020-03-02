@@ -18,7 +18,7 @@ Annotations
 .. toctree::
    :maxdepth: 4
 
-   annotate/cielab
+   annotate/color
    annotate/diff
    annotate/embed
    annotate/face

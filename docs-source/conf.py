@@ -22,11 +22,11 @@ sys.path.append(os.path.abspath("../dvt"))
 # -- Project information -----------------------------------------------------
 
 project = "dvt"
-copyright = "2019, Taylor Arnold and Lauren Tilton"
+copyright = "2020, Taylor Arnold and Lauren Tilton"
 author = "Taylor Arnold and Lauren Tilton"
 
 # The short X.Y version
-version = "0.3.2"
+version = "0.3.3"
 # The full version, including alpha/beta/rc tags
 release = version
 

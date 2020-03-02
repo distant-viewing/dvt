@@ -9,7 +9,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; dvt 0.3.2 documentation</title>
+  <title>Index &mdash; dvt 0.3.3 documentation</title>
   
 
   
@@ -60,7 +60,7 @@
             
             
               <div class="version">
-                0.3.2
+                0.3.3
               </div>
             
           
@@ -207,7 +207,9 @@
       <li><a href="abstract.html#dvt.abstract.FrameAnnotator.annotate">annotate() (dvt.abstract.FrameAnnotator method)</a>
 
       <ul>
-        <li><a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.annotate">(dvt.annotate.cielab.CIElabAnnotator method)</a>
+        <li><a href="annotate/color.html#dvt.annotate.color.ColorHistogramAnnotator.annotate">(dvt.annotate.color.ColorHistogramAnnotator method)</a>
+</li>
+        <li><a href="annotate/color.html#dvt.annotate.color.DominantColorAnnotator.annotate">(dvt.annotate.color.DominantColorAnnotator method)</a>
 </li>
         <li><a href="annotate/diff.html#dvt.annotate.diff.DiffAnnotator.annotate">(dvt.annotate.diff.DiffAnnotator method)</a>
 </li>
@@ -254,7 +256,9 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator">CIElabAnnotator (class in dvt.annotate.cielab)</a>
+      <li><a href="annotate/color.html#dvt.annotate.color.ColorHistogramAnnotator">ColorHistogramAnnotator (class in dvt.annotate.color)</a>
+</li>
+      <li><a href="annotate/color.html#dvt.annotate.color.ColorHistogramAnnotator.colorspace">colorspace (dvt.annotate.color.ColorHistogramAnnotator attribute)</a>
 </li>
       <li><a href="core.html#dvt.core.FrameBatch.continue_read">continue_read (dvt.core.FrameBatch attribute)</a>
 </li>
@@ -314,21 +318,23 @@
       </ul></li>
       <li><a href="aggregate/display.html#dvt.aggregate.display.DisplayAggregator">DisplayAggregator (class in dvt.aggregate.display)</a>
 </li>
+      <li><a href="annotate/color.html#dvt.annotate.color.DominantColorAnnotator">DominantColorAnnotator (class in dvt.annotate.color)</a>
+</li>
       <li><a href="abstract.html#module-dvt.abstract">dvt.abstract (module)</a>
 </li>
       <li><a href="aggregate/audio.html#module-dvt.aggregate.audio">dvt.aggregate.audio (module)</a>
 </li>
       <li><a href="aggregate/cut.html#module-dvt.aggregate.cut">dvt.aggregate.cut (module)</a>
 </li>
-      <li><a href="aggregate/display.html#module-dvt.aggregate.display">dvt.aggregate.display (module)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="aggregate/display.html#module-dvt.aggregate.display">dvt.aggregate.display (module)</a>
+</li>
       <li><a href="aggregate/length.html#module-dvt.aggregate.length">dvt.aggregate.length (module)</a>
 </li>
       <li><a href="aggregate/people.html#module-dvt.aggregate.people">dvt.aggregate.people (module)</a>
 </li>
-      <li><a href="annotate/cielab.html#module-dvt.annotate.cielab">dvt.annotate.cielab (module)</a>
+      <li><a href="annotate/color.html#module-dvt.annotate.color">dvt.annotate.color (module)</a>
 </li>
       <li><a href="annotate/diff.html#module-dvt.annotate.diff">dvt.annotate.diff (module)</a>
 </li>
@@ -412,9 +418,11 @@
 </li>
       <li><a href="core.html#dvt.core.FrameBatch">FrameBatch (class in dvt.core)</a>
 </li>
-      <li><a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.frames">frames (dvt.annotate.cielab.CIElabAnnotator attribute)</a>
+      <li><a href="annotate/color.html#dvt.annotate.color.ColorHistogramAnnotator.frames">frames (dvt.annotate.color.ColorHistogramAnnotator attribute)</a>
 
       <ul>
+        <li><a href="annotate/color.html#dvt.annotate.color.DominantColorAnnotator.frames">(dvt.annotate.color.DominantColorAnnotator attribute)</a>
+</li>
         <li><a href="annotate/embed.html#dvt.annotate.embed.EmbedAnnotator.frames">(dvt.annotate.embed.EmbedAnnotator attribute)</a>
 </li>
         <li><a href="annotate/face.html#dvt.annotate.face.FaceAnnotator.frames">(dvt.annotate.face.FaceAnnotator attribute)</a>
@@ -432,9 +440,11 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.freq">freq (dvt.annotate.cielab.CIElabAnnotator attribute)</a>
+      <li><a href="annotate/color.html#dvt.annotate.color.ColorHistogramAnnotator.freq">freq (dvt.annotate.color.ColorHistogramAnnotator attribute)</a>
 
       <ul>
+        <li><a href="annotate/color.html#dvt.annotate.color.DominantColorAnnotator.freq">(dvt.annotate.color.DominantColorAnnotator attribute)</a>
+</li>
         <li><a href="annotate/embed.html#dvt.annotate.embed.EmbedAnnotator.freq">(dvt.annotate.embed.EmbedAnnotator attribute)</a>
 </li>
         <li><a href="annotate/face.html#dvt.annotate.face.FaceAnnotator.freq">(dvt.annotate.face.FaceAnnotator attribute)</a>
@@ -559,7 +569,9 @@
 </li>
         <li><a href="aggregate/people.html#dvt.aggregate.people.PeopleAggregator.name">(dvt.aggregate.people.PeopleAggregator attribute)</a>, <a href="aggregate/people.html#dvt.aggregate.people.PeopleAggregator.name">[1]</a>
 </li>
-        <li><a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.name">(dvt.annotate.cielab.CIElabAnnotator attribute)</a>, <a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.name">[1]</a>
+        <li><a href="annotate/color.html#dvt.annotate.color.ColorHistogramAnnotator.name">(dvt.annotate.color.ColorHistogramAnnotator attribute)</a>, <a href="annotate/color.html#dvt.annotate.color.ColorHistogramAnnotator.name">[1]</a>
+</li>
+        <li><a href="annotate/color.html#dvt.annotate.color.DominantColorAnnotator.name">(dvt.annotate.color.DominantColorAnnotator attribute)</a>, <a href="annotate/color.html#dvt.annotate.color.DominantColorAnnotator.name">[1]</a>
 </li>
         <li><a href="annotate/diff.html#dvt.annotate.diff.DiffAnnotator.name">(dvt.annotate.diff.DiffAnnotator attribute)</a>, <a href="annotate/diff.html#dvt.annotate.diff.DiffAnnotator.name">[1]</a>
 </li>
@@ -582,9 +594,9 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="abstract.html#dvt.abstract.VisualInput.next_batch">next_batch() (dvt.abstract.VisualInput method)</a>
 </li>
-      <li><a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.num_buckets">num_buckets (dvt.annotate.cielab.CIElabAnnotator attribute)</a>
+      <li><a href="annotate/color.html#dvt.annotate.color.ColorHistogramAnnotator.num_buckets">num_buckets (dvt.annotate.color.ColorHistogramAnnotator attribute)</a>
 </li>
-      <li><a href="annotate/cielab.html#dvt.annotate.cielab.CIElabAnnotator.num_dominant">num_dominant (dvt.annotate.cielab.CIElabAnnotator attribute)</a>
+      <li><a href="annotate/color.html#dvt.annotate.color.DominantColorAnnotator.num_dominant">num_dominant (dvt.annotate.color.DominantColorAnnotator attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -770,7 +782,7 @@
   <div role="contentinfo">
     <p>
         
-        &copy; Copyright 2019, Taylor Arnold and Lauren Tilton
+        &copy; Copyright 2020, Taylor Arnold and Lauren Tilton
 
     </p>
   </div> 

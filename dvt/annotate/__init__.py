@@ -10,7 +10,7 @@ from __future__ import absolute_import
 from . import diff
 from . import embed
 from . import png
-from . import cielab
+from . import color
 from . import opticalflow
 from . import hofm
 from . import img

@@ -6,7 +6,7 @@ import pytest
 
 from dvt.core import DataExtraction, FrameInput, ImageInput
 from dvt.utils import setup_tensorflow
-from dvt.annotate.cielab import CIElabAnnotator
+from dvt.annotate.color import ColorHistogramAnnotator, DominantColorAnnotator
 from dvt.annotate.diff import DiffAnnotator
 from dvt.annotate.embed import EmbedAnnotator, EmbedFrameKerasResNet50
 from dvt.annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
@@ -42,7 +42,8 @@ def get_video_annotation():
 
     freq = 128
     de.run_annotators([
-        CIElabAnnotator(freq=freq),
+        ColorHistogramAnnotator(freq=freq),
+        DominantColorAnnotator(freq=freq),
         DiffAnnotator(quantiles=[40]),
         EmbedAnnotator(embedding=EmbedFrameKerasResNet50(), freq=freq),
         FaceAnnotator(
@@ -73,7 +74,8 @@ def get_video_frame_annotation():
 
     frames = [1, 3, 310]   # make sure there is an empty batch: 128-255
     de.run_annotators([
-        CIElabAnnotator(frames=frames),
+        ColorHistogramAnnotator(frames=frames, colorspace="lab"),
+        DominantColorAnnotator(frames=frames),
         DiffAnnotator(quantiles=[40]),
         EmbedAnnotator(embedding=EmbedFrameKerasResNet50(), frames=frames),
         FaceAnnotator(
@@ -104,7 +106,8 @@ def get_image_annotation():
     ))
 
     de.run_annotators([
-        CIElabAnnotator(),
+        ColorHistogramAnnotator(colorspace="luv"),
+        DominantColorAnnotator(),
         EmbedAnnotator(embedding=EmbedFrameKerasResNet50()),
         FaceAnnotator(
             detector=FaceDetectMtcnn(),

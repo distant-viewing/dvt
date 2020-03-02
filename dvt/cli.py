@@ -16,7 +16,7 @@ Example:
     metadata and frames from the source material. You can view the extracted
     information by starting a local http server:
 
-    > cd dvt-output-data; python3 -m http.server --directory 
+    > cd dvt-output-data; python3 -m http.server --directory
 
     And opening the following: http://0.0.0.0:8000/
 """

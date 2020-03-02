@@ -17,8 +17,8 @@ from pandas import DataFrame
 
 from ..abstract import Pipeline
 from ..core import DataExtraction, FrameInput
+from ..annotate.color import DominantColorAnnotator, ColorHistogramAnnotator
 from ..annotate.diff import DiffAnnotator
-from ..annotate.cielab import CIElabAnnotator
 from ..annotate.face import FaceAnnotator, FaceDetectMtcnn, FaceEmbedVgg2
 from ..annotate.obj import ObjectAnnotator, ObjectDetectRetinaNet
 from ..annotate.opticalflow import OpticalFlowAnnotator
@@ -306,7 +306,8 @@ class VideoVizPipeline(Pipeline):
         frames = self.dextra.data['cut']['mpoint']
 
         annotators = [
-            CIElabAnnotator(frames=frames, num_dominant=5),
+            ColorHistogramAnnotator(frames=frames),
+            DominantColorAnnotator(frames=frames),
             ObjectAnnotator(detector=ObjectDetectRetinaNet(), frames=frames)
         ]
 

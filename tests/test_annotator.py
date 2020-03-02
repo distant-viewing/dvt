@@ -9,14 +9,22 @@ from pandas.util.testing import assert_frame_equal
 
 class TestAnnotatorVideoFreqOutput:
 
-    def test_video_freq_cielab(self, get_video_annotation):
+    def test_video_freq_color_hist(self, get_video_annotation):
         de, _ = get_video_annotation
-        obj = de.get_data()["cielab"]
+        obj = de.get_data()["colorhist"]
 
         assert set(obj.keys()) == set(
-            ["frame", "cielab", "dominant_colors"]
+            ["frame", "hsv"]
         )
-        assert len(obj["cielab"].values[0]) == 4096
+        assert len(obj["hsv"].values[0]) == (16 * 16 * 16)
+
+    def test_video_freq_color_dominant(self, get_video_annotation):
+        de, _ = get_video_annotation
+        obj = de.get_data()["domcolor"]
+
+        assert set(obj.keys()) == set(
+            ["frame", "dominant_colors"]
+        )
         assert len(obj["dominant_colors"].values[0]) == 5
 
     def test_video_freq_diff(self, get_video_annotation):
@@ -85,14 +93,22 @@ class TestAnnotatorVideoFreqOutput:
 
 class TestAnnotatorVideoFrameOutput:
 
-    def test_video_frame_cielab(self, get_video_frame_annotation):
+    def test_video_frame_color_hist(self, get_video_frame_annotation):
         de, _ = get_video_frame_annotation
-        obj = de.get_data()["cielab"]
+        obj = de.get_data()["colorhist"]
 
         assert set(obj.keys()) == set(
-            ["frame", "cielab", "dominant_colors"]
+            ["frame", "lab"]
         )
-        assert len(obj["cielab"].values[0]) == 4096
+        assert len(obj["lab"].values[0]) == (16 * 16 * 16)
+
+    def test_video_frame_color_dominant(self, get_video_frame_annotation):
+        de, _ = get_video_frame_annotation
+        obj = de.get_data()["domcolor"]
+
+        assert set(obj.keys()) == set(
+            ["frame", "dominant_colors"]
+        )
         assert len(obj["dominant_colors"].values[0]) == 5
 
     def test_video_frame_diff(self, get_video_frame_annotation):
@@ -161,17 +177,26 @@ class TestAnnotatorVideoFrameOutput:
 
 class TestAnnotatorImageOutput:
 
-    def test_video_frame_cielab(self, get_image_annotation):
+
+    def test_image_frame_color_hist(self, get_image_annotation):
         de, _ = get_image_annotation
-        obj = de.get_data()["cielab"]
+        obj = de.get_data()["colorhist"]
 
         assert set(obj.keys()) == set(
-            ["frame", "cielab", "dominant_colors"]
+            ["frame", "luv"]
         )
-        assert len(obj["cielab"].values[0]) == 4096
+        assert len(obj["luv"].values[0]) == (16 * 16 * 16)
+
+    def test_image_frame_color_dominant(self, get_image_annotation):
+        de, _ = get_image_annotation
+        obj = de.get_data()["domcolor"]
+
+        assert set(obj.keys()) == set(
+            ["frame", "dominant_colors"]
+        )
         assert len(obj["dominant_colors"].values[0]) == 5
 
-    def test_video_frame_embed(self, get_image_annotation):
+    def test_image_frame_embed(self, get_image_annotation):
         de, _ = get_image_annotation
         obj = de.get_data()["embed"]
 
@@ -180,7 +205,7 @@ class TestAnnotatorImageOutput:
         )
         assert len(obj["embed"].values[0]) == 2048
 
-    def test_video_frame_face(self, get_image_annotation):
+    def test_image_frame_face(self, get_image_annotation):
         de, _ = get_image_annotation
         obj = de.get_data()["face"]
 
@@ -194,7 +219,7 @@ class TestAnnotatorImageOutput:
                 "embed"
         ])
 
-    def test_video_frame_obj(self, get_image_annotation):
+    def test_image_frame_obj(self, get_image_annotation):
         de, _ = get_image_annotation
         obj = de.get_data()["obj"]
 
@@ -208,7 +233,7 @@ class TestAnnotatorImageOutput:
             "category",
         ])
 
-    def test_video_frame_png(self, get_image_annotation):
+    def test_image_frame_png(self, get_image_annotation):
         de, _ = get_image_annotation
         obj = de.get_data()["png"]
 
