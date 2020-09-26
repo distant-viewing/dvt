@@ -4,7 +4,7 @@ import os.path
 import tempfile
 
 from pandas import DataFrame
-from pandas.util.testing import assert_frame_equal
+from pandas.testing import assert_frame_equal
 
 
 class TestAnnotatorVideoFreqOutput:

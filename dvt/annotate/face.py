@@ -150,7 +150,7 @@ class FaceEmbedVgg2:
 
         mloc = get_file(
             "vggface2-resnet50.h5",
-            origin="https://github.com/distant-viewing/dvt/"
+            origin="http://github.com/distant-viewing/dvt/"
             "releases/download/0.0.1/"
             "vggface2-resnet50.h5",
         )

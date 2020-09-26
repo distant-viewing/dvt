@@ -125,19 +125,19 @@ def setup_tensorflow():
     can occur on macOS. It also silences verbose warnings from TensorFlow
     that most users can safely ignore.
     """
-    from keras.backend.tensorflow_backend import set_session
-    from tensorflow import logging, ConfigProto, Session
+    #from keras.backend.tensorflow_backend import set_session
+    #from tensorflow import logging, ConfigProto, Session
     from os import environ
 
     # supress warnings
-    logging.set_verbosity(logging.ERROR)
+    #logging.set_verbosity(logging.ERROR)
     environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 
     # ensure that keras does not use all of the available memory
-    config = ConfigProto()
-    config.gpu_options.per_process_gpu_memory_fraction = 0.3
-    config.gpu_options.visible_device_list = "0"
-    set_session(Session(config=config))
+    #config = ConfigProto()
+    #config.gpu_options.per_process_gpu_memory_fraction = 0.3
+    #config.gpu_options.visible_device_list = "0"
+    #set_session(Session(config=config))
 
     # fix a common local bug
     environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"

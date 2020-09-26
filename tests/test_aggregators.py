@@ -5,7 +5,7 @@ import tempfile
 
 from numpy import array
 from pandas import DataFrame
-from pandas.util.testing import assert_frame_equal
+from pandas.testing import assert_frame_equal
 
 from dvt.aggregate.cut import CutAggregator
 from dvt.aggregate.display import DisplayAggregator

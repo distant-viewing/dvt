@@ -84,7 +84,7 @@ class ObjectDetectRetinaNet:
 
         mloc = get_file(
             "resnet50_coco_best_v2.1.0.h5",
-            origin="https://github.com/distant-viewing/dvt/"
+            origin="http://github.com/distant-viewing/dvt/"
             "releases/download/0.0.1/"
             "resnet50_coco_best_v2.1.0.h5",
         )

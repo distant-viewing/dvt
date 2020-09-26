@@ -79,7 +79,11 @@ class SpectrogramAggregator(Aggregator):
             if self.output_dir is not None:
                 opath = join(self.output_dir, "frame-{0:06d}.png".format(i))
 
-                pcolormesh(times + int(stime), frequencies, 10 * log10(spec))
+                pcolormesh(
+                    times + int(stime),
+                    frequencies, 10 * log10(spec),
+                    shading='auto'
+                )
                 xlabel("Time (seconds)")
                 ylabel("Frequency")
                 savefig(opath)
