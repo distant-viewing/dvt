@@ -50,10 +50,9 @@ class AnnoShotBreaks:
             img = None
 
         return {
-            "single_frame_pred": sfp,
-            "average_frame_pred": afp,
-            "scenes": scenes,
-            "img": img,
+            "scenes": {"start": scenes[:, 0], "end": scenes[:, 1]},
+            "frames": {"single_frame_pred": sfp, "average_frame_pred": afp},
+            "img": img
         }
 
 
