@@ -177,7 +177,3 @@ welcome. When contributing to this repository, please first discuss the change
 you wish to make via a GitHub issue or email with the maintainers of this
 repository before making a change. Small bug fixes can be given directly
 as pull requests.
-
-Please note that the project has a
-[code of conduct](https://github.com/distant-viewing/dvt/blob/master/.github/CODE_OF_CONDUCT.md).
-Contributors are expected to follow the guidelines.
