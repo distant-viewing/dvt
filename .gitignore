@@ -1,5 +1,6 @@
 # Remove macOS files
 .DS_Store
+models
 
 # virtual environment
 dview/
