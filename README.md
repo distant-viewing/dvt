@@ -16,7 +16,6 @@ available on the following pages:
 * Example analysis using aggregated metadata: ["Visual Style in Two Network Era Sitcoms"](https://culturalanalytics.org/article/11045-visual-style-in-two-network-era-sitcoms)
 * Theory of the project: ["Distant Viewing: Analyzing Large Visual Corpora."](https://doi.org/10.1093/llc/fqz013)
 * Software Whitepaper: [A Python Package for the Analysis of Visual Culture](https://doi.org/10.21105/joss.01800)
-* [PyPI repository](https://pypi.org/project/dvt/)
 
 If you have any trouble using the toolkit, please open a
 [GitHub issue](https://github.com/distant-viewing/dvt/issues). If you
