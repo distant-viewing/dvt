@@ -1,7 +1,7 @@
 
 # Distant Viewing Toolkit for the Analysis of Visual Culture
 
-[![License: GPL v2](https://img.shields.io/pypi/l/dvt?color=blue)](https://www.gnu.org/licenses/old-licenses/gpl-2.0.en.html) [![PyPI pyversions](https://img.shields.io/pypi/pyversions/dvt.svg)](https://pypi.python.org/pypi/dvt/) [![PyPI version shields.io](https://img.shields.io/pypi/v/dvt.svg)](https://pypi.python.org/pypi/dvt/) [![PyPI status shields.io](https://img.shields.io/pypi/status/dvt)](https://pypi.python.org/pypi/dvt/) [![DOI](https://joss.theoj.org/papers/10.21105/joss.01800/status.svg)](https://doi.org/10.21105/joss.01800)
+[![PyPI pyversions](https://img.shields.io/pypi/pyversions/dvt.svg)](https://pypi.python.org/pypi/dvt/) [![PyPI version shields.io](https://img.shields.io/pypi/v/dvt.svg)](https://pypi.python.org/pypi/dvt/) [![PyPI status shields.io](https://img.shields.io/pypi/status/dvt)](https://pypi.python.org/pypi/dvt/) [![DOI](https://joss.theoj.org/papers/10.21105/joss.01800/status.svg)](https://doi.org/10.21105/joss.01800)
 
 The Distant Viewing Toolkit is a Python package that facilitates the 
 computational analysis of still and moving images. The most recent
@@ -57,8 +57,9 @@ pd.DataFrame(out_face['boxes'])
 4        4  1161  1278  719   861  0.921809
 ```
 
-We can also look at the output of the algorithm by saving the
-annotated image using the `save_image` function.
+The algorithm has detected five faces, four with a very high confidence
+and a fifth with a reasonable level of confidence. We can look at the output
+of the algorithm by saving the annotated image using the `save_image` function.
 
 ```{py}
 dvt.save_image("faces.png", out_face['img'])
@@ -66,7 +67,17 @@ dvt.save_image("faces.png", out_face['img'])
 
 Which produces an image like this:
 
-![](./images/faces.png)
+<img src=".images/faces.png" alt="Detected Faces" width="700px"/>
+
+You can see that the algorithm has correctly identified four faces, but that
+the fifth is actually a shadow. While many computer vision algorithms will show
+you the "perfect" examples that seem to work without errors, keep in mind that
+while good, the algorithms still make frequent errors.
+
+Another analysis that we can do with the face detection annoations is use
+the output to identify the individuals in an image. Let's run the annotation
+over another image consisting of a portrait of President Obama. We can then
+see how close this face is to those detected in the family photo.
 
 ```{py}
 import numpy as np
@@ -80,7 +91,15 @@ array([-0.05723718,  0.04770625,  0.86795366,  0.11890081,  0.05184552],
       dtype=float32)
 ```
 
+You can see that the closest image, by far, is the third face. Looking back
+at the metadata, the third face has the lowest x value, and therefore (correctly)
+identifies Obama as being on the far left of the frame.
+
 ## Other Annotations and Inputs
+
+There are currently four different annotations that extract information from
+a still image. These work just like the face annotation above and, include 
+the following:
 
 ```{py}
 anno_keypoints = dvt.AnnoKeypoints()
@@ -89,12 +108,17 @@ anno_embed = dvt.AnnoEmbed()
 anno_face = dvt.AnnoFaces()
 ```
 
+There is also a special annotation type that takes a path to a video file and
+estimates the location of the video shots.
 
 ```{py}
 anno_breaks = dvt.AnnoShotBreaks()
 out_breaks = anno_breaks.run("input/tm_short.mp4")
 ```
 
+Finally, there is also a helper function extract frames from a video file. 
+The example below shows how to select every 25th frame from a video file
+and applies the face annotation to each frame.
 
 ```{py}
 anno_face = dvt.AnnoFaces()
@@ -106,6 +130,9 @@ for img, frame, msec in dvt.yield_video("input/tm_short.mp4"):
             anno['frame'] = frame
             output += [anno]
 ```
+
+We are working on longer tutorials that we hope to release in early 2023. These
+will be posted here as soon as they are ready.
 
 ------------------
 
