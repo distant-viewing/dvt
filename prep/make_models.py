@@ -7,7 +7,6 @@ from torchvision.io import read_image
 from torchvision.models.detection.faster_rcnn import FasterRCNN_ResNet50_FPN_Weights
 from torchvision.models.detection.keypoint_rcnn import KeypointRCNN_ResNet50_FPN_Weights
 from torchvision.models.segmentation import deeplabv3_resnet50
-from torchvision.models.detection import fasterrcnn_resnet50_fpn
 from torchvision.models.detection import keypointrcnn_resnet50_fpn
 from torchvision.models.segmentation.deeplabv3 import DeepLabV3_ResNet50_Weights
 
@@ -20,7 +19,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 ##############################################################################
 # 0. Load a sample image so that we may trace it
-img_input = read_image("dancers.jpg")
+img_input = read_image("../input/dancers.jpg")
 img = F.convert_image_dtype(img_input, dtype=torch.float)
 img = img.unsqueeze(0) 
 
@@ -101,7 +100,32 @@ module.save("../models/dvt_embed.pt")
 
 
 ##############################################################################
-# 4. Face Detection
+# 4. Object Detection
+from torchvision.models.detection import FasterRCNN_ResNet50_FPN_V2_Weights
+from torchvision.models.detection import fasterrcnn_resnet50_fpn_v2
+
+weights = FasterRCNN_ResNet50_FPN_V2_Weights.COCO_V1
+model = fasterrcnn_resnet50_fpn_v2(weights=weights)
+model.eval()
+
+import torch 
+
+class MyModel(nn.Module):
+    def __init__(self):
+        super(MyModel, self).__init__()
+        self.model = model
+    def forward(self, x):
+        x = self.model(x)[0]
+        return x['boxes'], x['labels'], x['scores']
+
+
+instance = MyModel()
+module = torch.jit.trace(instance, img)
+module.save("../models/dvt_detect.pt")
+
+
+##############################################################################
+# 5. Face Detection
 import torch
 from dvt_face import MTCNN
 

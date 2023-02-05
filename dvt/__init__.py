@@ -2,6 +2,7 @@
 """Distant Viewing Toolkit for the Analysis of Visual Culture
 """
 
+from .detect import AnnoDetect
 from .embed import AnnoEmbed
 from .face import AnnoFaces
 from .keypoint import AnnoKeypoints
