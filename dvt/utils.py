@@ -111,8 +111,8 @@ def save_image(image_path: str, img: np.ndarray) -> None:
 
 def _download_file(
     url: str,
-    basename="https://github.com/distant-viewing/dvt/releases/download/": str,
-    version="0.0.1": str
+    basename="https://github.com/distant-viewing/dvt/releases/download/",
+    version="0.0.1"
 ) -> str:
 
     basename = basename + version
