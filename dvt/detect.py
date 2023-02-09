@@ -116,7 +116,7 @@ class AnnoDetect:
     """
     def __init__(self, model_path=None):
         if not model_path:
-            model_path = _download_file("dvt_detect.pt")
+            model_path = _download_file("dvt_detect.pt", "1.0.1")
         self.model = torch.jit.load(model_path)
         self.model.eval()
 
