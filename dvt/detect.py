@@ -144,9 +144,9 @@ class AnnoDetect:
         # unpack bounding boxes
         boxes = boxes.detach().numpy()
         vec_x = np.int32(boxes[:, 0])
-        vec_y = np.int32(boxes[:, 0])
-        vec_xend = np.int32(boxes[:, 0])
-        vec_yend = np.int32(boxes[:, 0])
+        vec_y = np.int32(boxes[:, 1])
+        vec_xend = np.int32(boxes[:, 2])
+        vec_yend = np.int32(boxes[:, 3])
 
         return {
             "x": vec_x,
