@@ -114,14 +114,15 @@ def _download_file(
     basename="https://github.com/distant-viewing/dvt/releases/download/",
     version="0.0.1"
 ) -> str:
-
     basename = basename + version
 
     if basename:
-        url = os.path.join(basename, url)
+        url = f"{basename}/{url}"
 
     hub_dir = get_dir()
     model_dir = os.path.join(hub_dir, "checkpoints")
+    # create download directory if it does not exist
+    os.makedirs(model_dir, exist_ok=True)
     HASH_REGEX = re.compile(r"-([a-f0-9]*)\.")
 
     parts = urlparse(url)
