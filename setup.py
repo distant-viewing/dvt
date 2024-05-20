@@ -18,7 +18,7 @@ required = [
 
 setup(
     name="dvt",
-    version="1.0.2",
+    version="1.1.0",
     description="Computational Analysis of Visual Culture",
     long_description=long_description,
     author="Taylor Anold, Lauren Tilton",
