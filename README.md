@@ -116,7 +116,7 @@ identifies Obama as being on the far left of the frame.
 
 ## Other Annotations and Inputs
 
-There are currently four different annotations that extract information from
+There are currently four additional annotations that extract information from
 a still image. These work just like the face annotation above and, include 
 the following:
 
@@ -149,9 +149,6 @@ for img, frame, msec in dvt.yield_video("input/tm_short.mp4"):
             anno['frame'] = frame
             output += [anno]
 ```
-
-We are working on longer tutorials that we hope to release in early 2023. These
-will be posted here as soon as they are ready.
 
 ------------------
 
