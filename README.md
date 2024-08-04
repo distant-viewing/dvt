@@ -21,6 +21,27 @@ If you have any trouble using the toolkit, please open a
 have additional questions or are interested in collaborating, please contact
 us at tarnold2@richmond.edu and ltilton@richmond.edu.
 
+## Notebooks
+
+If you are interested in learning more about application of computer vision and
+the distant viewing toolkit to humanities applications, we offer a self-guided
+tutorial through the following Google Colab notebooks. These can be run for free
+by anyone with a Google account:
+
+- [Tutorial Part 1: Digital Images]()
+- [Tutorial Part 2: Computation Vision]()
+- [Tutorial Part 3: Applications]()
+
+A much shorted demo of the toolkit is also available in the following Google Colab
+notebook.
+
+- [Short Demo](https://colab.research.google.com/drive/1diiI52reVk6QdAmYWcOqYZHpmNt5HNjV?usp=sharing)
+
+It assumes some prior knowledge of Python. While a background in machine learning
+or computer vision is not needed, the methods are presented with minimal motivation.
+Finally, an additional example that can be accessed without running Colab is
+given in the following section.
+
 ## Example Usage
 
 To use the toolkit on a still image, we first use the `load_image`
