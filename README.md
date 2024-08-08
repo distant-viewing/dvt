@@ -28,14 +28,13 @@ the distant viewing toolkit to humanities applications, we offer a self-guided
 tutorial through the following Google Colab notebooks. These can be run for free
 by anyone with a Google account:
 
-- [Tutorial Part 1: Digital Images]()
-- [Tutorial Part 2: Computation Vision]()
-- [Tutorial Part 3: Applications]()
+- [Distant Viewing Tutorial 1: Intro to Digital Images](https://colab.research.google.com/drive/15A5Vkr-f-Us7ZwehrMjAOMte-LLXCYdy?usp=share_link)
+- [Distant Viewing Tutorial 2: Annotating with Computer Vision](https://colab.research.google.com/drive/1eakIl8l8BIX8UoujLc5LJvyPoHjnuFPS?usp=share_link)
+- [Distant Viewing Tutorial 3: Application with Movie Posters](https://colab.research.google.com/drive/1djhXrEvoGMvhtxzwNkAeUgmZVFDKI_4S?usp=share_link)
 
-A much shorted demo of the toolkit is also available in the following Google Colab
-notebook.
+A shorted demo of the toolkit is also available in the following Google Colab notebook:
 
-- [Short Demo](https://colab.research.google.com/drive/1diiI52reVk6QdAmYWcOqYZHpmNt5HNjV?usp=sharing)
+- [Distant Viewing Toolkit Demo](https://colab.research.google.com/drive/1diiI52reVk6QdAmYWcOqYZHpmNt5HNjV?usp=sharing)
 
 It assumes some prior knowledge of Python. While a background in machine learning
 or computer vision is not needed, the methods are presented with minimal motivation.
