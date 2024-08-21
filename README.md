@@ -28,9 +28,8 @@ the distant viewing toolkit to humanities applications, we offer a self-guided
 tutorial through the following Google Colab notebooks. These can be run for free
 by anyone with a Google account:
 
-- [Distant Viewing Tutorial 1: Intro to Digital Images](https://colab.research.google.com/drive/15A5Vkr-f-Us7ZwehrMjAOMte-LLXCYdy?usp=share_link)
-- [Distant Viewing Tutorial 2: Annotating with Computer Vision](https://colab.research.google.com/drive/1eakIl8l8BIX8UoujLc5LJvyPoHjnuFPS?usp=share_link)
-- [Distant Viewing Tutorial 3: Application with Movie Posters](https://colab.research.google.com/drive/1djhXrEvoGMvhtxzwNkAeUgmZVFDKI_4S?usp=share_link)
+- [Distant Viewing Tutorial 1: Movie Posters and Color Analysis](https://colab.research.google.com/drive/1qQKQw8qHsTG7mK7Rz-z8nBfl98QBMWGf?usp=sharing)
+- [Distant Viewing Tutorial 2: Network-Era Sitcoms and Visual Style](https://colab.research.google.com/drive/1n7qWm47laCUJwg0-Rdx7pNw3dQWwuyxz?usp=sharing)
 
 A shorted demo of the toolkit is also available in the following Google Colab notebook:
 
