@@ -33,7 +33,7 @@ by anyone with a Google account:
 
 A shorted demo of the toolkit is also available in the following Google Colab notebook:
 
-- Distant Viewing Toolkit Demo: [colab](https://colab.research.google.com/drive/1gEnx2b8EJQXijBJXGfN3-Ei5t4NBdwNJ?usp=share_link)
+- Distant Viewing Toolkit Demo: [[colab](https://colab.research.google.com/drive/1gEnx2b8EJQXijBJXGfN3-Ei5t4NBdwNJ?usp=share_link)]
 
 Unlike the tutorials, the short demo assumes some prior knowledge of Python.
 While a background in machine learning or computer vision is not needed, the
