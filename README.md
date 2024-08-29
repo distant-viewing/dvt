@@ -28,8 +28,8 @@ the distant viewing toolkit to humanities applications, we offer a self-guided
 tutorial through the following Google Colab notebooks. These can be run for free
 by anyone with a Google account:
 
-- Distant Viewing Tutorial 1: Movie Posters and Color Analysis: [colab](https://colab.research.google.com/drive/1qQKQw8qHsTG7mK7Rz-z8nBfl98QBMWGf?usp=sharing), [slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_01.pdf), [notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_1_Movie_Posters_and_Color_Analysis.ipynb)
-- Distant Viewing Tutorial 2: Network-Era Sitcoms and Visual Style: [colab](https://colab.research.google.com/drive/1n7qWm47laCUJwg0-Rdx7pNw3dQWwuyxz?usp=sharing), [slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_02.pdf), [notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_2_Network_Era_Sitcoms_and_Visual_Style.ipynb)
+- Distant Viewing Tutorial 1: Movie Posters and Color Analysis: [[colab](https://colab.research.google.com/drive/1qQKQw8qHsTG7mK7Rz-z8nBfl98QBMWGf?usp=sharing)], [[slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_01.pdf)], [[notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_1_Movie_Posters_and_Color_Analysis.ipynb)], [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163342/c001700_9780262375160.pdf)]
+- Distant Viewing Tutorial 2: Network-Era Sitcoms and Visual Style: [colab](https://colab.research.google.com/drive/1n7qWm47laCUJwg0-Rdx7pNw3dQWwuyxz?usp=sharing), [slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_02.pdf), [notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_2_Network_Era_Sitcoms_and_Visual_Style.ipynb), [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163344/c003200_9780262375160.pdf)]
 
 A shorted demo of the toolkit is also available in the following Google Colab notebook:
 
