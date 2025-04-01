@@ -26,7 +26,7 @@ class AnnoShotBreaks:
             model_path = _download_file("dvt_detect_shots.pt")
 
         self.model = _TransNetV2()
-        self.model.load_state_dict(torch.load(model_path))
+        self.model.load_state_dict(torch.load(model_path, weights_only=False))
         self.model.eval()
 
     def run(self, video_path: str, visualize=False) -> dict:
