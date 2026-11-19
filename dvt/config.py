@@ -2,12 +2,13 @@
 
 import os
 import tempfile
-from collections.abc import Iterable
 from pathlib import Path
 
 from .tools.values import StrPath
 
 MODELS_ENV = "DVT_MODELS"
+# Where the models go when nothing names a directory.
+DEFAULT_MODELS = Path.home() / ".cache" / "dvt"
 
 _models: Path | None = None
 _tmp: Path | None = None
@@ -26,13 +27,8 @@ def configure(models: StrPath, tmp: StrPath | None = None) -> None:
 def models() -> Path:
     found = _models
     if found is None:
-        env = os.environ.get(MODELS_ENV)
-        if not env:
-            raise RuntimeError(
-                f"no model directory: call dvt.config.configure(models=...) or set {MODELS_ENV}"
-            )
-        configure(env)
-        found = Path(env)
+        found = Path(os.environ.get(MODELS_ENV) or DEFAULT_MODELS)
+        configure(found)
     return found
 
 
@@ -56,18 +52,6 @@ def torch_home() -> Path:
     return models() / "torch"
 
 
-VENDORED_MODELS = (
-    "models--google--siglip2-so400m-patch16-naflex",
-    "models--google--siglip2-base-patch16-224",
-    "models--facebook--dinov2-large",
-    "whisper-large-v3-ct2",
-    "audio-separator",
-    "insightface",
-    "nltk_data",
-    "detect_shots.pt",
-)
-
-
 def assert_torch_home_pinned() -> None:
     import torch
 
@@ -77,7 +61,3 @@ def assert_torch_home_pinned() -> None:
             f"torch hub resolves to {hub_dir}, outside {models()}. "
             "Call config.configure before triggering any torch.hub download."
         )
-
-
-def check_vendored_models(required: Iterable[str] = VENDORED_MODELS) -> list[str]:
-    return [name for name in required if not (models() / name).exists()]

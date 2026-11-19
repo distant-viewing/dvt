@@ -279,7 +279,8 @@ strict = [
     "dvt/shots.py", "dvt/video.py", "dvt/bytetrack",
     "dvt/tracks.py", "dvt/yolo.py", "dvt/words.py",
     "dvt/align_paths.py", "dvt/face.py",
-    "dvt/audioseg.py", "dvt/praat.py", "dvt/laughter.py", "dvt/tools", "tests",
+    "dvt/audioseg.py", "dvt/praat.py", "dvt/laughter.py", "dvt/fetch.py", "dvt/pins.py", "dvt/images.py", "dvt/api.py",
+    "dvt/tools", "tests",
 ]
 # The rest are checked at the standard level. transnet.py's and
 # laughter_net.py's layers call torch's nn.Module.__init__, whose arguments

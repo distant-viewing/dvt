@@ -77,7 +77,7 @@ class YoloStage(FrameStage):
         YOLO = importlib.import_module("ultralytics").YOLO
 
         self.model = YOLO(str(config.models() / "yolo26l_heads.pt"))
-        self.scale = min(1.0, self.TRAIN_MAX_SIDE / max(width, height))
+        self.resize(width, height)
 
         off_recipe = (
             "  !!! NOT THE TRAINED CONFIGURATION (640/960) -- measurement only, do not bank"
@@ -106,6 +106,9 @@ class YoloStage(FrameStage):
             )
         if TORCH_DEVICE == "cuda":
             torch.cuda.synchronize()
+
+    def resize(self, width: int, height: int) -> None:
+        self.scale = min(1.0, self.TRAIN_MAX_SIDE / max(width, height))
 
     def handle(self, fnum: int, bgr: "MatLike", rgb: "MatLike | None") -> None:
         img = (

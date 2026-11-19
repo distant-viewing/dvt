@@ -108,13 +108,6 @@ class FaceStage(FrameStage):
         self.rec = convert(str(pack / "w600k_r50.onnx")).eval().to(TORCH_DEVICE)
 
         dw, dh = self.DET_SIZE
-        im_ratio, model_ratio = height / width, dh / dw
-        if im_ratio > model_ratio:
-            self.new_h, self.new_w = dh, int(dh / im_ratio)
-        else:
-            self.new_w, self.new_h = dw, int(dw * im_ratio)
-        self.det_scale = self.new_h / height
-
         self.anchors = {}
         for stride in self.FEAT_STRIDES:
             h, w = dh // stride, dw // stride
@@ -126,6 +119,7 @@ class FaceStage(FrameStage):
         if TORCH_DEVICE == "cuda":
             self.det_stage = self.det_stage.pin_memory()
         self.det_np = self.det_stage.numpy()
+        self.resize(width, height)
 
         log_status(
             self.od,
@@ -134,6 +128,18 @@ class FaceStage(FrameStage):
             f"det_size={dw}x{dh}, batch={self.BATCH}, "
             f"source {width}x{height} -> {self.new_w}x{self.new_h} padded",
         )
+
+    def resize(self, width: int, height: int) -> None:
+        dw, dh = self.DET_SIZE
+        im_ratio, model_ratio = height / width, dh / dw
+        if im_ratio > model_ratio:
+            self.new_h, self.new_w = dh, int(dh / im_ratio)
+        else:
+            self.new_w, self.new_h = dw, int(dw * im_ratio)
+        self.det_scale = self.new_h / height
+        # A frame fills the top left of its slot and the rest stays black,
+        # so what the last size left outside the new one is cleared.
+        self.det_stage.zero_()
 
     def _hw(self, stride: int) -> int:
         dw, dh = self.DET_SIZE

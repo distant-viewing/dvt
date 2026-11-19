@@ -21,7 +21,7 @@ from transformers import (
     SiglipVisionModel,
 )
 
-from . import config
+from . import config, pins
 from .annotators import stamp
 from .log import log_status
 from .noise import quiet_partial_load
@@ -73,7 +73,7 @@ class EmbeddingStage(FrameStage):
 
     def start(self, width: int, height: int) -> None:
         self.crop = None
-        if not self.wants_crop:
+        if not self.wants_crop or self.still:
             self.load_model(width, height)
             return
         self.crop = self.resolve_crop(width, height, self.name)
@@ -120,13 +120,15 @@ class DinoStage(EmbeddingStage):
     sample_hz = 0.5
     parquet = "dino2.parquet"
     name = "dino2"
+    MODEL = "facebook/dinov2-large"
 
     def load_model(self, width: int, height: int) -> None:
+        revision = pins.HUB[self.MODEL]
         self.processor = AutoImageProcessor.from_pretrained(
-            "facebook/dinov2-large", use_fast=True, cache_dir=config.models()
+            self.MODEL, use_fast=True, revision=revision, cache_dir=config.models()
         )
         self.model = (
-            AutoModel.from_pretrained("facebook/dinov2-large", cache_dir=config.models())
+            AutoModel.from_pretrained(self.MODEL, revision=revision, cache_dir=config.models())
             .eval()
             .to(TORCH_DEVICE)
         )
@@ -149,12 +151,15 @@ class SiglipStage(EmbeddingStage):
     FEATURE_KEYS = ("pixel_values", "pixel_attention_mask", "spatial_shapes")
 
     def load_model(self, width: int, height: int) -> None:
+        revision = pins.HUB[self.MODEL]
         self.processor = AutoImageProcessor.from_pretrained(
-            self.MODEL, use_fast=True, cache_dir=config.models()
+            self.MODEL, use_fast=True, revision=revision, cache_dir=config.models()
         )
         with quiet_partial_load():
             self.model = on_device(
-                Siglip2VisionModel.from_pretrained(self.MODEL, cache_dir=config.models())
+                Siglip2VisionModel.from_pretrained(
+                    self.MODEL, revision=revision, cache_dir=config.models()
+                )
             )
         log_status(
             self.od,
@@ -191,12 +196,15 @@ class SiglipBaseStage(EmbeddingStage):
     MODEL = "google/siglip2-base-patch16-224"
 
     def load_model(self, width: int, height: int) -> None:
+        revision = pins.HUB[self.MODEL]
         self.processor = AutoImageProcessor.from_pretrained(
-            self.MODEL, use_fast=True, cache_dir=config.models()
+            self.MODEL, use_fast=True, revision=revision, cache_dir=config.models()
         )
         with quiet_partial_load():
             self.model = on_device(
-                SiglipVisionModel.from_pretrained(self.MODEL, cache_dir=config.models())
+                SiglipVisionModel.from_pretrained(
+                    self.MODEL, revision=revision, cache_dir=config.models()
+                )
             )
         log_status(
             self.od, "siglip2_base", f"SigLIP2 base 224 on {TORCH_DEVICE}, batch={self.BATCH}"

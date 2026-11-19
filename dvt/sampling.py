@@ -112,6 +112,9 @@ class FrameStage:
 
     backfill: frozenset[int] = frozenset()
     ip: StrPath | None = None
+    # Set when the frames are separate images and not one video: there is
+    # no metadata table to take a crop from, and the size can change.
+    still = False
 
     # A stage that sets overlap runs each full batch on a worker thread of
     # its own, so the card works on one batch while the main thread decodes
@@ -178,6 +181,13 @@ class FrameStage:
 
     def start(self, width: int, height: int) -> None:
         pass
+
+    def resize(self, width: int, height: int) -> None:
+        """The frames change size, which only separate images do. start has
+        run and what was handed over at the old size has been flushed."""
+
+    def flush(self) -> None:
+        """Run what handle has gathered and not yet run."""
 
     def handle(self, fnum: int, bgr: "MatLike", rgb: "MatLike | None") -> None:
         raise NotImplementedError

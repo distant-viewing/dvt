@@ -1,26 +1,38 @@
-"""dvt VIDEO --out DIR --models DIR: every table for one video, under one directory."""
+"""dvt PATH --out DIR: every table for one video, image or directory of images."""
 
 import argparse
 import sys
 from pathlib import Path
 
-from . import config
+from . import annotate, config, fetch, images
 from .annotators import ANNOTATORS
 
 
 def main(argv: list[str] | None = None) -> int:
-    ap = argparse.ArgumentParser(prog="dvt", description="Run the annotators over one video file.")
-    ap.add_argument("video", type=Path, nargs="?", help="the video file")
+    argv = sys.argv[1:] if argv is None else argv
+    if argv[:1] == ["models"]:
+        return fetch.main(argv[1:])
+
+    ap = argparse.ArgumentParser(
+        prog="dvt",
+        description="Run the annotators over one video, one image or a directory of images.",
+        epilog="`dvt models fetch` downloads the models the annotators load.",
+    )
+    ap.add_argument(
+        "path", type=Path, nargs="?", help="the video, the image or the directory of images"
+    )
     ap.add_argument(
         "--out",
         type=Path,
-        help="where everything made from the video goes: "
-        "annotations/<name>/ holds the tables, audio/ the "
-        "sound, frames/ the saved frames, stems/ the "
-        "separated stems",
+        help="where everything made goes: annotations/<name>/ holds the "
+        "tables and, for a video, audio/ the sound, frames/ the saved "
+        "frames and stems/ the separated stems",
     )
     ap.add_argument(
-        "--models", type=Path, help=f"the model directory; ${config.MODELS_ENV} if not given"
+        "--models",
+        type=Path,
+        help=f"the model directory; ${config.MODELS_ENV} if not given, "
+        f"and {config.DEFAULT_MODELS} if that is not set",
     )
     ap.add_argument(
         "--tmp",
@@ -29,7 +41,10 @@ def main(argv: list[str] | None = None) -> int:
     )
     ap.add_argument(
         "--annotators",
-        help="comma-separated names to run, all by default: " + ", ".join(ANNOTATORS),
+        help="comma-separated names to run, all by default: "
+        + ", ".join(ANNOTATORS)
+        + ". An image has "
+        + ", ".join(images.NAMES),
     )
     ap.add_argument(
         "--list", action="store_true", help="list the annotators and what each writes, and stop"
@@ -42,30 +57,16 @@ def main(argv: list[str] | None = None) -> int:
             print(f"{name:<13} {est.side:<9} {', '.join(est.outputs)}{needs}")
         return 0
 
-    names = list(ANNOTATORS)
+    names = None
     if args.annotators:
         names = [n.strip() for n in args.annotators.split(",") if n.strip()]
-        unknown = [n for n in names if n not in ANNOTATORS]
-        if unknown:
-            ap.error(f"unknown annotator(s): {', '.join(unknown)}")
-    if args.video is None or args.out is None:
-        ap.error("a video and --out are both needed")
-    if not args.video.is_file():
-        ap.error(f"{args.video} is not a file")
+    if args.path is None or args.out is None:
+        ap.error("a path and --out are both needed")
+    config.configure(args.models if args.models is not None else config.models(), args.tmp)
     try:
-        config.configure(args.models if args.models is not None else config.models(), args.tmp)
-    except RuntimeError as e:
-        ap.error(str(e))
-
-    from . import run
-    from .source import Source
-
-    source = Source.under(args.video, args.out)
-    run.load(names)
-    said = run.extract(source)
-    if said is not None:
-        print(f"[{source.name}:audio] {said}")
-    run.annotate(source, names)
+        annotate(args.path, args.out, names)
+    except (FileNotFoundError, ValueError, RuntimeError) as e:
+        ap.error(f"{type(e).__name__}: {e}" if isinstance(e, FileNotFoundError) else str(e))
     return 0
 
 

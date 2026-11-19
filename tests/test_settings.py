@@ -75,18 +75,9 @@ def test_models_from_the_environment(
     assert config.tmp().name == "dvt"
 
 
-def test_no_models(fresh_config: None) -> None:
-    with pytest.raises(RuntimeError, match="no model directory"):
-        config.models()
-
-
-def test_vendored_models(fresh_config: None, tmp_path: Path) -> None:
-    config.configure(tmp_path)
-    (tmp_path / "nltk_data").mkdir()
-    missing = config.check_vendored_models()
-    assert "nltk_data" not in missing
-    assert len(missing) == len(config.VENDORED_MODELS) - 1
-    assert config.check_vendored_models(("nltk_data",)) == []
+def test_models_by_default(fresh_config: None) -> None:
+    assert config.models() == config.DEFAULT_MODELS
+    assert os.environ["TORCH_HOME"] == str(config.DEFAULT_MODELS / "torch")
 
 
 # ---- source -------------------------------------------------------------------
@@ -244,9 +235,9 @@ def test_list(capsys: pytest.CaptureFixture[str]) -> None:
 @pytest.mark.parametrize(
     ("argv", "said"),
     [
-        (["--annotators", "frames,nope"], "unknown annotator(s): nope"),
-        ([], "a video and --out are both needed"),
-        (["missing.mp4", "--out", "o"], "missing.mp4 is not a file"),
+        (["--annotators", "frames,nope"], "a path and --out are both needed"),
+        ([], "a path and --out are both needed"),
+        (["missing.mp4", "--out", "o", "--models", "m"], "FileNotFoundError: missing.mp4"),
     ],
 )
 def test_usage_errors(argv: list[str], said: str, capsys: pytest.CaptureFixture[str]) -> None:
@@ -260,6 +251,12 @@ def test_no_models_on_the_command_line(
 ) -> None:
     video = tmp_path / "v.mp4"
     video.write_bytes(b"")
+    argv = [str(video), "--out", str(tmp_path), "--models", str(tmp_path / "m")]
     with pytest.raises(SystemExit):
-        cli.main([str(video), "--out", str(tmp_path)])
-    assert "no model directory" in capsys.readouterr().err
+        cli.main([*argv, "--annotators", "frames,nope"])
+    assert "not annotators of a video: nope" in capsys.readouterr().err
+    with pytest.raises(SystemExit):
+        cli.main([*argv, "--annotators", "metadata,frames,yolo"])
+    err = capsys.readouterr().err
+    assert f"no model for frames, yolo in {tmp_path / 'm'}" in err
+    assert "`dvt models fetch` downloads them" in err
