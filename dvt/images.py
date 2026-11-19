@@ -51,8 +51,9 @@ def listed(path: Path) -> tuple[Path, list[Path]]:
 
 
 def stages_for(names: Collection[str], od: Path) -> list[tuple[str, FrameStage]]:
-    from .video import FRAME_STAGES
+    from .video import FRAME_STAGES, check_imports
 
+    check_imports(names)
     made: list[tuple[str, FrameStage]] = []
     for name in NAMES:
         if name in names:

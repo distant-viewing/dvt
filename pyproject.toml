@@ -28,11 +28,18 @@ video = [
     "torch>=2.8",
     "torchvision>=0.23",
     "transformers>=5.1.0",
+    "tqdm>=4.67",
+    # The model fetch. transformers brings it as well; it is named because
+    # dvt.fetch imports it.
+    "huggingface-hub>=1.0",
 ]
 # The face annotator, and tracks, which reads its table.
 face = [
     "dvt[video]",
     "insightface>=1.0.1",
+    # Turns the two insightface networks into torch modules. The fork that
+    # installs on Python 3.13; it imports as onnx2torch.
+    "onnx2torch-py313>=1.6.0",
     # The `face` stage runs on onnxruntime rather than torch, so it is the one
     # stage a CUDA torch does nothing for. insightface and faster-whisper both
     # require it unconditionally, so it lands in every full resolution either
@@ -63,6 +70,10 @@ audio = [
     # 0.4.7 embeds Praat 6.1.38.
     "praat-parselmouth>=0.4.7",
     "onnxruntime>=1.27.0",
+    # Imported here and brought by the libraries above as well.
+    "soundfile>=0.13",
+    "nltk>=3.9",
+    "huggingface-hub>=1.0",
     # Resolution guards, not direct imports: numba>=0.66 is the first release
     # that builds on 3.13 (uv otherwise backtracks to 0.53.1 via resampy), and
     # numba caps numpy<2.5.
