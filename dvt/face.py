@@ -1,851 +1,276 @@
-# -*- coding: utf-8 -*-
-"""Annotators for detecting and recognizing faces.
-"""
+"""The face stage: SCRFD detection and ArcFace embedding on every frame."""
 
+import os
+from pathlib import Path
+from typing import TYPE_CHECKING, ClassVar
+
+# The settings every annotator runs under, before torch is imported.
+# isort: off
+from . import runtime as runtime
+
+# isort: on
 import cv2
 import numpy as np
+import polars as pl
 import torch
+from insightface.model_zoo.scrfd import distance2bbox, distance2kps
+from insightface.utils import face_align
+from numpy.typing import NDArray
 
-from torch import nn
-from torch.nn.functional import interpolate
-from torchvision.transforms import functional as F
-from torchvision.ops.boxes import batched_nms
+from . import config
+from .annotators import stamp
+from .log import log_status
+from .runtime import TORCH_DEVICE
+from .sampling import FrameStage
 
-from .utils import _download_file
+if TYPE_CHECKING:
+    from cv2.typing import MatLike
+
+    from .source import Source
+
+Floats = NDArray[np.float32]
+# A face: its box, its score and its five landmarks, on the source frame.
+Face = tuple[Floats, np.float32, Floats]
 
 
-class AnnoFaces:
-    """Detect faces in an image and embed into a space for recognition.
+# The embeddings are kept in float16: they are 97% of the table, and the one
+# reader, tracks, compares them by cosine, which float16's three digits leave
+# as they were. They are computed in float32.
+EMBEDDING = pl.Array(pl.Float16, 512)
 
-    Uses the MTCNN algorithm to detect faces and FaceNet to do the face
-    embedding algorithm.
 
-    Attributes:
-        model_path_mtcnn (str): location of the saved pytorch weight for the
-            detection algorithm; set to None to download from the DVT repository.
-        model_path_vggface (str): location of the saved pytorch weight for the
-            embedding algorithm; set to None to download from the DVT repository.
-    """
-    def __init__(self, model_path_mtcnn=None, model_path_vggface=None):
+class FaceStage(FrameStage):
+    label = "face"
+    sample_hz = None
+    overlap = True
+    imports = ("onnx2torch",)
 
-        if not model_path_mtcnn:
-            model_path_mtcnn = _download_file("dvt_detect_face.pt")
+    SCHEMA: ClassVar[dict[str, pl.DataType | type[pl.DataType]]] = {
+        "frame": pl.Int64,
+        "face_id": pl.Int64,
+        "det_score": pl.Float32,
+        "bbox_x1": pl.Float32,
+        "bbox_y1": pl.Float32,
+        "bbox_x2": pl.Float32,
+        "bbox_y2": pl.Float32,
+        "kps": pl.Array(pl.Float32, 10),
+        "embedding": EMBEDDING,
+    }
 
-        if not model_path_vggface:
-            model_path_vggface = _download_file("dvt_face_embed.pt")
+    DET_SIZE = (640, 640)
+    DET_THRESH = 0.5
+    NMS_THRESH = 0.4
+    INPUT_MEAN, INPUT_STD = 127.5, 128.0
+    REC_MEAN, REC_STD = 127.5, 127.5
+    FEAT_STRIDES = (8, 16, 32)
+    FMC = 3
+    NUM_ANCHORS = 2
 
-        self.mtcnn = _MTCNN()
-        self.mtcnn.load_state_dict(torch.load(model_path_mtcnn))
-        self.mtcnn.eval()
+    BATCH = int(os.environ.get("TBM_FACE_BATCH", "32"))
 
-        self.vggface = InceptionResnetV1()
-        self.vggface.load_state_dict(torch.load(model_path_vggface))
-        self.vggface.eval()
+    REC_BATCH = int(os.environ.get("TBM_REC_BATCH", "256"))
 
-    def run(self, img: np.ndarray, visualize=False, embed=True) -> dict:
-        """Run the annotator.
+    # What start sets: the models, the size a frame is shrunk to before
+    # detection, the anchor centres of each stride, and the batch the frames
+    # are staged in.
+    det: torch.nn.Module
+    rec: torch.nn.Module
+    new_w: int
+    new_h: int
+    det_scale: float
+    anchors: dict[int, Floats]
+    det_stage: torch.Tensor
+    det_np: NDArray[np.uint8]
 
-        Args:
-            img (np.ndarray): image file, as returned by dvt.load_image,
-                or dvt.yield_video (for frame from a video file).
-            visualize (bool): should a visualization of the output be
-                returned as well? Default is False.
-            embed (bool): should an embedding of the faces be returned?
-                Default is True.
+    def __init__(self, od: Path, source: "Source | None" = None) -> None:
+        super().__init__(od, source)
+        self.path = od / "face.parquet"
+        self.pending_fnums: list[int] = []
+        self.pending_frames: list[MatLike] = []
+        self.frame_numbers: list[int] = []
+        self.face_ids: list[int] = []
+        self.det_scores: list[float] = []
+        self.bbox_x1: list[float] = []
+        self.bbox_y1: list[float] = []
+        self.bbox_x2: list[float] = []
+        self.bbox_y2: list[float] = []
+        self.all_kps: list[Floats] = []
+        self.all_embeddings: list[Floats | None] = []
 
-        Returns:
-            A dictionary giving the annotation.
-        """
-        img_t = np.transpose(img, (2, 0, 1))
-        img_t = torch.Tensor(img_t).unsqueeze(0)
+    def done(self) -> bool:
+        return self.path.exists()
 
-        # detect faces
-        batch_boxes, batch_points = self.mtcnn(img_t)
-        if not len(batch_boxes[0]):
-            return {}
+    def start(self, width: int, height: int) -> None:
+        from onnx2torch import convert
 
-        # take subsets of the image corresponding to each face
-        faces = [_extract_face(img, x) for x in batch_boxes[0]]
-        faces = [np.transpose(x, (2, 0, 1)) for x in faces]
-        faces = np.stack(faces)
-        faces = (faces - 127.5) / 128.0
-        faces = torch.Tensor(faces)
+        pack = config.models() / "insightface" / "models" / "buffalo_l"
+        self.det = convert(str(pack / "det_10g.onnx")).eval().to(TORCH_DEVICE)
+        self.rec = convert(str(pack / "w600k_r50.onnx")).eval().to(TORCH_DEVICE)
 
-        # embed the faces
-        if embed:
-            vects = self.vggface(faces).detach().numpy()
-            norms = np.linalg.norm(vects, axis=1, ord=2, keepdims=True)
-            vects = vects / norms
+        dw, dh = self.DET_SIZE
+        im_ratio, model_ratio = height / width, dh / dw
+        if im_ratio > model_ratio:
+            self.new_h, self.new_w = dh, int(dh / im_ratio)
         else:
-            vects = None
+            self.new_w, self.new_h = dw, int(dw * im_ratio)
+        self.det_scale = self.new_h / height
 
-        # clean up
-        nface = batch_boxes.shape[1]
-        boxes = {
-            "face_id": np.arange(nface),
-            "x": np.int32(batch_boxes[0][:, 0]),
-            "xend": np.int32(batch_boxes[0][:, 2]),
-            "y": np.int32(batch_boxes[0][:, 1]),
-            "yend": np.int32(batch_boxes[0][:, 3]),
-            "prob": batch_boxes[0][:, 4],
-        }
-        kpnts = {
-            "face_id": np.repeat(np.arange(nface), 5),
-            "kpnt_id": np.tile(np.arange(5), nface),
-            "x": np.int32(batch_points[0][:, :, 0].flatten()),
-            "y": np.int32(batch_points[0][:, :, 1].flatten()),
-        }
+        self.anchors = {}
+        for stride in self.FEAT_STRIDES:
+            h, w = dh // stride, dw // stride
+            centers = np.stack(list(np.mgrid[:h, :w][::-1]), axis=-1).astype(np.float32)
+            centers = (centers * stride).reshape((-1, 2))
+            self.anchors[stride] = np.stack([centers] * self.NUM_ANCHORS, axis=1).reshape((-1, 2))
 
-        # visualize?
-        if visualize:
-            img_out = img.copy()
-            yellow = [250, 189, 47]
-            for index in range(nface):
-                img_out[
-                    boxes["y"][index], boxes["x"][index]:boxes["xend"][index], :
-                ] = yellow
-                img_out[
-                    boxes["yend"][index], boxes["x"][index]:boxes["xend"][index], :
-                ] = yellow
-                img_out[
-                    boxes["y"][index]:boxes["yend"][index], boxes["x"][index], :
-                ] = yellow
-                img_out[
-                    boxes["y"][index]:boxes["yend"][index], boxes["xend"][index], :
-                ] = yellow
-        else:
-            img_out = None
+        self.det_stage = torch.zeros((self.BATCH, dh, dw, 3), dtype=torch.uint8)
+        if TORCH_DEVICE == "cuda":
+            self.det_stage = self.det_stage.pin_memory()
+        self.det_np = self.det_stage.numpy()
 
-        return {"boxes": boxes, "kpnts": kpnts, "embed": vects, "img": img_out}
-
-
-#################################################################################
-# All of the code below is adapted from the facenet-pytorch library, which is 
-# covered under the MIT License, Copyright (c) 2019 Timothy Esler.
-
-def _fixed_batch_process(im_data, model):
-    batch_size = 512
-    out = []
-    for i in range(0, len(im_data), batch_size):
-        batch = im_data[i : (i + batch_size)]
-        out.append(model(batch))
-
-    return tuple(torch.cat(v, dim=0) for v in zip(*out))
-
-
-def _detect_face(imgs, minsize, pnet, rnet, onet, threshold, factor):
-
-    batch_size = len(imgs)
-    h, w = imgs.shape[2:4]
-    m = 12.0 / minsize
-    minl = min(h, w)
-    minl = minl * m
-
-    # Create scale pyramid
-    scale_i = m
-    scales = []
-    while minl >= 12:
-        scales.append(scale_i)
-        scale_i = scale_i * factor
-        minl = minl * factor
-
-    # First stage
-    boxes = []
-    image_inds = []
-
-    scale_picks = []
-
-    all_i = 0
-    offset = 0
-    for scale in scales:
-        im_data = _imresample(imgs, (int(h * scale + 1), int(w * scale + 1)))
-        im_data = (im_data - 127.5) * 0.0078125
-        reg, probs = pnet(im_data)
-
-        boxes_scale, image_inds_scale = _generateBoundingBox(
-            reg, probs[:, 1], scale, threshold[0]
+        log_status(
+            self.od,
+            "face",
+            f"SCRFD det_10g + w600k_r50 (torch) on {TORCH_DEVICE}, "
+            f"det_size={dw}x{dh}, batch={self.BATCH}, "
+            f"source {width}x{height} -> {self.new_w}x{self.new_h} padded",
         )
-        boxes.append(boxes_scale)
-        image_inds.append(image_inds_scale)
 
-        pick = batched_nms(boxes_scale[:, :4], boxes_scale[:, 4], image_inds_scale, 0.5)
-        scale_picks.append(pick + offset)
-        offset += boxes_scale.shape[0]
+    def _hw(self, stride: int) -> int:
+        dw, dh = self.DET_SIZE
+        return (dh // stride) * (dw // stride)
 
-    boxes = torch.cat(boxes, dim=0)
-    image_inds = torch.cat(image_inds, dim=0)
+    def _scores_for(self, out: Floats, stride: int, n: int, i: int) -> Floats:
+        return out.reshape(self._hw(stride), n, self.NUM_ANCHORS)[:, i].ravel()
 
-    scale_picks = torch.cat(scale_picks, dim=0)
+    def _rows_for(self, out: Floats, stride: int, n: int, i: int, pos: NDArray[np.intp]) -> Floats:
+        a = self.NUM_ANCHORS
+        return out[((pos // a) * n + i) * a + (pos % a)]
 
-    # NMS within each scale + image
-    boxes, image_inds = boxes[scale_picks], image_inds[scale_picks]
+    def handle(self, fnum: int, bgr: "MatLike", rgb: "MatLike | None") -> None:
+        self.pending_fnums.append(fnum)
+        self.pending_frames.append(bgr)
+        if len(self.pending_frames) >= self.BATCH:
+            self.flush()
 
-    # NMS within each image
-    pick = batched_nms(boxes[:, :4], boxes[:, 4], image_inds, 0.7)
-    boxes, image_inds = boxes[pick], image_inds[pick]
+    def flush(self) -> None:
+        if not self.pending_frames:
+            return
+        fnums, frames = self.pending_fnums, self.pending_frames
+        self.pending_fnums, self.pending_frames = [], []
+        self.submit(self._detect, fnums, frames)
 
-    regw = boxes[:, 2] - boxes[:, 0]
-    regh = boxes[:, 3] - boxes[:, 1]
-    qq1 = boxes[:, 0] + boxes[:, 5] * regw
-    qq2 = boxes[:, 1] + boxes[:, 6] * regh
-    qq3 = boxes[:, 2] + boxes[:, 7] * regw
-    qq4 = boxes[:, 3] + boxes[:, 8] * regh
-    boxes = torch.stack([qq1, qq2, qq3, qq4, boxes[:, 4]]).permute(1, 0)
-    boxes = _rerec(boxes)
-    y, ey, x, ex = _pad(boxes, w, h)
+    def _detect(self, fnums: list[int], frames: list["MatLike"]) -> None:
+        n = len(frames)
 
-    # Second stage
-    if len(boxes) > 0:
-        im_data = []
-        for k in range(len(y)):
-            if ey[k] > (y[k] - 1) and ex[k] > (x[k] - 1):
-                img_k = imgs[
-                    image_inds[k], :, (y[k] - 1) : ey[k], (x[k] - 1) : ex[k]
-                ].unsqueeze(0)
-                im_data.append(_imresample(img_k, (24, 24)))
-        im_data = torch.cat(im_data, dim=0)
-        im_data = (im_data - 127.5) * 0.0078125
+        for i, f in enumerate(frames):
+            cv2.resize(f, (self.new_w, self.new_h), dst=self.det_np[i, : self.new_h, : self.new_w])
 
-        # This is equivalent to out = rnet(im_data) to avoid GPU out of memory.
-        out = _fixed_batch_process(im_data, rnet)
+        staged = self.det_stage[:n].to(TORCH_DEVICE, non_blocking=True)
+        blob = (staged.permute(0, 3, 1, 2).flip(1).float() - self.INPUT_MEAN) * (
+            1.0 / self.INPUT_STD
+        )
 
-        out0 = out[0].permute(1, 0)
-        out1 = out[1].permute(1, 0)
-        score = out1[1, :]
-        ipass = score > threshold[1]
-        boxes = torch.cat((boxes[ipass, :4], score[ipass].unsqueeze(1)), dim=1)
-        image_inds = image_inds[ipass]
-        mv = out0[:, ipass].permute(1, 0)
-
-        # NMS within each image
-        pick = batched_nms(boxes[:, :4], boxes[:, 4], image_inds, 0.7)
-        boxes, image_inds, mv = boxes[pick], image_inds[pick], mv[pick]
-        boxes = _bbreg(boxes, mv)
-        boxes = _rerec(boxes)
-
-    # Third stage
-    points = torch.zeros(0, 5, 2)
-    if len(boxes) > 0:
-        y, ey, x, ex = _pad(boxes, w, h)
-        im_data = []
-        for k in range(len(y)):
-            if ey[k] > (y[k] - 1) and ex[k] > (x[k] - 1):
-                img_k = imgs[
-                    image_inds[k], :, (y[k] - 1) : ey[k], (x[k] - 1) : ex[k]
-                ].unsqueeze(0)
-                im_data.append(_imresample(img_k, (48, 48)))
-        im_data = torch.cat(im_data, dim=0)
-        im_data = (im_data - 127.5) * 0.0078125
-
-        # This is equivalent to out = onet(im_data) to avoid GPU out of memory.
-        out = _fixed_batch_process(im_data, onet)
-
-        out0 = out[0].permute(1, 0)
-        out1 = out[1].permute(1, 0)
-        out2 = out[2].permute(1, 0)
-        score = out2[1, :]
-        points = out1
-        ipass = score > threshold[2]
-        points = points[:, ipass]
-        boxes = torch.cat((boxes[ipass, :4], score[ipass].unsqueeze(1)), dim=1)
-        image_inds = image_inds[ipass]
-        mv = out0[:, ipass].permute(1, 0)
-
-        w_i = boxes[:, 2] - boxes[:, 0] + 1
-        h_i = boxes[:, 3] - boxes[:, 1] + 1
-        points_x = w_i.repeat(5, 1) * points[:5, :] + boxes[:, 0].repeat(5, 1) - 1
-        points_y = h_i.repeat(5, 1) * points[5:10, :] + boxes[:, 1].repeat(5, 1) - 1
-        points = torch.stack((points_x, points_y)).permute(2, 1, 0)
-        boxes = _bbreg(boxes, mv)
-
-        # NMS within each image using "Min" strategy
-        # pick = batched_nms(boxes[:, :4], boxes[:, 4], image_inds, 0.7)
-        pick = _batched_nms_numpy(boxes[:, :4], boxes[:, 4], image_inds, 0.7, "Min")
-        boxes, image_inds, points = boxes[pick], image_inds[pick], points[pick]
-
-    boxes = boxes.cpu().numpy()
-    points = points.cpu().numpy()
-
-    image_inds = image_inds.cpu()
-
-    batch_boxes = []
-    batch_points = []
-    for b_i in range(batch_size):
-        b_i_inds = np.where(image_inds == b_i)
-        batch_boxes.append(boxes[b_i_inds].copy())
-        batch_points.append(points[b_i_inds].copy())
-
-    batch_boxes, batch_points = np.array(batch_boxes), np.array(batch_points)
-
-    return batch_boxes, batch_points
-
-
-def _bbreg(boundingbox, reg):
-    if reg.shape[1] == 1:
-        reg = torch.reshape(reg, (reg.shape[2], reg.shape[3]))
-
-    w = boundingbox[:, 2] - boundingbox[:, 0] + 1
-    h = boundingbox[:, 3] - boundingbox[:, 1] + 1
-    b1 = boundingbox[:, 0] + reg[:, 0] * w
-    b2 = boundingbox[:, 1] + reg[:, 1] * h
-    b3 = boundingbox[:, 2] + reg[:, 2] * w
-    b4 = boundingbox[:, 3] + reg[:, 3] * h
-    boundingbox[:, :4] = torch.stack([b1, b2, b3, b4]).permute(1, 0)
-
-    return boundingbox
-
-
-def _generateBoundingBox(reg, probs, scale, thresh):
-    stride = 2
-    cellsize = 12
-
-    reg = reg.permute(1, 0, 2, 3)
-
-    mask = probs >= thresh
-    mask_inds = mask.nonzero()
-    image_inds = mask_inds[:, 0]
-    score = probs[mask]
-    reg = reg[:, mask].permute(1, 0)
-    bb = mask_inds[:, 1:].type(reg.dtype).flip(1)
-    q1 = ((stride * bb + 1) / scale).floor()
-    q2 = ((stride * bb + cellsize - 1 + 1) / scale).floor()
-    boundingbox = torch.cat([q1, q2, score.unsqueeze(1), reg], dim=1)
-    return boundingbox, image_inds
-
-
-def _nms_numpy(boxes, scores, threshold, method):
-    if boxes.size == 0:
-        return np.empty((0, 3))
-
-    x1 = boxes[:, 0].copy()
-    y1 = boxes[:, 1].copy()
-    x2 = boxes[:, 2].copy()
-    y2 = boxes[:, 3].copy()
-    s = scores
-    area = (x2 - x1 + 1) * (y2 - y1 + 1)
-
-    I = np.argsort(s)
-    pick = np.zeros_like(s, dtype=np.int16)
-    counter = 0
-    while I.size > 0:
-        i = I[-1]
-        pick[counter] = i
-        counter += 1
-        idx = I[0:-1]
-
-        xx1 = np.maximum(x1[i], x1[idx]).copy()
-        yy1 = np.maximum(y1[i], y1[idx]).copy()
-        xx2 = np.minimum(x2[i], x2[idx]).copy()
-        yy2 = np.minimum(y2[i], y2[idx]).copy()
-
-        w = np.maximum(0.0, xx2 - xx1 + 1).copy()
-        h = np.maximum(0.0, yy2 - yy1 + 1).copy()
-
-        inter = w * h
-        if method == "Min":
-            o = inter / np.minimum(area[i], area[idx])
-        else:
-            o = inter / (area[i] + area[idx] - inter)
-        I = I[np.where(o <= threshold)]
-
-    pick = pick[:counter].copy()
-    return pick
-
-
-def _batched_nms_numpy(boxes, scores, idxs, threshold, method):
-    if boxes.numel() == 0:
-        return torch.empty((0,), dtype=torch.int64)
-    # strategy: in order to perform NMS independently per class.
-    # we add an offset to all the boxes. The offset is dependent
-    # only on the class idx, and is large enough so that boxes
-    # from different classes do not overlap
-    max_coordinate = boxes.max()
-    offsets = idxs.to(boxes) * (max_coordinate + 1)
-    boxes_for_nms = boxes + offsets[:, None]
-    boxes_for_nms = boxes_for_nms.cpu().numpy()
-    scores = scores.cpu().numpy()
-    keep = _nms_numpy(boxes_for_nms, scores, threshold, method)
-    return torch.as_tensor(keep, dtype=torch.long)
-
-
-def _pad(boxes, w, h):
-    boxes = boxes.trunc().int().cpu().numpy()
-    x = boxes[:, 0]
-    y = boxes[:, 1]
-    ex = boxes[:, 2]
-    ey = boxes[:, 3]
-
-    x[x < 1] = 1
-    y[y < 1] = 1
-    ex[ex > w] = w
-    ey[ey > h] = h
-
-    return y, ey, x, ex
-
-
-def _rerec(bboxA):
-    h = bboxA[:, 3] - bboxA[:, 1]
-    w = bboxA[:, 2] - bboxA[:, 0]
-
-    l = torch.max(w, h)
-    bboxA[:, 0] = bboxA[:, 0] + w * 0.5 - l * 0.5
-    bboxA[:, 1] = bboxA[:, 1] + h * 0.5 - l * 0.5
-    bboxA[:, 2:4] = bboxA[:, :2] + l.repeat(2, 1).permute(1, 0)
-
-    return bboxA
-
-
-def _imresample(img, sz):
-    im_data = interpolate(img, size=sz, mode="area")
-    return im_data
-
-
-def _crop_resize(img: np.ndarray, box, image_size):
-    img = img[box[1] : box[3], box[0] : box[2]]
-    out = cv2.resize(img, (image_size, image_size), interpolation=cv2.INTER_AREA).copy()
-    return out
-
-
-def _extract_face(img, box, image_size=160, margin=0):
-    """Extract face + margin given bounding box."""
-    margin = [
-        margin * (box[2] - box[0]) / (image_size - margin),
-        margin * (box[3] - box[1]) / (image_size - margin),
-    ]
-    raw_image_size = img.shape[1::-1]
-    box = [
-        int(max(box[0] - margin[0] / 2, 0)),
-        int(max(box[1] - margin[1] / 2, 0)),
-        int(min(box[2] + margin[0] / 2, raw_image_size[0])),
-        int(min(box[3] + margin[1] / 2, raw_image_size[1])),
-    ]
-    face = _crop_resize(img, box, image_size)
-
-    return face
-
-
-class _PNet(nn.Module):
-    """MTCNN PNet."""
-
-    def __init__(self, model_path):
-        super().__init__()
-
-        self.conv1 = nn.Conv2d(3, 10, kernel_size=3)
-        self.prelu1 = nn.PReLU(10)
-        self.pool1 = nn.MaxPool2d(2, 2, ceil_mode=True)
-        self.conv2 = nn.Conv2d(10, 16, kernel_size=3)
-        self.prelu2 = nn.PReLU(16)
-        self.conv3 = nn.Conv2d(16, 32, kernel_size=3)
-        self.prelu3 = nn.PReLU(32)
-        self.conv4_1 = nn.Conv2d(32, 2, kernel_size=1)
-        self.softmax4_1 = nn.Softmax(dim=1)
-        self.conv4_2 = nn.Conv2d(32, 4, kernel_size=1)
-
-        self.training = False
-        if model_path:
-            state_dict = torch.load(model_path)
-            self.load_state_dict(state_dict)
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.prelu1(x)
-        x = self.pool1(x)
-        x = self.conv2(x)
-        x = self.prelu2(x)
-        x = self.conv3(x)
-        x = self.prelu3(x)
-        a = self.conv4_1(x)
-        a = self.softmax4_1(a)
-        b = self.conv4_2(x)
-        return b, a
-
-
-class _RNet(nn.Module):
-    """MTCNN RNet."""
-
-    def __init__(self, model_path):
-        super().__init__()
-
-        self.conv1 = nn.Conv2d(3, 28, kernel_size=3)
-        self.prelu1 = nn.PReLU(28)
-        self.pool1 = nn.MaxPool2d(3, 2, ceil_mode=True)
-        self.conv2 = nn.Conv2d(28, 48, kernel_size=3)
-        self.prelu2 = nn.PReLU(48)
-        self.pool2 = nn.MaxPool2d(3, 2, ceil_mode=True)
-        self.conv3 = nn.Conv2d(48, 64, kernel_size=2)
-        self.prelu3 = nn.PReLU(64)
-        self.dense4 = nn.Linear(576, 128)
-        self.prelu4 = nn.PReLU(128)
-        self.dense5_1 = nn.Linear(128, 2)
-        self.softmax5_1 = nn.Softmax(dim=1)
-        self.dense5_2 = nn.Linear(128, 4)
-
-        self.training = False
-        if model_path:
-            state_dict = torch.load(model_path)
-            self.load_state_dict(state_dict)
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.prelu1(x)
-        x = self.pool1(x)
-        x = self.conv2(x)
-        x = self.prelu2(x)
-        x = self.pool2(x)
-        x = self.conv3(x)
-        x = self.prelu3(x)
-        x = x.permute(0, 3, 2, 1).contiguous()
-        x = self.dense4(x.view(x.shape[0], -1))
-        x = self.prelu4(x)
-        a = self.dense5_1(x)
-        a = self.softmax5_1(a)
-        b = self.dense5_2(x)
-        return b, a
-
-
-class _ONet(nn.Module):
-    """MTCNN ONet."""
-
-    def __init__(self, model_path):
-        super().__init__()
-
-        self.conv1 = nn.Conv2d(3, 32, kernel_size=3)
-        self.prelu1 = nn.PReLU(32)
-        self.pool1 = nn.MaxPool2d(3, 2, ceil_mode=True)
-        self.conv2 = nn.Conv2d(32, 64, kernel_size=3)
-        self.prelu2 = nn.PReLU(64)
-        self.pool2 = nn.MaxPool2d(3, 2, ceil_mode=True)
-        self.conv3 = nn.Conv2d(64, 64, kernel_size=3)
-        self.prelu3 = nn.PReLU(64)
-        self.pool3 = nn.MaxPool2d(2, 2, ceil_mode=True)
-        self.conv4 = nn.Conv2d(64, 128, kernel_size=2)
-        self.prelu4 = nn.PReLU(128)
-        self.dense5 = nn.Linear(1152, 256)
-        self.prelu5 = nn.PReLU(256)
-        self.dense6_1 = nn.Linear(256, 2)
-        self.softmax6_1 = nn.Softmax(dim=1)
-        self.dense6_2 = nn.Linear(256, 4)
-        self.dense6_3 = nn.Linear(256, 10)
-
-        self.training = False
-        if model_path:
-            state_dict = torch.load(model_path)
-            self.load_state_dict(state_dict)
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.prelu1(x)
-        x = self.pool1(x)
-        x = self.conv2(x)
-        x = self.prelu2(x)
-        x = self.pool2(x)
-        x = self.conv3(x)
-        x = self.prelu3(x)
-        x = self.pool3(x)
-        x = self.conv4(x)
-        x = self.prelu4(x)
-        x = x.permute(0, 3, 2, 1).contiguous()
-        x = self.dense5(x.view(x.shape[0], -1))
-        x = self.prelu5(x)
-        a = self.dense6_1(x)
-        a = self.softmax6_1(a)
-        b = self.dense6_2(x)
-        c = self.dense6_3(x)
-        return b, c, a
-
-
-class _MTCNN(nn.Module):
-    """MTCNN face detection module."""
-
-    def __init__(
-        self,
-        image_size=160,
-        margin=0,
-        min_face_size=20,
-        thresholds=[0.6, 0.7, 0.7],
-        factor=0.709,
-        model_path_p=None,
-        model_path_r=None,
-        model_path_o=None,
-    ):
-        super().__init__()
-
-        self.image_size = image_size
-        self.margin = margin
-        self.min_face_size = min_face_size
-        self.thresholds = thresholds
-        self.factor = factor
-
-        self.pnet = _PNet(model_path_p)
-        self.rnet = _RNet(model_path_r)
-        self.onet = _ONet(model_path_o)
-
-    def forward(self, img):
-
-        # Detect Faces
         with torch.no_grad():
-            batch_boxes, batch_points = _detect_face(
-                img,
-                self.min_face_size,
-                self.pnet,
-                self.rnet,
-                self.onet,
-                self.thresholds,
-                self.factor,
+            outs = self.det(blob)
+        outs = [o.cpu().numpy() for o in outs]
+
+        crops: list[MatLike] = []
+        owners: list[int] = []
+        for i in range(n):
+            scores_list: list[Floats] = []
+            bboxes_list: list[Floats] = []
+            kpss_list: list[Floats] = []
+            for idx, stride in enumerate(self.FEAT_STRIDES):
+                scores = self._scores_for(outs[idx], stride, n, i)
+                pos = np.where(scores >= self.DET_THRESH)[0]
+                if not pos.size:
+                    continue
+                centers = self.anchors[stride][pos]
+                bbox_preds = self._rows_for(outs[idx + self.FMC], stride, n, i, pos) * stride
+                kps_preds = self._rows_for(outs[idx + self.FMC * 2], stride, n, i, pos) * stride
+
+                scores_list.append(scores[pos])
+                bboxes_list.append(distance2bbox(centers, bbox_preds))
+                kpss = distance2kps(centers, kps_preds)
+                kpss_list.append(kpss.reshape((kpss.shape[0], -1, 2)))
+
+            faces = self._nms_one(scores_list, bboxes_list, kpss_list)
+            for fid, (bbox, score, kps) in enumerate(faces):
+                self.frame_numbers.append(fnums[i])
+                self.face_ids.append(fid)
+                self.det_scores.append(float(score))
+                self.bbox_x1.append(float(bbox[0]))
+                self.bbox_y1.append(float(bbox[1]))
+                self.bbox_x2.append(float(bbox[2]))
+                self.bbox_y2.append(float(bbox[3]))
+                self.all_kps.append(kps.flatten().astype(np.float32))
+                crops.append(face_align.norm_crop(frames[i], landmark=kps, image_size=112))
+                owners.append(len(self.all_embeddings))
+                self.all_embeddings.append(None)
+
+        for i in range(0, len(crops), self.REC_BATCH):
+            chunk = crops[i : i + self.REC_BATCH]
+            rblob = cv2.dnn.blobFromImages(
+                chunk, 1.0 / self.REC_STD, (112, 112), (self.REC_MEAN,) * 3, swapRB=True
             )
+            with torch.no_grad():
+                feats = self.rec(torch.as_tensor(rblob).to(TORCH_DEVICE)).cpu().numpy()
+            for slot, feat in zip(owners[i : i + self.REC_BATCH], feats, strict=True):
+                self.all_embeddings[slot] = feat.flatten().astype(np.float32)
 
-        return batch_boxes, batch_points
+    def _nms_one(
+        self, scores_list: list[Floats], bboxes_list: list[Floats], kpss_list: list[Floats]
+    ) -> list[Face]:
+        if not scores_list:
+            return []
+        scores = np.concatenate(scores_list)
+        bboxes = np.vstack(bboxes_list) / self.det_scale
+        kpss = np.vstack(kpss_list) / self.det_scale
 
+        for _ in range(2):
+            order = scores.argsort()[::-1]
+            bboxes, kpss, scores = bboxes[order], kpss[order], scores[order]
 
-class _BasicConv2d(nn.Module):
-    def __init__(self, in_planes, out_planes, kernel_size, stride, padding=0):
-        super().__init__()
-        self.conv = nn.Conv2d(
-            in_planes,
-            out_planes,
-            kernel_size=kernel_size,
-            stride=stride,
-            padding=padding,
-            bias=False,
-        )  # verify bias false
-        self.bn = nn.BatchNorm2d(
-            out_planes,
-            eps=0.001,  # value found in tensorflow
-            momentum=0.1,  # default pytorch value
-            affine=True,
-        )
-        self.relu = nn.ReLU(inplace=False)
+        x1, y1, x2, y2 = bboxes[:, 0], bboxes[:, 1], bboxes[:, 2], bboxes[:, 3]
+        areas = (x2 - x1 + 1) * (y2 - y1 + 1)
+        rest = scores.argsort()[::-1]
+        keep: list[np.intp] = []
+        while rest.size > 0:
+            i = rest[0]
+            keep.append(i)
+            xx1 = np.maximum(x1[i], x1[rest[1:]])
+            yy1 = np.maximum(y1[i], y1[rest[1:]])
+            xx2 = np.minimum(x2[i], x2[rest[1:]])
+            yy2 = np.minimum(y2[i], y2[rest[1:]])
+            w = np.maximum(0.0, xx2 - xx1 + 1)
+            h = np.maximum(0.0, yy2 - yy1 + 1)
+            inter = w * h
+            ovr = inter / (areas[i] + areas[rest[1:]] - inter)
+            rest = rest[np.where(ovr <= self.NMS_THRESH)[0] + 1]
 
-    def forward(self, x):
-        x = self.conv(x)
-        x = self.bn(x)
-        x = self.relu(x)
-        return x
+        return [(bboxes[i], scores[i], kpss[i]) for i in keep]
 
+    def finish(self) -> None:
+        self.flush()
+        self.wait()
 
-class _Block35(nn.Module):
-    def __init__(self, scale=1.0):
-        super().__init__()
-
-        self.scale = scale
-
-        self.branch0 = _BasicConv2d(256, 32, kernel_size=1, stride=1)
-
-        self.branch1 = nn.Sequential(
-            _BasicConv2d(256, 32, kernel_size=1, stride=1),
-            _BasicConv2d(32, 32, kernel_size=3, stride=1, padding=1),
-        )
-
-        self.branch2 = nn.Sequential(
-            _BasicConv2d(256, 32, kernel_size=1, stride=1),
-            _BasicConv2d(32, 32, kernel_size=3, stride=1, padding=1),
-            _BasicConv2d(32, 32, kernel_size=3, stride=1, padding=1),
-        )
-
-        self.conv2d = nn.Conv2d(96, 256, kernel_size=1, stride=1)
-        self.relu = nn.ReLU(inplace=False)
-
-    def forward(self, x):
-        x0 = self.branch0(x)
-        x1 = self.branch1(x)
-        x2 = self.branch2(x)
-        out = torch.cat((x0, x1, x2), 1)
-        out = self.conv2d(out)
-        out = out * self.scale + x
-        out = self.relu(out)
-        return out
-
-
-class _Block17(nn.Module):
-    def __init__(self, scale=1.0):
-        super().__init__()
-
-        self.scale = scale
-
-        self.branch0 = _BasicConv2d(896, 128, kernel_size=1, stride=1)
-
-        self.branch1 = nn.Sequential(
-            _BasicConv2d(896, 128, kernel_size=1, stride=1),
-            _BasicConv2d(128, 128, kernel_size=(1, 7), stride=1, padding=(0, 3)),
-            _BasicConv2d(128, 128, kernel_size=(7, 1), stride=1, padding=(3, 0)),
-        )
-
-        self.conv2d = nn.Conv2d(256, 896, kernel_size=1, stride=1)
-        self.relu = nn.ReLU(inplace=False)
-
-    def forward(self, x):
-        x0 = self.branch0(x)
-        x1 = self.branch1(x)
-        out = torch.cat((x0, x1), 1)
-        out = self.conv2d(out)
-        out = out * self.scale + x
-        out = self.relu(out)
-        return out
-
-
-class _Block8(nn.Module):
-    def __init__(self, scale=1.0, noReLU=False):
-        super().__init__()
-
-        self.scale = scale
-        self.noReLU = noReLU
-
-        self.branch0 = _BasicConv2d(1792, 192, kernel_size=1, stride=1)
-
-        self.branch1 = nn.Sequential(
-            _BasicConv2d(1792, 192, kernel_size=1, stride=1),
-            _BasicConv2d(192, 192, kernel_size=(1, 3), stride=1, padding=(0, 1)),
-            _BasicConv2d(192, 192, kernel_size=(3, 1), stride=1, padding=(1, 0)),
-        )
-
-        self.conv2d = nn.Conv2d(384, 1792, kernel_size=1, stride=1)
-        if not self.noReLU:
-            self.relu = nn.ReLU(inplace=False)
-
-    def forward(self, x):
-        x0 = self.branch0(x)
-        x1 = self.branch1(x)
-        out = torch.cat((x0, x1), 1)
-        out = self.conv2d(out)
-        out = out * self.scale + x
-        if not self.noReLU:
-            out = self.relu(out)
-        return out
-
-
-class Mixed_6a(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-        self.branch0 = _BasicConv2d(256, 384, kernel_size=3, stride=2)
-
-        self.branch1 = nn.Sequential(
-            _BasicConv2d(256, 192, kernel_size=1, stride=1),
-            _BasicConv2d(192, 192, kernel_size=3, stride=1, padding=1),
-            _BasicConv2d(192, 256, kernel_size=3, stride=2),
-        )
-
-        self.branch2 = nn.MaxPool2d(3, stride=2)
-
-    def forward(self, x):
-        x0 = self.branch0(x)
-        x1 = self.branch1(x)
-        x2 = self.branch2(x)
-        out = torch.cat((x0, x1, x2), 1)
-        return out
-
-
-class Mixed_7a(nn.Module):
-    def __init__(self):
-        super().__init__()
-
-        self.branch0 = nn.Sequential(
-            _BasicConv2d(896, 256, kernel_size=1, stride=1),
-            _BasicConv2d(256, 384, kernel_size=3, stride=2),
-        )
-
-        self.branch1 = nn.Sequential(
-            _BasicConv2d(896, 256, kernel_size=1, stride=1),
-            _BasicConv2d(256, 256, kernel_size=3, stride=2),
-        )
-
-        self.branch2 = nn.Sequential(
-            _BasicConv2d(896, 256, kernel_size=1, stride=1),
-            _BasicConv2d(256, 256, kernel_size=3, stride=1, padding=1),
-            _BasicConv2d(256, 256, kernel_size=3, stride=2),
-        )
-
-        self.branch3 = nn.MaxPool2d(3, stride=2)
-
-    def forward(self, x):
-        x0 = self.branch0(x)
-        x1 = self.branch1(x)
-        x2 = self.branch2(x)
-        x3 = self.branch3(x)
-        out = torch.cat((x0, x1, x2, x3), 1)
-        return out
-
-
-class InceptionResnetV1(nn.Module):
-    """Inception Resnet V1 model with optional loading of pretrained weights."""
-
-    def __init__(
-        self,
-        pretrained=None,
-        classify=False,
-        num_classes=None,
-        dropout_prob=0.6,
-        device=None,
-    ):
-        super().__init__()
-
-        # Set simple attributes
-        self.pretrained = pretrained
-        self.classify = classify
-        self.num_classes = num_classes
-
-        # Define layers
-        self.conv2d_1a = _BasicConv2d(3, 32, kernel_size=3, stride=2)
-        self.conv2d_2a = _BasicConv2d(32, 32, kernel_size=3, stride=1)
-        self.conv2d_2b = _BasicConv2d(32, 64, kernel_size=3, stride=1, padding=1)
-        self.maxpool_3a = nn.MaxPool2d(3, stride=2)
-        self.conv2d_3b = _BasicConv2d(64, 80, kernel_size=1, stride=1)
-        self.conv2d_4a = _BasicConv2d(80, 192, kernel_size=3, stride=1)
-        self.conv2d_4b = _BasicConv2d(192, 256, kernel_size=3, stride=2)
-        self.repeat_1 = nn.Sequential(
-            _Block35(scale=0.17),
-            _Block35(scale=0.17),
-            _Block35(scale=0.17),
-            _Block35(scale=0.17),
-            _Block35(scale=0.17),
-        )
-        self.mixed_6a = Mixed_6a()
-        self.repeat_2 = nn.Sequential(
-            _Block17(scale=0.10),
-            _Block17(scale=0.10),
-            _Block17(scale=0.10),
-            _Block17(scale=0.10),
-            _Block17(scale=0.10),
-            _Block17(scale=0.10),
-            _Block17(scale=0.10),
-            _Block17(scale=0.10),
-            _Block17(scale=0.10),
-            _Block17(scale=0.10),
-        )
-        self.mixed_7a = Mixed_7a()
-        self.repeat_3 = nn.Sequential(
-            _Block8(scale=0.20),
-            _Block8(scale=0.20),
-            _Block8(scale=0.20),
-            _Block8(scale=0.20),
-            _Block8(scale=0.20),
-        )
-        self.block8 = _Block8(noReLU=True)
-        self.avgpool_1a = nn.AdaptiveAvgPool2d(1)
-        self.dropout = nn.Dropout(dropout_prob)
-        self.last_linear = nn.Linear(1792, 512, bias=False)
-        self.last_bn = nn.BatchNorm1d(512, eps=0.001, momentum=0.1, affine=True)
-
-        self.logits = nn.Linear(512, 8631)
-
-    def forward(self, x):
-        """Calculate embeddings."""
-        x = self.conv2d_1a(x)
-        x = self.conv2d_2a(x)
-        x = self.conv2d_2b(x)
-        x = self.maxpool_3a(x)
-        x = self.conv2d_3b(x)
-        x = self.conv2d_4a(x)
-        x = self.conv2d_4b(x)
-        x = self.repeat_1(x)
-        x = self.mixed_6a(x)
-        x = self.repeat_2(x)
-        x = self.mixed_7a(x)
-        x = self.repeat_3(x)
-        x = self.block8(x)
-        x = self.avgpool_1a(x)
-        x = self.dropout(x)
-        x = self.last_linear(x.view(x.shape[0], -1))
-        x = self.last_bn(x)
-
-        return x
+        if not self.frame_numbers:
+            df = pl.DataFrame(schema=self.SCHEMA)
+        else:
+            df = pl.DataFrame(
+                {
+                    "frame": self.frame_numbers,
+                    "face_id": self.face_ids,
+                    "det_score": np.array(self.det_scores, dtype=np.float32),
+                    "bbox_x1": np.array(self.bbox_x1, dtype=np.float32),
+                    "bbox_y1": np.array(self.bbox_y1, dtype=np.float32),
+                    "bbox_x2": np.array(self.bbox_x2, dtype=np.float32),
+                    "bbox_y2": np.array(self.bbox_y2, dtype=np.float32),
+                }
+            ).with_columns(
+                pl.Series("kps", self.all_kps, dtype=pl.Array(pl.Float32, 10)),
+                pl.Series("embedding", self.all_embeddings, dtype=pl.Array(pl.Float32, 512)).cast(
+                    EMBEDDING
+                ),
+            )
+        stamp(df, "face").write_parquet(self.path)

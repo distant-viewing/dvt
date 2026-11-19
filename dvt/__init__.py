@@ -1,13 +1,6 @@
-# -*- coding: utf-8 -*-
-"""Distant Viewing Toolkit for the Analysis of Visual Culture
+"""Measures one film or episode: the video and audio annotators, each writing a parquet table.
+
+Nothing here knows where a corpus is kept. A Source says where one file is
+and where its outputs go, config names the model directory, and run.annotate
+does the work.
 """
-
-from .detect import AnnoDetect
-from .embed import AnnoEmbed
-from .face import AnnoFaces
-from .keypoint import AnnoKeypoints
-from .segmentation import AnnoSegmentation
-from .shots import AnnoShotBreaks, predictions_to_scenes
-from .utils import load_video, video_info, yield_video, load_image, save_image
-
-__version__ = "1.0.0"

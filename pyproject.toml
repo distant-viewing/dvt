@@ -1,0 +1,294 @@
+[project]
+name = "dvt"
+version = "0.1.0"
+description = "Distant Viewing Toolkit: video and audio annotators for one film or episode, each writing a parquet table."
+requires-python = ">=3.13"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE", "dvt/bytetrack/LICENSE"]
+authors = [{ name = "Taylor Arnold" }, { name = "Lauren Tilton" }]
+# What is installed without an extra is dvt.tools alone: ffprobe, the mp4
+# index reader, hashing, the probe and the audio extraction. A project that
+# keeps a corpus imports those and none of the models. Each extra below
+# brings one kind of annotator; `all` brings every one.
+dependencies = [
+    "numpy>=2.1",
+    "polars>=1.38.1",
+]
+
+[project.optional-dependencies]
+# The video annotators: metadata, letterbox, chroma, chapters, subtitles,
+# frames, shots, the saved frames and the embeddings.
+video = [
+    # opencv is pinned exactly: 4.14 changes resize output enough to perturb the
+    # DINOv2/SigLIP2 embeddings and the thumbnail JPEG bytes.
+    "opencv-python==4.13.0.92",
+    "pyarrow>=23.0.0",
+    "scipy>=1.17.1",
+    "torch>=2.8",
+    "torchvision>=0.23",
+    "transformers>=5.1.0",
+]
+# The face annotator, and tracks, which reads its table.
+face = [
+    "dvt[video]",
+    "insightface>=1.0.1",
+    # The `face` stage runs on onnxruntime rather than torch, so it is the one
+    # stage a CUDA torch does nothing for. insightface and faster-whisper both
+    # require it unconditionally, so it lands in every full resolution either
+    # way. The cu128 group therefore needs a post-sync step to get it back out
+    # again; see the onnxruntime-gpu note below.
+    "onnxruntime>=1.27.0",
+]
+# The yolo annotator. ultralytics is under the AGPL, which is why it is not
+# part of anything else.
+yolo = [
+    "dvt[video]",
+    "ultralytics>=8.4.117",
+]
+# The audio annotators: audioseg, words, praat and laughter.
+audio = [
+    "pyarrow>=23.0.0",
+    "scipy>=1.17.1",
+    "torch>=2.8",
+    "torchaudio>=2.8",
+    # Transcription (words, stage_language).
+    "whisperx>=3.8.6",
+    "silero-vad>=6.2.1",
+    # Stem separation and activity detection (audioseg).
+    "audio-separator>=0.44.2",
+    # Phonetic measurement over the separated speech stem (praat). A Praat
+    # build with a Python binding, so the numbers are the ones the phonetics
+    # literature reports rather than a reimplementation of them; parselmouth
+    # 0.4.7 embeds Praat 6.1.38.
+    "praat-parselmouth>=0.4.7",
+    "onnxruntime>=1.27.0",
+    # Resolution guards, not direct imports: numba>=0.66 is the first release
+    # that builds on 3.13 (uv otherwise backtracks to 0.53.1 via resampy), and
+    # numba caps numpy<2.5.
+    "numpy>=2.1,<2.5",
+    "numba>=0.66",
+]
+all = ["dvt[video,face,yolo,audio]"]
+
+[project.urls]
+Repository = "https://github.com/distant-viewing/dvt"
+
+[project.scripts]
+dvt = "dvt.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["dvt"]
+
+# The two environments the pipeline runs in, one per submission array. Exactly
+# one must be selected; `conflicts` below makes uv resolve them separately
+# rather than trying to satisfy both at once (torch cannot be +cpu and +cu128
+# in one resolution). Build them side by side with:
+#
+#   uv sync                                       # -> .venv        (cpu)
+#   UV_PROJECT_ENVIRONMENT=.venv-cu128 \
+#     uv sync --no-default-groups --group cu128   # -> .venv-cu128
+#
+# These are dependency GROUPS rather than optional-dependencies (extras), and
+# that choice is load-bearing. uv has no `default-extras`, so under extras a
+# bare `uv run dvt` selected neither, torch resolved
+# unrouted from PyPI, and the 4.4 GB CUDA build silently replaced the CPU one
+# in the production .venv. `default-groups` below makes the CPU environment
+# the default, so the bare command is now the correct one and the accident is
+# not reachable. Groups are dev-only and never installed when a project is
+# consumed as a dependency, so a project that depends on this one and wants
+# these environments repeats the groups, the indexes and the [tool.uv] table
+# below; src/annotate/base does.
+#
+# Both extras pin the same torch *version* deliberately. Only the wheel's build
+# differs, so the shared preprocessing of the frame stages produces identical
+# numerics on either side and a film annotated by the GPU array is comparable
+# to one annotated by the CPU array. The cap itself comes from whisperx
+# (torch~=2.8.0 / torchvision~=0.23.0); raising it splits the audio pipeline
+# back out into its own environment.
+#
+# torchaudio is pulled in by whisperx/silero-vad anyway; it is named explicitly
+# so the index routing in [tool.uv.sources] applies to it, which only binds
+# direct dependencies.
+[dependency-groups]
+# The checks bin/check.py runs. A default group beside cpu, so `uv run` in
+# this directory has them; the GPU environment is synced with
+# --no-default-groups and goes without.
+dev = [
+    "basedpyright>=1.40.2",
+    "hypothesis>=6.170.15",
+    "pytest>=9.2.0",
+    "ruff>=0.17.5",
+    "scipy-stubs>=1.17.1,<1.18",
+]
+# Each of the two names the extras as well, since uv installs no extra of
+# the project it is syncing unless asked.
+cpu = [
+    "dvt[video,face,audio]",
+    "torch~=2.8.0",
+    "torchvision~=0.23.0",
+    "torchaudio~=2.8.0",
+]
+cu128 = [
+    "dvt[video,face,audio]",
+    "torch~=2.8.0",
+    "torchvision~=0.23.0",
+    "torchaudio~=2.8.0",
+    # Pinned exactly, and NOT to the newest: onnxruntime-gpu 1.28 requires
+    # CUDA 13 / cuDNN 9, while torch cu128 ships CUDA 12.8. With 1.28 the CUDA
+    # provider registers and then fails to initialise, silently falling back to
+    # CPU — the failure surfaces only at log severity 0. 1.22.0 is the last
+    # release on CUDA 12.
+    #
+    # This is the one part of the split uv cannot express. onnxruntime and
+    # onnxruntime-gpu are separate distributions that write into the SAME
+    # onnxruntime/ module directory, and with both present the CPU build wins
+    # with no error at all — get_available_providers() simply comes back
+    # without CUDAExecutionProvider and `face` runs at 1127 ms/frame instead of
+    # 8. uv has no way to drop a transitive requirement for one extra only:
+    # `exclude-dependencies` takes bare package names and applies to the whole
+    # project, so excluding onnxruntime here would strip it from the cpu extra
+    # too, which is the production environment. So after syncing cu128, run:
+    #
+    #   uv pip uninstall --python .venv-cu128/bin/python onnxruntime onnxruntime-gpu
+    #   uv pip install   --python .venv-cu128/bin/python onnxruntime-gpu==1.22.0
+    #
+    # Both lines are load-bearing, and so is --python:
+    #
+    #   * `uv pip` does NOT honour UV_PROJECT_ENVIRONMENT — that is a project
+    #     -command setting, and `uv pip` without --python resolves the default
+    #     .venv instead. Using it here silently uninstalls onnxruntime from the
+    #     PRODUCTION environment. (`uv sync` puts it back.)
+    #   * uninstalling onnxruntime alone is not enough. sync installs it over
+    #     onnxruntime-gpu's module directory, so removing it takes the shared
+    #     files with it and leaves onnxruntime-gpu's dist-info pointing at a
+    #     module that is gone. Remove both, then reinstall the GPU build alone.
+    #
+    # Confirm with
+    #   .venv-cu128/bin/python -c "import onnxruntime as o; print(o.get_available_providers())"
+    # that CUDAExecutionProvider is listed. This step is undone by any later
+    # `uv sync` of the GPU environment and has to be repeated.
+    "onnxruntime-gpu==1.22.0",
+    # The `yolo` stage, which runs only on the GPU side. The monorepo's
+    # .venv-cu128 had this installed by hand and never declared it, so the
+    # rebuilt environment lacked it and array 46448 failed every film at
+    # `from ultralytics import YOLO`. Pinned to the version src/annotate/yolo
+    # trained yolo26l_heads.pt with.
+    "ultralytics==8.4.117",
+]
+
+[tool.uv]
+# whisperx 3.8.6 declares huggingface-hub<1.0, which would drag transformers
+# back to 4.x and change Grounding-DINO's output. Upstream dropped that cap in
+# 3.8.7rc1; this applies the same relaxation to the stable release. Revisit
+# once 3.8.7 ships.
+override-dependencies = ["huggingface-hub>=1.0"]
+
+# cpu and cu128 are mutually exclusive. Without this uv tries to find one
+# resolution satisfying both groups at once and fails on torch, which cannot be
+# +cpu and +cu128 simultaneously. Declaring the conflict makes uv fork the
+# resolution and record both in the single uv.lock, which is the whole point:
+# two environments, one lockfile, both reproducible.
+conflicts = [[{ group = "cpu" }, { group = "cu128" }]]
+
+# What a bare `uv sync` / `uv run` installs. This is the production CPU
+# environment, so the default is the safe one: the command someone types
+# without thinking builds the environment the CPU array runs. Building the GPU
+# environment is the deliberate act and needs --no-default-groups --group
+# cu128 — without --no-default-groups uv would try to install both and hit the
+# conflict above.
+default-groups = ["cpu", "dev"]
+
+# torch's default PyPI wheel for linux/x86_64 is the CUDA build: 888 MB plus
+# ~3.5 GB of nvidia-cu12 packages. The CPU array wants none of that and the GPU
+# array wants a specific CUDA version, so both come from PyTorch's own indexes
+# rather than PyPI. `explicit = true` means nothing resolves from these unless
+# routed here by [tool.uv.sources].
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+# Which index each group draws torch from. The sys_platform marker is retained
+# from the single-environment version: macOS PyPI wheels are already CPU-only,
+# and the PyTorch indexes carry no macOS wheels at all, so the local venv must
+# keep resolving from PyPI under either group.
+#
+# These bindings are conditional on a group being selected, and torch is a
+# transitive requirement of whisperx and audio-separator regardless — so
+# a resolution with neither group selected would still install torch, just
+# unrouted, from PyPI, i.e. the CUDA build. `default-groups = ["cpu"]` above
+# is what stops that from ever being the case.
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu", group = "cpu", marker = "sys_platform == 'linux'" },
+    { index = "pytorch-cu128", group = "cu128", marker = "sys_platform == 'linux'" },
+]
+torchvision = [
+    { index = "pytorch-cpu", group = "cpu", marker = "sys_platform == 'linux'" },
+    { index = "pytorch-cu128", group = "cu128", marker = "sys_platform == 'linux'" },
+]
+torchaudio = [
+    { index = "pytorch-cpu", group = "cpu", marker = "sys_platform == 'linux'" },
+    { index = "pytorch-cu128", group = "cu128", marker = "sys_platform == 'linux'" },
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = [
+    "E", "F", "W",  # pycodestyle, pyflakes
+    "I",            # import order
+    "B",            # bugbear
+    "UP",           # modern syntax
+    "SIM", "C4", "RET", "RUF",
+    "ANN",          # every function annotated
+    "PGH",          # no blanket type: ignore
+    "PT",           # pytest style
+]
+# int(round(x)) is kept where x may be a numpy scalar, for which round
+# alone does not promise a Python int.
+ignore = ["RUF046"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ANN"]
+
+[tool.basedpyright]
+include = ["dvt", "tests"]
+pythonVersion = "3.13"
+typeCheckingMode = "standard"
+strict = [
+    "dvt/__init__.py", "dvt/aspect.py",
+    "dvt/audio_clock.py", "dvt/chroma.py", "dvt/cli.py", "dvt/clock.py",
+    "dvt/config.py", "dvt/container.py", "dvt/annotators.py",
+    "dvt/language.py", "dvt/letterbox.py", "dvt/log.py",
+    "dvt/metadata.py", "dvt/noise.py", "dvt/run.py", "dvt/runtime.py",
+    "dvt/segment.py", "dvt/source.py", "dvt/frame_ops.py",
+    "dvt/frames.py", "dvt/sampling.py", "dvt/saved_frames.py",
+    "dvt/shots.py", "dvt/video.py", "dvt/bytetrack",
+    "dvt/tracks.py", "dvt/yolo.py", "dvt/words.py",
+    "dvt/align_paths.py", "dvt/face.py",
+    "dvt/audioseg.py", "dvt/praat.py", "dvt/laughter.py", "dvt/tools", "tests",
+]
+# The rest are checked at the standard level. transnet.py's and
+# laughter_net.py's layers call torch's nn.Module.__init__, whose arguments
+# torch leaves unannotated, and
+# embeddings.py and stage_language.py load models through transformers'
+# from_pretrained, which is untyped too; strict mode reports every such call.
+# The libraries that ship no types at all have stubs in typings/.
+reportUnnecessaryTypeIgnoreComment = "error"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers"
