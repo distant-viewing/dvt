@@ -95,8 +95,8 @@ dvt = "dvt.cli:main"
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
-# The slides and the notebooks are 90 MB, and the source distribution goes
-# without them.
+# The notebooks and their data are for Colab, and the source distribution
+# goes without them.
 [tool.hatch.build.targets.sdist]
 exclude = ["tutorials", ".images"]
 
