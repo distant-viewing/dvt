@@ -17,10 +17,15 @@ OLD_SENTINELS = frozenset({"unk", "none", "other"})
 _ALIGNABLE: set[str] = set()
 
 
-def alignable() -> set[str]:
+def alignable() -> set[str] | None:
+    """The languages whisperx has an aligner for, or None where whisperx is
+    not installed: it comes with the audio extra, and metadata, which asks,
+    with the video one."""
     if not _ALIGNABLE:
-        from .align_paths import supported_languages
-
+        try:
+            from .align_paths import supported_languages
+        except ImportError:
+            return None
         _ALIGNABLE.update(supported_languages())
     return _ALIGNABLE
 
@@ -33,7 +38,8 @@ class Language:
 
 
 def _from_code(code: str | None, declared: str | None, why: str, source: str) -> Language:
-    if code is not None and code not in alignable():
+    known = alignable()
+    if code is not None and known is not None and code not in known:
         return Language(None, declared, f"{why}, which whisperx has no aligner for")
     return Language(code, declared, f"{why}, per {source}")
 

@@ -3,6 +3,7 @@ directory, a Source, the language a film is in, and the command line."""
 
 import logging
 import os
+import sys
 import time
 import warnings
 from pathlib import Path
@@ -165,8 +166,21 @@ def test_from_metadata(declared: str | None, expected: tuple[str | None, str | N
     assert (got.code, got.declared, got.note) == expected
 
 
+def test_language_without_whisperx(monkeypatch: pytest.MonkeyPatch) -> None:
+    # The video extra installs no whisperx, and metadata still names the language.
+    monkeypatch.setattr(language, "_ALIGNABLE", set[str]())
+    monkeypatch.setitem(sys.modules, "whisperx", None)
+    monkeypatch.setitem(sys.modules, "whisperx.alignment", None)
+    monkeypatch.delitem(sys.modules, "dvt.align_paths", raising=False)
+    assert language.alignable() is None
+    got = language.from_tag("eng", "its container")
+    assert (got.code, got.declared) == ("en", "eng")
+
+
 def test_aligners() -> None:
-    assert "en" in language.alignable()
+    known = language.alignable()
+    assert known is not None
+    assert "en" in known
     assert align_paths.resolve_align_model("en")[0] == align_paths.TORCHAUDIO
     assert align_paths.resolve_align_model("ja")[0] == align_paths.HUGGINGFACE
     assert align_paths.resolve_align_model("xx", "some/model") == ("huggingface", "some/model")

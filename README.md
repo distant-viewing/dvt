@@ -161,8 +161,9 @@ also run on a CPU, more slowly.
 ## Notebooks
 
 The colab links open the notebooks in this repository. The second tutorial
-uses version 2 of the toolkit. The first was written for version 1.1.0 and
-installs that release.
+uses version 2 of the toolkit, and no longer follows the slides and the
+chapter linked beside it, which study two sitcoms of the 1960s. The first
+was written for version 1.1.0 and installs that release.
 
 If you are interested in learning more about application of computer vision and
 the distant viewing toolkit to humanities applications, we offer a self-guided
@@ -170,7 +171,7 @@ tutorial through the following Google Colab notebooks. These can be run for free
 by anyone with a Google account:
 
 - Distant Viewing Tutorial 1: Movie Posters and Color Analysis: [[colab](https://colab.research.google.com/github/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_1_Movie_Posters_and_Color_Analysis.ipynb)], [[slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_01.pdf)], [[notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_1_Movie_Posters_and_Color_Analysis.ipynb)], [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163342/c001700_9780262375160.pdf)]
-- Distant Viewing Tutorial 2: Network-Era Sitcoms and Visual Style: [[colab](https://colab.research.google.com/github/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_2_Network_Era_Sitcoms_and_Visual_Style.ipynb)], [[slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_02.pdf)], [[notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_2_Network_Era_Sitcoms_and_Visual_Style.ipynb)], [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163344/c003200_9780262375160.pdf)]
+- Distant Viewing Tutorial 2: Shots and Faces in Moving Images: [[colab](https://colab.research.google.com/github/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_2_Network_Era_Sitcoms_and_Visual_Style.ipynb)], [[slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_02.pdf)], [[notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_2_Network_Era_Sitcoms_and_Visual_Style.ipynb)], [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163344/c003200_9780262375160.pdf)]
 
 ------------------
 
