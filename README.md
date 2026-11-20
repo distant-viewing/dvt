@@ -10,8 +10,7 @@ embeddings, the words spoken, and more. Each table is made by one annotator,
 and the annotators are listed below.
 
 Version 2 of the toolkit is a rewrite, and nothing written for version 1
-runs on it. The tutorial notebooks below were written for version 1.1.0 and
-install that release.
+runs on it.
 
 More information about the toolkit and project is available on the
 following pages:
@@ -161,16 +160,17 @@ also run on a CPU, more slowly.
 
 ## Notebooks
 
-The notebooks in this section were written for version 1.1.0 of the toolkit.
-They install that release and do not run on version 2.
+The colab links open the notebooks in this repository. The second tutorial
+uses version 2 of the toolkit. The first was written for version 1.1.0 and
+installs that release.
 
 If you are interested in learning more about application of computer vision and
 the distant viewing toolkit to humanities applications, we offer a self-guided
 tutorial through the following Google Colab notebooks. These can be run for free
 by anyone with a Google account:
 
-- Distant Viewing Tutorial 1: Movie Posters and Color Analysis: [[colab](https://colab.research.google.com/drive/1VpaZn0G52aLiI4C2TG1ti_jR3umnYq4Q?usp=share_link)], [[slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_01.pdf)], [[notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_1_Movie_Posters_and_Color_Analysis.ipynb)], [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163342/c001700_9780262375160.pdf)]
-- Distant Viewing Tutorial 2: Network-Era Sitcoms and Visual Style: [[colab](https://colab.research.google.com/drive/15iE8WOAtQK7YFn7BzELJNFsBjPPfCrGB?usp=share_link)], [[slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_02.pdf)], [[notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_2_Network_Era_Sitcoms_and_Visual_Style.ipynb)], [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163344/c003200_9780262375160.pdf)]
+- Distant Viewing Tutorial 1: Movie Posters and Color Analysis: [[colab](https://colab.research.google.com/github/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_1_Movie_Posters_and_Color_Analysis.ipynb)], [[slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_01.pdf)], [[notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_1_Movie_Posters_and_Color_Analysis.ipynb)], [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163342/c001700_9780262375160.pdf)]
+- Distant Viewing Tutorial 2: Network-Era Sitcoms and Visual Style: [[colab](https://colab.research.google.com/github/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_2_Network_Era_Sitcoms_and_Visual_Style.ipynb)], [[slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_02.pdf)], [[notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_2_Network_Era_Sitcoms_and_Visual_Style.ipynb)], [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163344/c003200_9780262375160.pdf)]
 
 ------------------
 
