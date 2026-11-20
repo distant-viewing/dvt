@@ -89,6 +89,11 @@ def names_for_side(side: str) -> list[str]:
 
 SOURCES = ("mp4", "m4a", "audioseg", "stems")
 
+# The annotators that read one picture at a time and nothing else, which
+# are the ones an image has. The others need the frames around a frame, or
+# the sound.
+IMAGE_ANNOTATORS = ("dino2", "siglip2", "siglip2_base", "face", "yolo")
+
 
 def outputs_of(name: str) -> tuple[str, ...]:
     return ANNOTATORS[name].outputs

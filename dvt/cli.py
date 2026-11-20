@@ -4,8 +4,10 @@ import argparse
 import sys
 from pathlib import Path
 
-from . import annotate, config, fetch, images
-from .annotators import ANNOTATORS
+# Nothing imported here loads torch or any other library an extra brings:
+# the command has to be able to say that one is missing.
+from . import annotate, config, fetch
+from .annotators import ANNOTATORS, IMAGE_ANNOTATORS
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -44,7 +46,7 @@ def main(argv: list[str] | None = None) -> int:
         help="comma-separated names to run, all by default: "
         + ", ".join(ANNOTATORS)
         + ". An image has "
-        + ", ".join(images.NAMES),
+        + ", ".join(IMAGE_ANNOTATORS),
     )
     ap.add_argument(
         "--list", action="store_true", help="list the annotators and what each writes, and stop"
@@ -65,6 +67,12 @@ def main(argv: list[str] | None = None) -> int:
     config.configure(args.models if args.models is not None else config.models(), args.tmp)
     try:
         annotate(args.path, args.out, names)
+    except ModuleNotFoundError as e:
+        ap.error(
+            f"{e.name} is not installed. The annotators come with the extras of "
+            "this package: video, face, yolo, audio or all, as in "
+            'pip install "dvt[all]".'
+        )
     except (FileNotFoundError, ValueError, RuntimeError) as e:
         ap.error(f"{type(e).__name__}: {e}" if isinstance(e, FileNotFoundError) else str(e))
     return 0

@@ -134,14 +134,6 @@ by anyone with a Google account:
 - Distant Viewing Tutorial 1: Movie Posters and Color Analysis: [[colab](https://colab.research.google.com/drive/1VpaZn0G52aLiI4C2TG1ti_jR3umnYq4Q?usp=share_link)], [[slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_01.pdf)], [[notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_1_Movie_Posters_and_Color_Analysis.ipynb)], [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163342/c001700_9780262375160.pdf)]
 - Distant Viewing Tutorial 2: Network-Era Sitcoms and Visual Style: [[colab](https://colab.research.google.com/drive/15iE8WOAtQK7YFn7BzELJNFsBjPPfCrGB?usp=share_link)], [[slides](https://distantviewing.org/tutorial/dvt_tutorial_slides_02.pdf)], [[notebook](https://github.com/distant-viewing/dvt/blob/main/tutorials/Distant_Viewing_Tutorial_2_Network_Era_Sitcoms_and_Visual_Style.ipynb)], [[chapter](https://direct.mit.edu/books/oa-monograph/chapter-pdf/2163344/c003200_9780262375160.pdf)]
 
-A shorted demo of the toolkit is also available in the following Google Colab notebook:
-
-- Distant Viewing Toolkit Demo: [[colab](https://colab.research.google.com/drive/1gEnx2b8EJQXijBJXGfN3-Ei5t4NBdwNJ?usp=share_link)]
-
-Unlike the tutorials, the short demo assumes some prior knowledge of Python.
-While a background in machine learning or computer vision is not needed, the
-methods are presented with minimal motivation.
-
 ------------------
 
 <br>

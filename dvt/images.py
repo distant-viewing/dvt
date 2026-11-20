@@ -20,13 +20,11 @@ from . import runtime as runtime
 import cv2
 import polars as pl
 
-from .annotators import ANNOTATORS
+from .annotators import ANNOTATORS, IMAGE_ANNOTATORS
 from .sampling import FrameStage
 from .tools.values import StrPath
 
-# The annotators that read one picture at a time and nothing else. The
-# others need the frames around a frame, or the sound.
-NAMES = ("dino2", "siglip2", "siglip2_base", "face", "yolo")
+NAMES = IMAGE_ANNOTATORS
 
 SUFFIXES = frozenset({".jpg", ".jpeg", ".png", ".webp", ".bmp", ".tif", ".tiff"})
 

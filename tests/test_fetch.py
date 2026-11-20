@@ -3,6 +3,8 @@ ones that are not. Nothing is downloaded here; each model's own fetch is
 replaced by one that writes the files it would."""
 
 import dataclasses
+import subprocess
+import sys
 from collections.abc import Sequence
 from pathlib import Path
 
@@ -84,6 +86,26 @@ def test_fetch_names_the_extra_that_is_not_installed(
     monkeypatch.setattr(fetch, "MODELS", {"face": held})
     with pytest.raises(SystemExit, match=r"face: insightface is not installed.*dvt\[face\]"):
         fetch.fetch()
+
+
+def test_command_loads_no_library_of_an_extra() -> None:
+    code = (
+        "import sys; import dvt.cli; "
+        "sys.exit(any(m in sys.modules for m in ('torch', 'cv2', 'transformers')))"
+    )
+    assert subprocess.run([sys.executable, "-c", code], check=False).returncode == 0
+
+
+def test_command_says_which_library_is_missing(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    def absent(path: Path, out: Path, names: list[str] | None) -> None:
+        raise ModuleNotFoundError("No module named 'torch'", name="torch")
+
+    monkeypatch.setattr(cli, "annotate", absent)
+    with pytest.raises(SystemExit):
+        cli.main([str(tmp_path / "film.mp4"), "--out", str(tmp_path), "--models", str(tmp_path)])
+    assert "torch is not installed" in capsys.readouterr().err
 
 
 def test_main(
