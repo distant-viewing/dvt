@@ -17,8 +17,8 @@ from . import config, pins
 
 # The weights that are published nowhere else: the shot boundary network,
 # the head detector and the laughter models.
-OWN = "statsmaths/dvt-models"
-OWN_REVISION = "fba4173fc138c3282e680e13b36710e84ecae290"
+OWN = "distant-viewing/dvt-models"
+OWN_REVISION = "1a21874c6d0b7daafa7ed0353c6e602d79c1ffd8"
 
 # whisper-large-v3 in CTranslate2 format, which is what whisperx loads.
 WHISPER = "Systran/faster-whisper-large-v3"
@@ -148,7 +148,7 @@ MODELS = {
         ("yolo26l_heads.pt",),
         own("yolo26l_heads.pt"),
         "yolo",
-        "trained with ultralytics, which is under the AGPL-3.0 license",
+        "trained from an ultralytics model and, like ultralytics, under the AGPL-3.0 license",
     ),
     "audioseg": Model(
         tuple(f"audio-separator/{name}" for name in SEPARATIONS),

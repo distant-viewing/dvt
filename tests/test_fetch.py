@@ -70,7 +70,7 @@ def test_fetch_takes_only_what_is_missing(
     put(models, "frames")
     assert fetch.fetch(["frames", "yolo", "words", "metadata"], ["en", "fr"]) == ["yolo", "words"]
     assert fetched == [("yolo", ("en", "fr")), ("words", ("en", "fr"))]
-    assert "[yolo] note: trained with ultralytics" in capsys.readouterr().out
+    assert "[yolo] note: trained from an ultralytics model" in capsys.readouterr().out
     assert fetch.fetch(["frames", "yolo", "words"]) == []
 
 
