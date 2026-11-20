@@ -1,6 +1,6 @@
 [project]
 name = "dvt"
-version = "0.1.0"
+version = "2.0.0"
 description = "Distant Viewing Toolkit: video and audio annotators for one film or episode, each writing a parquet table."
 requires-python = ">=3.13"
 readme = "README.md"
@@ -59,8 +59,11 @@ audio = [
     "scipy>=1.17.1",
     "torch>=2.8",
     "torchaudio>=2.8",
-    # Transcription (words, stage_language).
-    "whisperx>=3.8.6",
+    # Transcription (words, stage_language). 3.8.6, the last full release,
+    # declares huggingface-hub<1.0, which transformers 5 cannot live with.
+    # 3.8.7rc1 dropped that cap, and naming a release candidate here is what
+    # lets pip choose one. Ask for 3.8.7 once it ships.
+    "whisperx>=3.8.7rc1",
     "silero-vad>=6.2.1",
     # Stem separation and activity detection (audioseg).
     "audio-separator>=0.44.2",
@@ -91,6 +94,11 @@ dvt = "dvt.cli:main"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+# The slides and the notebooks are 90 MB, and the source distribution goes
+# without them.
+[tool.hatch.build.targets.sdist]
+exclude = ["tutorials", ".images"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["dvt"]
@@ -193,12 +201,6 @@ cu128 = [
 ]
 
 [tool.uv]
-# whisperx 3.8.6 declares huggingface-hub<1.0, which would drag transformers
-# back to 4.x and change Grounding-DINO's output. Upstream dropped that cap in
-# 3.8.7rc1; this applies the same relaxation to the stable release. Revisit
-# once 3.8.7 ships.
-override-dependencies = ["huggingface-hub>=1.0"]
-
 # cpu and cu128 are mutually exclusive. Without this uv tries to find one
 # resolution satisfying both groups at once and fails on torch, which cannot be
 # +cpu and +cu128 simultaneously. Declaring the conflict makes uv fork the

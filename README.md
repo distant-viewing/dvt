@@ -9,9 +9,9 @@ parquet file: the shots of a video, the faces and heads in each frame, image
 embeddings, the words spoken, and more. Each table is made by one annotator,
 and the annotators are listed below.
 
-Version 2 of the toolkit, in this repository, is a rewrite and is still in
-development. The tutorial notebooks below were written for version 1.1.0,
-which is the release on PyPI.
+Version 2 of the toolkit is a rewrite, and nothing written for version 1
+runs on it. The tutorial notebooks below were written for version 1.1.0 and
+install that release.
 
 More information about the toolkit and project is available on the
 following pages:
@@ -27,22 +27,11 @@ us at tarnold2@richmond.edu and ltilton@richmond.edu.
 
 ## Install
 
-The toolkit needs Python 3.13, and ffmpeg and ffprobe on the path. Install it
-from the `v2` branch of this repository:
+The toolkit needs Python 3.13, and ffmpeg and ffprobe on the path:
 
 ```
-pip install "dvt[all] @ git+https://github.com/distant-viewing/dvt.git@v2"
+pip install "dvt[all]"
 ```
-
-With the `audio` or `all` extra, pip has to be given whisperx by name:
-
-```
-pip install whisperx==3.8.7rc1 "dvt[all] @ git+https://github.com/distant-viewing/dvt.git@v2"
-```
-
-whisperx 3.8.6, its last full release, asks for a huggingface-hub older
-than the one the toolkit needs, and pip takes a release candidate only when
-it is named. uv chooses 3.8.7rc1 by itself.
 
 The extras choose which annotators can run. `video` brings the annotators
 that read the picture, `face` the face annotator and the tracks, `yolo` the
@@ -134,8 +123,8 @@ also run on a CPU, more slowly.
 
 ## Notebooks
 
-The notebooks in this section were written for version 1.1.0 of the toolkit,
-the release on PyPI, and do not run on version 2.
+The notebooks in this section were written for version 1.1.0 of the toolkit.
+They install that release and do not run on version 2.
 
 If you are interested in learning more about application of computer vision and
 the distant viewing toolkit to humanities applications, we offer a self-guided

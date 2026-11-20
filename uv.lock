@@ -27,9 +27,6 @@ conflicts = [[
     { package = "dvt", group = "cu128" },
 ]]
 
-[manifest]
-overrides = [{ name = "huggingface-hub", specifier = ">=1.0" }]
-
 [[package]]
 name = "absl-py"
 version = "2.5.0"
@@ -690,7 +687,7 @@ wheels = [
 
 [[package]]
 name = "dvt"
-version = "0.1.0"
+version = "2.0.0"
 source = { editable = "." }
 dependencies = [
     { name = "numpy" },
@@ -863,7 +860,7 @@ requires-dist = [
     { name = "tqdm", marker = "extra == 'video'", specifier = ">=4.67" },
     { name = "transformers", marker = "extra == 'video'", specifier = ">=5.1.0" },
     { name = "ultralytics", marker = "extra == 'yolo'", specifier = ">=8.4.117" },
-    { name = "whisperx", marker = "extra == 'audio'", specifier = ">=3.8.6" },
+    { name = "whisperx", marker = "extra == 'audio'", specifier = ">=3.8.7rc1" },
 ]
 provides-extras = ["video", "face", "yolo", "audio", "all"]
 
@@ -4159,7 +4156,7 @@ wheels = [
 
 [[package]]
 name = "whisperx"
-version = "3.8.6"
+version = "3.8.7rc1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "ctranslate2" },
@@ -4185,9 +4182,9 @@ dependencies = [
     { name = "transformers" },
     { name = "triton", marker = "(platform_machine == 'x86_64' and sys_platform == 'linux') or (platform_machine != 'x86_64' and extra == 'group-3-dvt-cpu' and extra == 'group-3-dvt-cu128') or (sys_platform != 'linux' and extra == 'group-3-dvt-cpu' and extra == 'group-3-dvt-cu128')" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/a0/51/4ffeb1dce4f9fa95e1688d6ee6c6f412f67f786a5f4856e906503b8502c9/whisperx-3.8.6.tar.gz", hash = "sha256:d647aecaa6c2f413bb924d722d925878ef300c99093ca49cd6cb7840bdbffe0e", size = 16490881, upload-time = "2026-05-25T12:36:06.72Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/63/f5/e656b8e35ed5728e6abeda86862c57067056f00f29cd1977ce74eb04d317/whisperx-3.8.7rc1.tar.gz", hash = "sha256:cc9e5b0cf67a5c250691ccca82f9a85e9ccfeb17b376a530a3c6e539ef0428ee", size = 16490915, upload-time = "2026-06-26T11:40:14.52Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/00/53/d533db85704e64b1709db695fba2dd3b747cb7e979a18bd18dfbf1e44b91/whisperx-3.8.6-py3-none-any.whl", hash = "sha256:cb6d4fcd3fb6c42305cb8b222a33a0b78f6b657e9db3b714345fe43dc0a69c1f", size = 16486941, upload-time = "2026-05-25T12:36:03.885Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/ed/7286dc34ebcda5f4125aa13fd0aaef8c064dd8d1b880586e5cdbc8f9391f/whisperx-3.8.7rc1-py3-none-any.whl", hash = "sha256:7e9b2b405cad4030107cf5f9c7c35033bfb41b0aeff17277652f14de9e52d23d", size = 16486985, upload-time = "2026-06-26T11:40:11.835Z" },
 ]
 
 [[package]]
