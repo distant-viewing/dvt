@@ -64,17 +64,8 @@ the sound taken from the video, `frames/film/` with the saved frames and
 `stems/` with the separated sound. `--annotators a,b,c` runs only those
 named, and `--list` prints every annotator, what it writes and what it reads.
 
-An image, or a directory of images, is given the same way:
-
-```
-dvt poster.jpg --out out
-dvt posters/ --out out
-```
-
-The annotators that read a single picture run over it: `dino2`, `siglip2`,
-`siglip2_base`, `face` and `yolo`. Their tables have a `path` column where
-those of a video have `frame`, the images of a directory share one table,
-and `images.parquet` lists the images with their sizes.
+An image, or a directory of images, is given the same way. [Images](#images)
+below says what is made of one.
 
 The same from Python, where the tables come back as polars data frames by
 name:
@@ -89,6 +80,53 @@ tables["shots"]
 With no `out` nothing is kept but the tables returned, and with no
 `annotators` every one that fits the input runs. `models` names the model
 directory.
+
+## Images
+
+```
+dvt poster.jpg --out out
+dvt posters/ --out out --annotators dino2,face
+```
+
+A path is taken as an image when it ends in `.jpg`, `.jpeg`, `.png`, `.webp`,
+`.bmp`, `.tif` or `.tiff`, and as a set of images when it is a directory.
+Every image under the directory is read, however deep, in the order of
+their sorted paths. Anything else is read as a video.
+
+Five annotators read a single picture, and they are the ones an image has:
+`dino2`, `siglip2`, `siglip2_base`, `face` and `yolo`. All five run when
+`--annotators` names none, so the models of all five have to be in the model
+directory; `dvt models fetch --annotators dino2,face` brings only those of
+the two. Naming any other annotator for an image is an error.
+
+The tables go to `out/annotations/poster/` for the image `poster.jpg` and
+to `out/annotations/posters/` for the directory `posters/`. The images of a
+directory share one set of tables:
+
+| Table                  | Rows                                               |
+|------------------------|----------------------------------------------------|
+| `images.parquet`       | one an image: its `path`, `width` and `height`     |
+| `dino2.parquet`        | one an image, with its embedding                   |
+| `siglip2.parquet`      | one an image, with its embedding                   |
+| `siglip2_base.parquet` | one an image, with its embedding                   |
+| `face.parquet`         | one a face found, with its box and its embedding   |
+| `yolo.parquet`         | one a head found, with its box                     |
+
+Each table has a `path` column where that of a video has `frame`. The path
+is stated from the directory given, as in `1950s/poster_012.jpg`, and a
+single image is stated by its file name. An image that cannot be read stays
+in `images.parquet` with no width or height and has no row in the others.
+The images need not be of one size.
+
+From Python:
+
+```python
+import dvt
+
+tables = dvt.annotate("posters/", annotators=["dino2", "face"])
+tables["images"]
+tables["dino2"]
+```
 
 ## Annotators
 
